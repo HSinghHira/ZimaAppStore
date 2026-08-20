@@ -1,0 +1,194 @@
+name: dispatcharr
+
+services:
+  dispatcharr:
+
+    image: ghcr.io/dispatcharr/dispatcharr:0.28.1
+    container_name: dispatcharr
+    restart: unless-stopped
+
+    stop_grace_period: 60s
+    network_mode: bridge
+    environment:
+
+      - DISPATCHARR_ENV=aio
+      - REDIS_HOST=localhost
+      - CELERY_BROKER_URL=redis://localhost:6379/0
+      - DISPATCHARR_LOG_LEVEL=info
+
+    ports:
+      - target: 9191
+        published: "8415"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "4"
+          memory: 4096M
+        reservations:
+          cpus: "0.50"
+          memory: 1024M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Dispatcharr/icon.png
+    x-casaos:
+      id: com.hiraappstore.dispatcharr
+      envs:
+        - container: DISPATCHARR_SETUP_ALLOWED_IP
+          description:
+            en_US: >-
+              Optional. Only set this if you need to complete first-run
+              admin setup from a public IP address rather than your local
+              network. Set it to the exact client IP shown on the setup
+              page.
+        - container: DISPATCHARR_TRUSTED_PROXIES
+          description:
+            en_US: >-
+              Optional. Set to your reverse proxy's IP/CIDR if Dispatcharr
+              sits behind one, so Network Access, Stats, and rate limits
+              see real client IPs. Set to "none" to ignore forwarded
+              headers entirely. Leave unset for a normal ZimaOS install.
+      ports:
+        - container: "9191"
+          description:
+            en_US: Web UI, HDHomeRun tuner emulation, and stream/M3U/EPG/XC output (published on host as 8415)
+      volumes:
+        - container: /data
+          description:
+            en_US: >-
+              All persistent application data: the bundled PostgreSQL
+              database, Redis data, uploaded logos/artwork, DVR
+              recordings, and application logs.
+x-casaos:
+  id: com.hiraappstore.dispatcharr
+  architectures:
+    - amd64
+    - arm64
+  main: dispatcharr
+  author: HSinghHira
+  category: Media
+  developer: Dispatcharr
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Dispatcharr/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Dispatcharr/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Dispatcharr/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Dispatcharr/thumbnail-1.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Dispatcharr/thumbnail-2.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Dispatcharr/thumbnail-3.png
+  title:
+    en_US: Dispatcharr
+  tagline:
+    en_US: Your ultimate IPTV & stream management companion
+  description:
+    en_US: >-
+      Dispatcharr is an open-source powerhouse for managing IPTV
+      streams, EPG data, and VOD content — think of it as the *arr
+      family's IPTV cousin, built for streamers who want reliability
+      and flexibility.
+
+      **Features**
+
+      - Consolidate multiple IPTV/M3U and Xtream Codes sources into a
+        single, organized interface
+
+      - Stream proxy with real-time client management and automatic
+        failover between backup sources
+
+      - HDHomeRun tuner emulation so Plex, Emby, and Jellyfin discover
+        Dispatcharr as a live TV source
+
+      - EPG matching and generation, with XMLTV, M3U, Xtream Codes,
+        and HDHomeRun output formats
+
+      - FFmpeg-based output profiles to transcode and standardize
+        streams per client (e.g. AC3 for media servers, AAC for
+        browsers)
+
+      - Video on Demand support with IMDB/TMDB metadata
+
+      - Multi-user accounts with granular permissions and
+        network-based access restrictions
+
+      - Plugin system for custom automations and integrations
+
+      - Runs in All-in-One (AIO) mode: PostgreSQL and Redis are
+        bundled inside the container, with persistent storage under
+        /DATA/AppData/$AppID
+
+      **How to use?**
+
+      1. Open Dispatcharr from the ZimaOS dashboard.
+
+      2. Complete the initial setup and create your administrator
+         account. If you're accessing the setup page from your local
+         network this works out of the box.
+
+      3. Add your IPTV sources under Settings → M3U & EPG Manager
+         (M3U playlist and/or Xtream Codes accounts, plus EPG
+         sources).
+
+      4. Create channels from your imported streams and match them to
+         EPG data, either automatically or manually.
+
+      5. Grab the generated M3U and XMLTV EPG URLs (or add Dispatcharr
+         as an HDHomeRun tuner) in Plex, Emby, Jellyfin, or any other
+         compatible client.
+
+      6. Further configuration — stream profiles, output profiles,
+         users/permissions, DVR, and plugins — is all done afterward
+         from the in-app Settings pages, without needing to rebuild
+         the container.
+  tips:
+    before_install:
+      en_US: >-
+        1. This app runs in All-in-One (AIO) mode: PostgreSQL and
+           Redis run inside the same container, so there's nothing
+           external to provision first.
+
+        2. There are no required CHANGEME_* placeholders for a normal
+           install — the default environment variables work
+           out-of-the-box on a local network.
+
+        3. Optional: if you'll only ever reach Dispatcharr from your
+           home network, leave DISPATCHARR_SETUP_ALLOWED_IP and
+           DISPATCHARR_TRUSTED_PROXIES commented out in the compose
+           file. Only fill in DISPATCHARR_SETUP_ALLOWED_IP if you need
+           to finish first-run setup from a public IP.
+
+        4. Start the Dispatcharr installation.
+
+        5. Open Dispatcharr from the ZimaOS dashboard once the
+           container is running — first boot needs a few extra
+           seconds to initialize the bundled database.
+
+        6. Complete the on-screen setup to create your administrator
+           account.
+
+        7. Add your M3U/Xtream Codes and EPG sources, then build out
+           channels — see the in-app Settings pages and the official
+           docs (https://dispatcharr.github.io/Dispatcharr-Docs/) for
+           everything else.
+
+        8. Important: DISPATCHARR_SETUP_ALLOWED_IP only governs the
+           one-time first-run admin setup. If you miss the window,
+           create an admin manually instead of editing this variable
+           after the fact — the container's built-in note points to
+           `python manage.py createsuperuser` inside the running
+           container.
+  index: /
+  port_map: "8415"
+  scheme: http
+  is_uncontrolled: false
+  version: "0.28.1"
+  update_at: "2026-08-15"
+  release_notes:
+    en_US: |-
+      - Initial version, pinned to Dispatcharr 0.28.1 (AIO mode)
+  repo: "https://github.com/Dispatcharr/Dispatcharr"
+  support: "https://github.com/Dispatcharr/Dispatcharr/issues"
+  docs: "https://dispatcharr.github.io/Dispatcharr-Docs/"

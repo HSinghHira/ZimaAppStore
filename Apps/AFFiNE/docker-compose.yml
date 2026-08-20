@@ -1,0 +1,309 @@
+name: affine
+
+services:
+  affine:
+
+    image: ghcr.io/toeverything/affine:stable
+    container_name: affine
+    restart: unless-stopped
+    stop_grace_period: 40s
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      affine_migration:
+        condition: service_completed_successfully
+    environment:
+      - REDIS_SERVER_HOST=redis
+
+      - DATABASE_URL=postgresql://affine:CHANGEME_DB_PASSWORD@postgres:5432/affine
+    ports:
+      - target: 3010
+        published: "8408"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/storage
+        target: /root/.affine/storage
+        bind:
+          create_host_path: true
+
+      - type: bind
+        source: /DATA/AppData/$AppID/config
+        target: /root/.affine/config
+        bind:
+          create_host_path: true
+    networks:
+      - affine_network
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.00"
+          memory: 512M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/AFFiNE/icon.png
+    x-casaos:
+      id: com.hiraappstore.affine
+      envs:
+        - container: DATABASE_URL
+          description:
+            en_US: >-
+              Postgres connection string used by the AFFiNE server. The
+              password segment must match POSTGRES_PASSWORD on the
+              postgres service.
+      ports:
+        - container: "3010"
+          description:
+            en_US: AFFiNE web UI and API (published on host as 8408)
+      volumes:
+        - container: /root/.affine/storage
+          description:
+            en_US: Uploaded blobs/attachments (documents, images, etc.)
+        - container: /root/.affine/config
+          description:
+            en_US: >-
+              Optional config.json for server name, external URL, mail,
+              and Copilot/BYOK settings
+
+  affine_migration:
+    image: ghcr.io/toeverything/affine:stable
+    container_name: affine_migration
+
+    restart: "no"
+    stop_grace_period: 40s
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    command: ["sh", "-c", "node ./scripts/self-host-predeploy.js"]
+    environment:
+      - REDIS_SERVER_HOST=redis
+
+      - DATABASE_URL=postgresql://affine:CHANGEME_DB_PASSWORD@postgres:5432/affine
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/storage
+        target: /root/.affine/storage
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/config
+        target: /root/.affine/config
+        bind:
+          create_host_path: true
+    networks:
+      - affine_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/AFFiNE/icon.png
+    x-casaos:
+      id: com.hiraappstore.affine
+      envs:
+        - container: DATABASE_URL
+          description:
+            en_US: >-
+              Postgres connection string used to run schema migrations
+              before the main server starts.
+      volumes:
+        - container: /root/.affine/storage
+          description:
+            en_US: Same blob storage path as the affine service
+        - container: /root/.affine/config
+          description:
+            en_US: Same config path as the affine service
+
+  redis:
+    image: redis:7-alpine
+    container_name: affine_redis
+    restart: unless-stopped
+    stop_grace_period: 40s
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/redis
+        target: /data
+        bind:
+          create_host_path: true
+    networks:
+      - affine_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/AFFiNE/icon.png
+    x-casaos:
+      id: com.hiraappstore.affine
+      volumes:
+        - container: /data
+          description:
+            en_US: Redis persistence (cache/session/queue data)
+
+  postgres:
+
+    image: pgvector/pgvector:pg16
+    container_name: affine_postgres
+    restart: unless-stopped
+
+    stop_grace_period: 60s
+    environment:
+      - POSTGRES_USER=affine
+      - POSTGRES_DB=affine
+
+      - POSTGRES_PASSWORD=CHANGEME_DB_PASSWORD
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U affine -d affine"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    networks:
+      - affine_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/AFFiNE/icon.png
+    x-casaos:
+      id: com.hiraappstore.affine
+      envs:
+        - container: POSTGRES_PASSWORD
+          description:
+            en_US: >-
+              Database password for the affine user. Set a strong value
+              before first boot — must match DATABASE_URL on the affine
+              and affine_migration services.
+      volumes:
+        - container: /var/lib/postgresql/data
+          description:
+            en_US: Postgres data directory — all AFFiNE workspace data lives here
+
+networks:
+  affine_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.affine
+  architectures:
+    - amd64
+    - arm64
+  main: affine
+  author: HSinghHira
+  category: Productivity
+  developer: Toeverything
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/AFFiNE/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/AFFiNE/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/AFFiNE/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/AFFiNE/screenshot-2.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/AFFiNE/screenshot-3.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/AFFiNE/screenshot-4.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/AFFiNE/screenshot-5.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/AFFiNE/screenshot-6.png
+  title:
+    en_US: AFFiNE
+  tagline:
+    en_US: A local-first knowledge base that merges docs, whiteboards, and databases
+  description:
+    en_US: >-
+      AFFiNE is an open-source, all-in-one workspace that combines rich-text
+      documents, an infinite-canvas whiteboard, and structured databases
+      into a single integrated editor — think Notion and Miro combined.
+
+      **Features**
+
+      - Rich-text documents for notes, wikis, and knowledge management
+
+      - Infinite canvas for whiteboards, brainstorming, and visual planning
+
+      - Structured databases for organizing and managing information
+
+      - Highly integrated workspace combining documents, databases, and canvas
+
+      - Self-hosted for complete control over your data and privacy
+
+      - PostgreSQL with pgvector for persistent application data
+
+      - Redis for caching and background queues
+
+      - Persistent storage under /DATA/AppData/$AppID
+
+      - Optional Copilot/BYOK configuration
+
+      - Optional email configuration
+
+      - Server settings can be configured later without rebuilding the container
+
+      **How to use?**
+
+      1. Open AFFiNE from the ZimaOS dashboard.
+
+      2. Complete the initial setup and create your administrator account.
+
+      3. Sign in to your AFFiNE workspace.
+
+      4. Create a new workspace, document, database, or canvas.
+
+      5. Start adding and organizing your content.
+
+      6. Configure additional server settings such as the public URL, email, or Copilot/BYOK later through config/config.json or the in-app Admin Panel.
+  tips:
+    before_install:
+      en_US: >-
+        1. Open the AFFiNE app configuration before starting the installation.
+
+        2. Find every CHANGEME_DB_PASSWORD placeholder in the affine, affine_migration, and postgres services.
+
+        3. Replace all CHANGEME_DB_PASSWORD values with the same strong PostgreSQL password.
+
+        4. Make sure the password is identical in all three services before starting the installation.
+
+        5. Start the AFFiNE installation.
+
+        6. Wait for the PostgreSQL database migration/setup job to complete before using AFFiNE.
+
+        7. Open AFFiNE from the ZimaOS dashboard.
+
+        8. Complete the first-run administrator account setup.
+
+        9. After installation, additional server settings such as the public URL, mail, and Copilot/BYOK can be configured through config/config.json or the in-app Admin Panel.
+        
+        10. Important: PostgreSQL stores the initial password during database initialization. Changing the environment variable later does not automatically change the database password; a manual PostgreSQL password reset is required.
+  index: /
+  port_map: "8408"
+  scheme: http
+  is_uncontrolled: false
+
+  repo: "https://github.com/toeverything/AFFiNE"
+  support: "https://github.com/toeverything/AFFiNE/issues"
+  docs: "https://docs.affine.pro/self-host-affine/"

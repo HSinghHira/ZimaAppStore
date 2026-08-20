@@ -1,0 +1,68 @@
+name: Build and publish app store
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+
+
+concurrency:
+  group: gh-pages-deploy
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build app store bundle
+        uses: IceWhaleTech/build-appstore-action@main
+        with:
+          source: .
+          output: dist
+          base-url: https:
+
+      - name: Add latest.zip
+        run: |
+          zip -r dist/latest.zip . \
+            -x ".git/*" \
+            -x ".github/*" \
+            -x "dist/*"
+
+      - name: Add homepage redirect
+        run: |
+          cat > dist/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <title>Redirecting…</title>
+            <meta http-equiv="refresh" content="0; url=https://github.com/HSinghHira/zimaos">
+            <link rel="canonical" href="https://github.com/HSinghHira/zimaos">
+            <script>
+              window.location.replace("https://github.com/HSinghHira/zimaos");
+            </script>
+          </head>
+          <body>
+            <p>Redirecting to <a href="https://github.com/HSinghHira/zimaos">https:
+          </body>
+          </html>
+          EOF
+
+      - name: Deploy to GitHub Pages (gh-pages branch)
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
+          cname: zimaos.hsinghhira.me
+          
+          
+          
+          force_orphan: true

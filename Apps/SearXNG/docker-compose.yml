@@ -1,0 +1,178 @@
+name: searxng
+
+services:
+  searxng:
+    image: docker.io/searxng/searxng:2026.8.10-0a118066d
+    container_name: searxng
+    restart: unless-stopped
+    stop_grace_period: 40s
+    depends_on:
+      - searxng-valkey
+    environment:
+      - SEARXNG_BASE_URL=http://localhost:8402/
+    ports:
+      - target: 8080
+        published: "8402"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/config
+        target: /etc/searxng
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /var/cache/searxng
+        bind:
+          create_host_path: true
+    networks:
+      - searxng_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/SearXNG/icon.png
+    x-casaos:
+      id: com.hiraappstore.searxng
+      envs:
+        - container: SEARXNG_BASE_URL
+          description:
+            en_US: The public URL of your SearXNG instance. Update if using a domain/reverse proxy.
+      ports:
+        - container: "8080"
+          description:
+            en_US: Web UI port
+      volumes:
+        - container: /etc/searxng
+          description:
+            en_US: Configuration files (settings.yml, limiter.toml, favicons.toml)
+        - container: /var/cache/searxng
+          description:
+            en_US: Persistent cache data (favicon cache, etc.)
+
+  searxng-valkey:
+    image: docker.io/valkey/valkey:9-alpine
+    container_name: searxng-valkey
+    restart: unless-stopped
+    stop_grace_period: 40s
+    command: valkey-server --save 30 1 --loglevel warning
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/valkey
+        target: /data
+        bind:
+          create_host_path: true
+    networks:
+      - searxng_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 128M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/SearXNG/icon.png
+    x-casaos:
+      id: com.hiraappstore.searxng
+      volumes:
+        - container: /data
+          description:
+            en_US: Persistent Valkey cache/append-only data backing SearXNG's request cache.
+
+networks:
+  searxng_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.searxng
+  architectures:
+    - amd64
+    - arm64
+  main: searxng
+  author: HSinghHira
+  category: Networking
+  developer: searxng
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/SearXNG/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/SearXNG/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/SearXNG/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/SearXNG/screenshot-2.png
+  title:
+    en_US: SearXNG
+  tagline:
+    en_US: Private, self-hosted metasearch engine
+  description:
+    en_US: >-
+      SearXNG aggregates results from many search engines without tracking
+      you — think a private, self-hosted alternative to Google or DuckDuckGo
+      that you fully control.
+
+      **Features**
+
+      - Aggregates results from dozens of search engines with no tracking,
+        profiling, or ads.
+
+      - Fully configurable via settings.yml — enable/disable engines, tune
+        ranking, change appearance.
+
+      - Valkey-backed request cache for faster repeat searches, bundled and
+        pre-wired.
+
+      - Persistent config and cache storage under /DATA/AppData/$AppID.
+
+      **How to use?**
+
+      1. Open SearXNG from the ZimaOS dashboard.
+
+      2. Start searching immediately — no account or setup required.
+
+      3. To customize engines, ranking, or appearance, edit settings.yml
+         under the config volume, then restart the container to apply
+         changes.
+
+      4. If you're putting this behind a reverse proxy or custom domain,
+         update SEARXNG_BASE_URL to match first, or some pages may generate
+         broken links.
+  tips:
+    before_install:
+      en_US: >-
+        1. No credentials or placeholder values to fill in — this app has
+           no secrets and works immediately after install.
+
+        2. If you plan to access this behind a reverse proxy or custom
+           domain, decide on that URL now and set SEARXNG_BASE_URL on the
+           searxng service to match before first use.
+
+        3. Start the SearXNG installation.
+
+        4. The searxng-valkey (cache) container starts first automatically
+           via depends_on — no action needed.
+
+        5. Open SearXNG from the ZimaOS dashboard and start searching.
+
+        6. Further configuration (engines, ranking, appearance) lives in
+           settings.yml under the config volume
+           (/DATA/AppData/$AppID/config) — edit it and restart the
+           container to apply changes.
+  index: /
+  port_map: "8402"
+  scheme: http
+  is_uncontrolled: false
+  version: "2026.8.10-0a118066d"
+  update_at: "2026-08-10"
+  release_notes:
+    en_US: >-
+      SearXNG ships as a rolling release with no per-version changelog —
+      each Docker tag is a snapshot of the latest commit. Check the repo's
+      commit history for what changed since your last update.
+  website: "https://searxng.org"
+  repo: "https://github.com/searxng/searxng"
+  support: "https://github.com/searxng/searxng/issues"
+  docs: "https://docs.searxng.org"

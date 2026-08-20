@@ -1,0 +1,175 @@
+name: nodecast-tv
+
+services:
+  nodecast-tv:
+
+    image: ghcr.io/technomancer702/nodecast-tv:latest
+    container_name: nodecast-tv
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+
+    ports:
+      - target: 3000
+        published: "8413"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /app/data
+        bind:
+          create_host_path: true
+
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/NodecastTV/icon.png
+    x-casaos:
+      id: com.hiraappstore.nodecast-tv
+      envs:
+        - container: PORT
+          description:
+            en_US: Internal port the app listens on. Only change this if you also update the port mapping.
+        - container: OIDC_ISSUER_URL
+          description:
+            en_US: Optional. Issuer URL of your OIDC provider (Authentik, Keycloak, etc.) for Single Sign-On.
+        - container: OIDC_CLIENT_ID
+          description:
+            en_US: Optional. Client ID registered with your OIDC provider.
+        - container: OIDC_CLIENT_SECRET
+          description:
+            en_US: Optional. Client secret registered with your OIDC provider. Keep this private.
+        - container: OIDC_CALLBACK_URL
+          description:
+            en_US: Optional. Callback URL your OIDC provider redirects to after login, e.g. http://<host>:8413/api/auth/oidc/callback.
+      ports:
+        - container: "3000"
+          description:
+            en_US: Web UI and API (published on host as 8413).
+      volumes:
+        - container: /app/data
+          description:
+            en_US: SQLite database, playlists, favorites, and app settings.
+
+x-casaos:
+  id: com.hiraappstore.nodecast-tv
+  architectures:
+    - amd64
+    - arm64
+  main: nodecast-tv
+  author: HSinghHira
+  category: Media
+  developer: technomancer702
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/NodecastTV/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/NodecastTV/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/NodecastTV/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/NodecastTV/screenshot-1.png
+  title:
+    en_US: Nodecast TV
+  tagline:
+    en_US: Stream Live TV, Movies, and Series from your Xtream Codes or M3U provider, right in your browser.
+  description:
+    en_US: >-
+      Nodecast TV is a self-hosted, web-based IPTV player for Live TV, an
+      interactive EPG, and VOD Movies and Series — think a lightweight Xtream
+      Codes / M3U client built for large libraries and smooth playback.
+
+      **Features**
+
+      - Live TV with fast channel zapping, category grouping, and search
+
+      - Interactive EPG grid guide with a 24h timeline and search
+
+      - VOD sections for Movies and Series with metadata, posters, and
+        episode lists
+
+      - Unified favorites for channels, movies, and series
+
+      - User authentication with admin and viewer roles, plus optional OIDC
+        SSO (Authentik, Keycloak, etc.)
+
+      - Hardware-accelerated transcoding (NVIDIA NVENC, AMD AMF, Intel
+        QuickSync, VAAPI) with automatic codec detection and smart
+        remux/transcode decisions
+
+      - Configurable 5.1→Stereo audio downmix presets (ITU, Night Mode,
+        Cinematic) with passthrough for compatible sources
+
+      - SQLite storage for channels, EPG, favorites, and settings, persisted
+        under /DATA/AppData/$AppID
+
+      **How to use?**
+
+      1. Open Nodecast TV from the ZimaOS dashboard.
+
+      2. Complete the initial setup and create your administrator account.
+
+      3. Go to Settings → Content Sources and add your Xtream Codes or M3U
+         provider details.
+
+      4. Click "Refresh Sources" to sync channels, movies, and series.
+
+      5. Browse Live TV, Movies, or Series from the main navigation.
+
+      6. Optional: visit Settings → Transcoding to configure hardware
+         encoder, max resolution, quality preset, and audio mix — these can
+         be changed anytime from the in-app admin panel without rebuilding
+         the container.
+
+      7. Optional: enable OIDC SSO later by setting the `OIDC_*` environment
+         variables in this app's configuration and restarting — new SSO
+         users default to the Viewer role and must be promoted to Admin
+         manually.
+  tips:
+    before_install:
+      en_US: >-
+        1. Nodecast TV works out of the box with no required placeholder
+           values — NODE_ENV and PORT are already set.
+
+        2. If you plan to use OIDC SSO, uncomment the `OIDC_ISSUER_URL`,
+           `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`, and `OIDC_CALLBACK_URL`
+           entries under `environment:` before installing and replace the
+           `CHANGEME_*` placeholders with values from your OIDC provider.
+           The callback URL should point at
+           `http://<your-host>:8413/api/auth/oidc/callback` (or your
+           reverse-proxy domain).
+
+        3. If you have an Intel/AMD/NVIDIA GPU and want hardware
+           transcoding, uncomment the matching `devices:` /
+           `group_add:` / `deploy.resources.reservations.devices` block for
+           your hardware before installing.
+
+        4. Start the Nodecast TV installation.
+
+        5. Open Nodecast TV from the ZimaOS dashboard and create your
+           administrator account on first run.
+
+        6. Go to Settings → Content Sources to add your Xtream Codes or
+           M3U provider, then click "Refresh Sources".
+
+        7. Transcoding, audio downmix, and network/proxy settings all live
+           under Settings → Transcoding and can be changed anytime after
+           install without touching this compose file.
+
+        8. Important: if you're running behind an HTTPS reverse proxy,
+           make sure it forwards the `X-Forwarded-Proto` header, and enable
+           "Force Backend Proxy" in Settings → Transcoding → Network if
+           streams fail with CORS or mixed-content errors.
+  index: /
+  port_map: "8413"
+  scheme: http
+  is_uncontrolled: false
+
+  repo: "https://github.com/technomancer702/nodecast-tv"
+  support: "https://github.com/technomancer702/nodecast-tv/issues"
+  docs: "https://github.com/technomancer702/nodecast-tv/blob/main/README.md"

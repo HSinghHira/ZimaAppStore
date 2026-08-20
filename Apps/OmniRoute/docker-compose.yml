@@ -1,0 +1,138 @@
+name: omniroute
+
+services:
+  omniroute:
+
+    image: diegosouzapw/omniroute:latest
+    container_name: omniroute
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    environment:
+      - INITIAL_PASSWORD=CHANGEME
+    ports:
+      - target: 20128
+        published: "8401"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /app/data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.40"
+          memory: 1012M
+        reservations:
+          cpus: "0.00"
+          memory: 512M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/OmniRoute/icon.png
+    x-casaos:
+      id: com.hiraappstore.omniroute
+      envs:
+        - container: INITIAL_PASSWORD
+          description:
+            en_US: The initial admin password. Change this immediately after first login.
+      ports:
+        - container: "20128"
+          description:
+            en_US: Web UI port (published on host as 8401)
+      volumes:
+        - container: /app/data
+          description:
+            en_US: OmniRoute application data and configuration
+
+x-casaos:
+  id: com.hiraappstore.omniroute
+  architectures:
+    - amd64
+    - arm64
+  main: omniroute
+  author: HSinghHira
+  category: AI
+  developer: diegosouzapw
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/OmniRoute/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/OmniRoute/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/OmniRoute/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/OmniRoute/screenshot-2.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/OmniRoute/screenshot-3.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/OmniRoute/screenshot-4.png
+  title:
+    en_US: OmniRoute
+  tagline:
+    en_US: Self-hosted AI gateway for 290+ providers
+  description:
+    en_US: >-
+      OmniRoute is a self-hosted AI gateway that puts a single
+      OpenAI-compatible endpoint in front of 290+ providers and 500+ models,
+      including Claude, GPT, Gemini, DeepSeek, and many free-tier options.
+
+      **Features**
+
+      - Single OpenAI-compatible endpoint in front of 290+ providers and
+        500+ models.
+
+      - Smart routing, load balancing, and automatic fallback between
+        providers, so tools like Claude Code, Cursor, Cline, and Copilot
+        keep working even if one provider goes down or hits its quota.
+
+      - Admin dashboard for managing provider keys and routing rules.
+
+      - All configuration, keys, and routing data persist under
+        /DATA/AppData/$AppID.
+
+      **How to use?**
+
+      1. Open OmniRoute from the ZimaOS dashboard.
+
+      2. Log in with the initial admin password you set in
+         INITIAL_PASSWORD, then change it immediately from the dashboard.
+
+      3. Add your provider API keys (OpenAI, Anthropic, Gemini, etc.) in
+         the admin panel.
+
+      4. Point your tools (Claude Code, Cursor, Cline, Copilot, etc.) at
+         OmniRoute's OpenAI-compatible endpoint instead of calling
+         providers directly.
+
+      5. Configure routing rules, fallback order, and load balancing from
+         the dashboard as needed — no rebuild required, changes apply
+         immediately.
+  tips:
+    before_install:
+      en_US: >-
+        1. Open the app configuration before starting the installation.
+
+        2. Find the INITIAL_PASSWORD placeholder on the omniroute service
+           and replace CHANGEME with a real password — don't leave the
+           default in place.
+
+        3. Start the OmniRoute installation.
+
+        4. Open OmniRoute from the ZimaOS dashboard.
+
+        5. Log in using the password you set in INITIAL_PASSWORD.
+
+        6. Change your password again from the dashboard right after first
+           login — the env var only sets the initial value and isn't
+           re-applied on restart.
+
+        7. Add your AI provider keys and configure routing from the admin
+           dashboard — this is where all further configuration lives
+           post-install, no compose file edits needed.
+
+        8. Important: application data, keys, and routing config persist
+           under /DATA/AppData/$AppID; back up this path if you want to
+           preserve your setup.
+  index: /
+  port_map: "8401"
+  scheme: http
+  is_uncontrolled: false
+
+  repo: "https://github.com/diegosouzapw/OmniRoute"
+  support: "https://github.com/diegosouzapw/OmniRoute/issues"
+  docs: "https://github.com/diegosouzapw/OmniRoute/tree/main/docs"

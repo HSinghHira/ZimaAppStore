@@ -1,0 +1,185 @@
+name: mailpit
+
+services:
+  mailpit:
+
+    image: axllent/mailpit:v1.30.7
+    container_name: mailpit
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    environment:
+
+      - MP_DATABASE=/data/mailpit.db
+
+      - MP_MAX_MESSAGES=5000
+
+      - MP_SMTP_AUTH_ACCEPT_ANY=1
+      - MP_SMTP_AUTH_ALLOW_INSECURE=1
+
+    ports:
+      - target: 8025
+        published: "8411"
+        protocol: tcp
+      - target: 1025
+        published: "8412"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Mailpit/icon.png
+    x-casaos:
+      id: com.hiraappstore.mailpit
+      envs:
+        - container: MP_DATABASE
+          description:
+            en_US: >-
+              Path to the SQLite file used for persistent message storage.
+              Leave as-is unless you're customizing the data volume layout.
+        - container: MP_MAX_MESSAGES
+          description:
+            en_US: >-
+              Number of most-recent messages to keep before auto-pruning
+              the oldest. Set to 0 to disable pruning.
+        - container: MP_SMTP_AUTH_ACCEPT_ANY
+          description:
+            en_US: Accepts SMTP mail from any sender without requiring authentication.
+        - container: MP_SMTP_AUTH_ALLOW_INSECURE
+          description:
+            en_US: Allows SMTP authentication over plaintext (no TLS).
+        - container: MP_UI_AUTH
+          description:
+            en_US: >-
+              Optional 'user:password' to require login for the web UI
+              where captured emails are viewed. Recommended if this NAS
+              is shared, or if port 8411 is reachable beyond your LAN.
+      ports:
+        - container: "8025"
+          description:
+            en_US: >-
+              Web UI for viewing captured emails (published on host as
+              8411). Anyone who can reach this port can read every
+              captured email unless MP_UI_AUTH is set.
+        - container: "1025"
+          description:
+            en_US: >-
+              SMTP port other apps/services send mail to (published on
+              host as 8412).
+      volumes:
+        - container: /data
+          description:
+            en_US: Persistent SQLite database of captured messages
+
+x-casaos:
+  id: com.hiraappstore.mailpit
+  architectures:
+    - amd64
+    - arm64
+  main: mailpit
+  author: HSinghHira
+  category: Networking
+  developer: axllent
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Mailpit/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Mailpit/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Mailpit/thumbnail.png
+  title:
+    en_US: Mailpit
+  tagline:
+    en_US: SMTP testing tool and email catcher for developers
+  description:
+    en_US: >-
+      Mailpit is a small, fast, zero-dependency SMTP testing tool — it
+      catches every email your apps and scripts send, so nothing ever
+      reaches a real inbox, and gives you a web UI to inspect them.
+
+      **Features**
+
+      - Acts as an SMTP server for any app, script, or self-hosted service
+        on your network — point their SMTP settings at Mailpit instead of
+        a real provider.
+
+      - Modern web UI to search, read, and inspect captured emails:
+        formatted HTML, raw source, headers, and MIME attachments with
+        image thumbnails.
+
+      - HTML checker and link checker to test email-client compatibility
+        and catch broken links/images before sending for real.
+
+      - REST API for automated integration testing.
+
+      - Optional web UI authentication for shared or exposed setups.
+
+      - Persistent SQLite storage under /DATA/AppData/$AppID, so captured
+        mail survives container restarts.
+
+      **How to use?**
+
+      1. Open Mailpit from the ZimaOS dashboard to view the web UI —
+         empty until something sends mail.
+
+      2. Point any app's SMTP settings at this NAS's IP on port 8412
+         (host) — no username/password required by default.
+
+      3. Send a test email from that app; it'll show up in Mailpit's web
+         UI instead of a real inbox.
+
+      4. Use the search bar, HTML checker, and link checker to inspect
+         and validate captured messages.
+
+      5. If multiple people share this NAS, or the web UI port is
+         reachable beyond your LAN, set MP_UI_AUTH to require a login —
+         no rebuild needed, just a container restart.
+  tips:
+    before_install:
+      en_US: >-
+        1. No credentials are required by default — this app works
+           immediately after install with an open web UI and open SMTP
+           relay for local use.
+
+        2. If this NAS is shared by mutually-untrusting users, or if
+           you'll expose the web UI (port 8411) beyond your LAN, decide on
+           a MP_UI_AUTH value now and uncomment/set it before first use —
+           otherwise anyone who can reach the port can read every
+           captured email.
+
+        3. Start the Mailpit installation.
+
+        4. Open Mailpit from the ZimaOS dashboard to confirm the web UI
+           loads.
+
+        5. Point any other app's SMTP host/port settings at this NAS's IP
+           and port 8412 to start capturing its mail.
+
+        6. Captured messages persist under /DATA/AppData/$AppID/data — no
+           further setup needed, but back up this path if you want to
+           keep message history across reinstalls.
+
+        7. MP_MAX_MESSAGES and MP_UI_AUTH can both be changed later by
+           editing the environment variables and restarting the
+           container — no rebuild required.
+  index: /
+  port_map: "8411"
+  scheme: http
+  is_uncontrolled: false
+  version: "1.30.7"
+  update_at: "2026-08-14"
+  release_notes:
+    en_US: |-
+      - Initial version
+  website: "https://mailpit.axllent.org"
+  repo: "https://github.com/axllent/mailpit"
+  support: "https://github.com/axllent/mailpit/issues"
+  docs: "https://mailpit.axllent.org/docs/"

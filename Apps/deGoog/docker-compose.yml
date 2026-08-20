@@ -1,0 +1,177 @@
+name: degoog
+
+services:
+  degoog:
+
+    image: ghcr.io/degoog-org/degoog:latest
+    container_name: degoog
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    environment:
+
+      - DEGOOG_SETTINGS_PASSWORDS=CHANGEME_SETTINGS_PASSWORD
+
+      - DEGOOG_PUBLIC_INSTANCE=false
+
+      - PUID=1000
+      - PGID=1000
+      - TZ=CHANGEME_TIMEZONE
+    ports:
+      - target: 4444
+        published: "8416"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /app/data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Degoog/icon.png
+    x-casaos:
+      id: com.hiraappstore.degoog
+      envs:
+        - container: DEGOOG_SETTINGS_PASSWORDS
+          description:
+            en_US: Comma-separated list of passwords protecting the Settings/admin
+              panel. Required before exposing this instance beyond your LAN —
+              an unlocked instance lets anyone install extensions, which run
+              code on the server.
+        - container: DEGOOG_PUBLIC_INSTANCE
+          description:
+            en_US: Set to "true" to keep every admin and store action behind
+              the settings password even on a local network. Leave "false"
+              for trusted LAN-only use.
+        - container: PUID
+          description:
+            en_US: User ID the container process runs as. Match your host
+              user's UID so files written to the data volume are owned
+              correctly.
+        - container: PGID
+          description:
+            en_US: Group ID the container process runs as. Match your host
+              user's GID so files written to the data volume are owned
+              correctly.
+        - container: TZ
+          description:
+            en_US: Timezone for the container, e.g. Europe/London or
+              America/New_York.
+      ports:
+        - container: "4444"
+          description:
+            en_US: Degoog web UI and search API (published on host as 8416).
+      volumes:
+        - container: /app/data
+          description:
+            en_US: Persistent state — installed plugins, themes, engines,
+              transports, autocomplete providers, aliases, blocklist, and
+              settings JSON files.
+
+x-casaos:
+  id: com.hiraappstore.degoog
+  architectures:
+    - amd64
+    - arm64
+  main: degoog
+  author: HSinghHira
+  category: Networking
+  developer: degoog-org
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Degoog/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Degoog/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Degoog/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Degoog/thumbnail-1.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Degoog/thumbnail-2.png
+  title:
+    en_US: deGoog
+  tagline:
+    en_US: A self-hosted, plugin-driven search engine aggregator.
+  description:
+    en_US: >-
+      Degoog queries multiple search engines at once and merges the results
+      into a single ranked list, think a lighter, more modular alternative to
+      SearXNG that you can extend with your own engines, plugins, and themes.
+
+      **Features**
+
+      - Aggregates results from every search engine you enable, deduplicating
+        and scoring across sources
+
+      - Comprehensive plugin/extension system: custom search engines,
+        bang-command plugins, slot plugins (panels above/below results or in
+        the sidebar), and custom transports (curl, FlareSolverr, or your own
+        fetch strategy)
+
+      - Optional community extension store for installing engines, plugins,
+        and themes without editing files by hand
+
+      - Persistent storage under /DATA/AppData/$AppID for all plugins,
+        themes, engines, transports, and settings
+
+      **How to use?**
+
+      1. Open Degoog from the ZimaOS dashboard.
+
+      2. Complete the first-run setup wizard.
+
+      3. Sign in to the Settings/admin panel using the password you set in
+         DEGOOG_SETTINGS_PASSWORDS.
+
+      4. Enable the search engines you want Degoog to query, and adjust
+         result scoring/theme preferences to taste.
+
+      5. Optionally browse the community extension store from within
+         Settings to add extra engines, plugins, themes, or transports.
+
+      6. Further configuration — engines, plugins, themes, aliases, and the
+         blocklist — can all be managed later from the in-app Settings panel
+         without rebuilding the container; the underlying JSON files live
+         under /DATA/AppData/$AppID.
+  tips:
+    before_install:
+      en_US: >-
+        1. Open the app configuration before starting the installation.
+
+        2. Find the DEGOOG_SETTINGS_PASSWORDS placeholder in the degoog
+           service.
+
+        3. Replace CHANGEME_SETTINGS_PASSWORD with a real, strong password —
+           this gates the Settings/admin panel where extensions get
+           installed.
+
+        4. Replace CHANGEME_TIMEZONE with your timezone (e.g.
+           Europe/London), and adjust PUID/PGID if you want data-volume
+           files owned by a specific host user/group.
+
+        5. Start the Degoog installation.
+
+        6. Open Degoog from the ZimaOS dashboard.
+
+        7. Complete the first-run setup wizard, then sign in to Settings
+           with the password from step 3.
+
+        8. Enable the search engines you want and browse the community
+           store for additional plugins/engines/themes — no rebuild needed,
+           these are managed entirely from the in-app Settings panel.
+
+        9. Important: DEGOOG_PUBLIC_INSTANCE only affects read-only
+           mutation locking, it does not replace the settings password —
+           always set DEGOOG_SETTINGS_PASSWORDS on any instance reachable
+           from outside your LAN.
+  index: /
+  port_map: "8416"
+  scheme: http
+  is_uncontrolled: false
+
+  repo: "https://github.com/degoog-org/degoog"
+  support: "https://github.com/degoog-org/degoog/issues"
+  docs: "https://degoog-org.github.io/docs/"

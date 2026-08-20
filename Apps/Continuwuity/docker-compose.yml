@@ -1,0 +1,191 @@
+name: continuwuity
+
+services:
+  continuwuity:
+
+    image: forgejo.ellis.link/continuwuation/continuwuity:v26.7.2
+    container_name: continuwuity
+    restart: unless-stopped
+    stop_grace_period: 60s
+    network_mode: bridge
+    command: /sbin/conduwuit
+    environment:
+
+      - CONTINUWUITY_SERVER_NAME=CHANGEME_matrix.example.com
+      - CONTINUWUITY_DATABASE_PATH=/var/lib/continuwuity
+      - CONTINUWUITY_ADDRESS=0.0.0.0
+      - CONTINUWUITY_PORT=8008
+
+      - CONTINUWUITY_WELL_KNOWN={client=https://CHANGEME_matrix.example.com,server=CHANGEME_matrix.example.com:443}
+    ports:
+      - target: 8008
+        published: "8414"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /var/lib/continuwuity
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Continuwuity/icon.png
+    x-casaos:
+      id: com.hiraappstore.continuwuity
+      envs:
+        - container: CONTINUWUITY_SERVER_NAME
+          description:
+            en_US: >-
+              Your Matrix server's public domain name (e.g. matrix.example.com).
+              This becomes part of every user ID on the server and CANNOT be
+              changed later without wiping the database — set it correctly
+              before first start.
+        - container: CONTINUWUITY_WELL_KNOWN
+          description:
+            en_US: >-
+              JSON well-known delegation block telling other Matrix servers
+              and clients where to reach this homeserver. Update the domain
+              to match CONTINUWUITY_SERVER_NAME and the host/port your
+              reverse proxy exposes over HTTPS.
+      ports:
+        - container: "8008"
+          description:
+            en_US: >-
+              Matrix client-server and (via well-known delegation) federation
+              HTTP API, published on host as 8414. Put a TLS-terminating
+              reverse proxy in front of this for real deployments — Matrix
+              federation requires HTTPS.
+      volumes:
+        - container: /var/lib/continuwuity
+          description:
+            en_US: >-
+              RocksDB database: all rooms, messages, media metadata, and
+              account data. This is the only state the server has — back
+              it up.
+
+x-casaos:
+  id: com.hiraappstore.continuwuity
+  architectures:
+    - amd64
+    - arm64
+  main: continuwuity
+  author: HSinghHira
+  category: Social
+  developer: Continuwuity contributors
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Continuwuity/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Continuwuity/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Continuwuity/thumbnail.png
+
+  title:
+    en_US: Continuwuity (Matrix)
+  tagline:
+    en_US: A fast, lightweight, community-maintained Matrix homeserver written in Rust.
+  description:
+    en_US: >-
+      Continuwuity is a community-driven Matrix homeserver written in Rust —
+      think a leaner, actively-maintained Synapse alternative that "just
+      works" and runs comfortably on modest hardware.
+
+      **Features**
+
+      - High-performance, memory-safe Rust implementation of the Matrix
+        protocol, built for speed on low-to-medium sized homeservers.
+
+      - Fully federates with the wider Matrix network — chat with anyone
+        on any other Matrix server, or keep it private and disable
+        federation entirely.
+
+      - Appservice/bridge support for connecting to platforms like Discord
+        and Telegram.
+
+      - RocksDB embedded database — no separate database container to run
+        or maintain.
+
+      - Persistent storage under /DATA/AppData/$AppID, containing the
+        entire RocksDB state (rooms, messages, media, accounts).
+
+      - Admin console and an in-Matrix admin room for day-to-day server
+        management, no separate web dashboard required.
+
+      **How to use?**
+
+      1. Before installing, set CONTINUWUITY_SERVER_NAME to your server's
+         real public domain — this cannot be changed later without wiping
+         the database.
+
+      2. Point that domain's DNS at this host, and put a TLS-terminating
+         reverse proxy in front of the published port (Matrix federation
+         requires HTTPS).
+
+      3. Open Continuwuity from the ZimaOS dashboard once it's running.
+
+      4. Check the container logs for a one-time registration token —
+         Continuwuity prints it on first start.
+
+      5. Open any Matrix client (Element, Cinny, etc.), point it at your
+         server's domain, and register the first account using that
+         registration token. You'll automatically be invited to the
+         server's admin room.
+
+      6. Use the admin room (or the container console via `docker attach`)
+         to manage users, rooms, and federation settings afterward — no
+         rebuild required for most day-to-day admin tasks.
+  tips:
+    before_install:
+      en_US: >-
+        1. Choose your Matrix domain (e.g. matrix.example.com) and set
+           CONTINUWUITY_SERVER_NAME to it. This is a one-way choice: it
+           cannot be changed after first start without deleting all data
+           and starting over.
+
+        2. Update CONTINUWUITY_WELL_KNOWN to reference the same domain,
+           so federation and client discovery work correctly.
+
+        3. Make sure the domain's DNS points at this host, and set up a
+           TLS-terminating reverse proxy (Caddy, Traefik, nginx, etc.) in
+           front of the published port — Matrix federation will not work
+           over plain HTTP.
+
+        4. If you're only running this for personal/local use with
+           federation disabled, you can skip the reverse proxy and just
+           reach it directly over HTTP, but other Matrix servers won't be
+           able to talk to yours.
+
+        5. Start the app, then check its logs for the one-time
+           registration token printed on first boot.
+
+        6. Open Continuwuity from the ZimaOS dashboard, then use any
+           Matrix client to register your first account against your
+           domain using that registration token — you'll be auto-invited
+           to the admin room.
+
+        7. Ongoing configuration (extra CONTINUWUITY_* environment
+           variables, or a mounted continuwuity.toml if you prefer a
+           config file over env vars) lives in the container definition;
+           most user/room administration happens live from the admin room
+           without touching the container at all.
+
+        8. Important: environment variables like CONTINUWUITY_SERVER_NAME
+           only take effect at first start. Changing them after the
+           database has been initialized will not migrate existing data —
+           treat them as locked in once you've registered your first user.
+  index: /
+  port_map: "8414"
+  scheme: http
+  is_uncontrolled: false
+  version: "26.7.2"
+  update_at: "2026-08-16"
+  release_notes:
+    en_US: |-
+      - Initial version, pinned to upstream v26.7.2.
+  repo: "https://github.com/continuwuity/continuwuity"
+  support: "https://github.com/continuwuity/continuwuity/issues"
+  docs: "https://continuwuity.org/introduction.html"

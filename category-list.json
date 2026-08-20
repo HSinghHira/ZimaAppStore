@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "name": { "en_US": "Network" },
+    "font_color": "#000000",
+    "background_color": "#F5F5F5"
+  },
+  {
+    "id": 2,
+    "name": { "en_US": "Photos" },
+    "font_color": "#000000",
+    "background_color": "#F5F5F5"
+  }
+]

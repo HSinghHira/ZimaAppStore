@@ -1,0 +1,520 @@
+name: ente
+services:
+  museum:
+    image: ghcr.io/ente/server:latest@sha256:e9e06eb01834c38f41a3a09f9a64885b631346ce0005ccff2153faea403bd6e2
+    container_name: ente-museum
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+      minio-init:
+        condition: service_completed_successfully
+      mailpit:
+        condition: service_started
+    environment:
+      ENTE_DB_HOST: postgres
+      ENTE_DB_PORT: "5432"
+      ENTE_DB_NAME: ente_db
+      ENTE_DB_USER: pguser
+      ENTE_DB_PASSWORD: change-me-qE7Yb2sN4wR9tK1
+      ENTE_DB_SSLMODE: disable
+      ENTE_S3_ARE_LOCAL_BUCKETS: "true"
+      ENTE_S3_USE_PATH_STYLE_URLS: "true"
+      ENTE_S3_B2_EU_CEN_KEY: ente-minio-access
+      ENTE_S3_B2_EU_CEN_SECRET: change-me-minio-vH3pL8xC0zN5
+
+      ENTE_S3_B2_EU_CEN_ENDPOINT: localhost:8406
+      ENTE_S3_B2_EU_CEN_REGION: eu-central-2
+      ENTE_S3_B2_EU_CEN_BUCKET: b2-eu-cen
+      ENTE_KEY_ENCRYPTION: yvmG/RnzKrbCb9L3mgsmoxXr9H7i2Z4qlbT0mL3ln4w=
+      ENTE_KEY_HASH: KXYiG07wC7GIgvCSdg+WmyWdXDAn6XKYJtp/wkEU7x573+byBRAYtpTP0wwvi8i/4l37uicX1dVTUzwH3sLZyw==
+      ENTE_JWT_SECRET: i2DecQmfGreG6q1vBj5tCokhlN41gcfS2cjOs9Po-u8=
+
+      ENTE_APPS_PUBLIC_ALBUMS: http://localhost:8405
+
+      ENTE_SMTP_HOST: mailpit
+      ENTE_SMTP_PORT: "1025"
+      ENTE_SMTP_USERNAME: ""
+      ENTE_SMTP_PASSWORD: ""
+      ENTE_SMTP_EMAIL: noreply@ente.local
+    ports:
+      - target: 8080
+        published: "8403"
+        protocol: tcp
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - ente_network
+    volumes: []
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Ente/icon.png
+    x-casaos:
+      id: com.hiraappstore.ente
+      envs:
+        - container: ENTE_DB_HOST
+          description:
+            en_US: "Container Variable: ENTE_DB_HOST"
+        - container: ENTE_DB_PORT
+          description:
+            en_US: "Container Variable: ENTE_DB_PORT"
+        - container: ENTE_DB_NAME
+          description:
+            en_US: "Container Variable: ENTE_DB_NAME"
+        - container: ENTE_DB_USER
+          description:
+            en_US: "Container Variable: ENTE_DB_USER"
+        - container: ENTE_DB_PASSWORD
+          description:
+            en_US: "Must match POSTGRES_PASSWORD on the postgres service. Change from the sample value before publishing."
+        - container: ENTE_DB_SSLMODE
+          description:
+            en_US: "Container Variable: ENTE_DB_SSLMODE"
+        - container: ENTE_S3_ARE_LOCAL_BUCKETS
+          description:
+            en_US: "Container Variable: ENTE_S3_ARE_LOCAL_BUCKETS"
+        - container: ENTE_S3_USE_PATH_STYLE_URLS
+          description:
+            en_US: "Container Variable: ENTE_S3_USE_PATH_STYLE_URLS"
+        - container: ENTE_S3_B2_EU_CEN_KEY
+          description:
+            en_US: "Must match MINIO_ROOT_USER on the minio service."
+        - container: ENTE_S3_B2_EU_CEN_SECRET
+          description:
+            en_US: "Must match MINIO_ROOT_PASSWORD on the minio service. Change from the sample value before publishing."
+        - container: ENTE_S3_B2_EU_CEN_ENDPOINT
+          description:
+            en_US: "Public hostname:port for reaching MinIO's S3 API. Update to your ZimaOS IP/domain plus port 8406 if accessing remotely."
+        - container: ENTE_S3_B2_EU_CEN_REGION
+          description:
+            en_US: "Container Variable: ENTE_S3_B2_EU_CEN_REGION"
+        - container: ENTE_S3_B2_EU_CEN_BUCKET
+          description:
+            en_US: "Container Variable: ENTE_S3_B2_EU_CEN_BUCKET"
+        - container: ENTE_KEY_ENCRYPTION
+          description:
+            en_US: "Auto-generated encryption key. Safe to keep as-is for a single fresh install, but treat as a secret — do not reuse across installs."
+        - container: ENTE_KEY_HASH
+          description:
+            en_US: "Auto-generated key hash. Pairs with ENTE_KEY_ENCRYPTION."
+        - container: ENTE_JWT_SECRET
+          description:
+            en_US: "Auto-generated JWT signing secret. Treat as a secret."
+        - container: ENTE_APPS_PUBLIC_ALBUMS
+          description:
+            en_US: "Public URL for shared album links. Update to your ZimaOS IP/domain plus port 8405 if accessing remotely."
+        - container: ENTE_SMTP_HOST
+          description:
+            en_US: "Defaults to the bundled Mailpit catcher (view codes at host port 8407, no setup needed). For real email delivery instead, set this to an SMTP provider hostname (e.g. Brevo, Resend, Mailgun, SES, or Gmail) and fill in the SMTP vars below."
+        - container: ENTE_SMTP_PORT
+          description:
+            en_US: "Defaults to Mailpit's port (1025). If switching to a real provider, use its port instead — usually 587 (STARTTLS), including for Gmail."
+        - container: ENTE_SMTP_USERNAME
+          description:
+            en_US: "Leave blank for the default Mailpit catcher. Required if switching to an authenticated SMTP provider."
+        - container: ENTE_SMTP_PASSWORD
+          description:
+            en_US: "Leave blank for the default Mailpit catcher. Required if switching to an authenticated SMTP provider — treat as a secret."
+        - container: ENTE_SMTP_EMAIL
+          description:
+            en_US: "The 'from' address verification codes are sent from. If switching to a real SMTP provider, this must be a sender address that provider allows."
+      ports:
+        - container: "8080"
+          description:
+            en_US: "API port (published on host as 8403)"
+
+  socat:
+    image: alpine/socat@sha256:68b28fed1e6f5dc5cc7574315284573d89a655b0bc528720be4164f36b998680
+    container_name: ente-socat
+    depends_on:
+      - museum
+      - minio
+    command: TCP-LISTEN:3200,fork,reuseaddr TCP:minio:3200
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - ente_network
+    volumes: []
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 64M
+        reservations:
+          cpus: "0.00"
+          memory: 32M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Ente/icon.png
+    x-casaos:
+      id: com.hiraappstore.ente
+
+  web:
+    image: ghcr.io/ente/web:latest@sha256:c8dedd75a316460c4ac2ecf1444115c3fd70544a0828e753e30052cc8013b20e
+    container_name: ente-web
+    depends_on:
+      - museum
+    environment:
+
+      ENTE_API_ORIGIN: http://localhost:8403
+    ports:
+      - target: 3000
+        published: "8404"
+        protocol: tcp
+      - target: 3002
+        published: "8405"
+        protocol: tcp
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - ente_network
+    volumes: []
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Ente/icon.png
+    x-casaos:
+      id: com.hiraappstore.ente
+      envs:
+        - container: ENTE_API_ORIGIN
+          description:
+            en_US: "Public URL the web app uses to reach the API. Update to your ZimaOS IP/domain plus port 8403 if accessing remotely."
+      ports:
+        - container: "3000"
+          description:
+            en_US: "Photos web app (published on host as 8404)"
+        - container: "3002"
+          description:
+            en_US: "Public albums app (published on host as 8405)"
+
+  postgres:
+    image: postgres:15@sha256:bcab099bfaab33333a73a2ebe8c1d615c9f4c2402dd43452f989a36c6da9a5ba
+    container_name: ente-postgres
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: change-me-qE7Yb2sN4wR9tK1
+      POSTGRES_DB: ente_db
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres_data
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U pguser -d ente_db
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
+    stop_grace_period: 60s
+    networks:
+      - ente_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Ente/icon.png
+    x-casaos:
+      id: com.hiraappstore.ente
+      envs:
+        - container: POSTGRES_USER
+          description:
+            en_US: "Container Variable: POSTGRES_USER"
+        - container: POSTGRES_PASSWORD
+          description:
+            en_US: "Must match ENTE_DB_PASSWORD on the museum service. Change from the sample value before publishing."
+        - container: POSTGRES_DB
+          description:
+            en_US: "Container Variable: POSTGRES_DB"
+      volumes:
+        - container: /var/lib/postgresql/data
+          description:
+            en_US: "Container Path: /var/lib/postgresql/data"
+
+  minio:
+    image: minio/minio@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
+    container_name: ente-minio
+    environment:
+      MINIO_ROOT_USER: ente-minio-access
+      MINIO_ROOT_PASSWORD: change-me-minio-vH3pL8xC0zN5
+    command: server /data --address ":3200" --console-address ":3201"
+    ports:
+      - target: 3200
+        published: "8406"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/minio_data
+        target: /data
+        bind:
+          create_host_path: true
+    restart: unless-stopped
+
+    stop_grace_period: 60s
+    networks:
+      - ente_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Ente/icon.png
+    x-casaos:
+      id: com.hiraappstore.ente
+      envs:
+        - container: MINIO_ROOT_USER
+          description:
+            en_US: "Must match ENTE_S3_B2_EU_CEN_KEY on the museum service."
+        - container: MINIO_ROOT_PASSWORD
+          description:
+            en_US: "Must match ENTE_S3_B2_EU_CEN_SECRET on the museum service. Change from the sample value before publishing."
+      volumes:
+        - container: /data
+          description:
+            en_US: "Container Path: /data"
+      ports:
+        - container: "3200"
+          description:
+            en_US: "S3 API port (published on host as 8406)"
+
+  minio-init:
+    image: minio/mc@sha256:a7fe349ef4bd8521fb8497f55c6042871b2ae640607cf99d9bede5e9bdf11727
+    container_name: ente-minio-init
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c " until mc alias set ente http://minio:3200 ente-minio-access
+      change-me-minio-vH3pL8xC0zN5; do sleep 1; done; mc mb --ignore-existing
+      ente/b2-eu-cen; mc mb --ignore-existing ente/wasabi-eu-central-2-v3; mc mb
+      --ignore-existing ente/scw-eu-fr-v3; exit 0; "
+    restart: "no"
+    stop_grace_period: 40s
+    networks:
+      - ente_network
+    volumes: []
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 64M
+        reservations:
+          cpus: "0.00"
+          memory: 32M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Ente/icon.png
+    x-casaos:
+      id: com.hiraappstore.ente
+
+  mailpit:
+
+    image: axllent/mailpit:latest
+    container_name: ente-mailpit
+    environment:
+
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+
+    ports:
+      - target: 8025
+        published: "8407"
+        protocol: tcp
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - ente_network
+    volumes: []
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Ente/icon.png
+    x-casaos:
+      id: com.hiraappstore.ente
+      envs:
+        - container: MP_UI_AUTH
+          description:
+            en_US: "Optional 'user:password' to require login for the Mailpit web UI where verification codes are viewed. Recommended if this NAS is shared by mutually-untrusting users, or if port 8407 is reachable beyond your LAN."
+      ports:
+        - container: "8025"
+          description:
+            en_US: "Web UI for viewing captured verification-code emails (published on host as 8407). Anyone who can reach this port can see any user's code unless MP_UI_AUTH is set."
+
+  storage-unlimited:
+    image: postgres:15@sha256:bcab099bfaab33333a73a2ebe8c1d615c9f4c2402dd43452f989a36c6da9a5ba
+    container_name: ente-storage-unlimited
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGUSER: pguser
+      PGPASSWORD: change-me-qE7Yb2sN4wR9tK1
+      PGDATABASE: ente_db
+
+      STORAGE_BYTES: "109951162777600"
+
+      CHECK_INTERVAL_SECONDS: "30"
+    entrypoint: >
+      /bin/sh -c "
+      until pg_isready -h postgres -U pguser -d ente_db; do sleep 2; done;
+      while true; do
+        psql -q -c \"UPDATE subscriptions SET storage = $$STORAGE_BYTES WHERE storage < $$STORAGE_BYTES;\";
+        sleep $$CHECK_INTERVAL_SECONDS;
+      done
+      "
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - ente_network
+    volumes: []
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 64M
+        reservations:
+          cpus: "0.00"
+          memory: 32M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Ente/icon.png
+    x-casaos:
+      id: com.hiraappstore.ente
+      envs:
+        - container: STORAGE_BYTES
+          description:
+            en_US: "Storage cap (in bytes) auto-applied to every user account. Default is ~100 TiB. Set to 10737418240 for Ente's default 10 GiB free-tier limit."
+        - container: CHECK_INTERVAL_SECONDS
+          description:
+            en_US: "How often, in seconds, this service checks for accounts still under the storage cap (e.g. new sign-ups) and raises them."
+
+networks:
+  ente_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.ente
+  architectures:
+    - amd64
+    - arm64
+  main: web
+  author: HSinghHira
+  category: Media
+  developer: ente-io
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Ente/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Ente/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Ente/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Ente/screenshot-2.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Ente/screenshot-3.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Ente/screenshot-4.png
+  title:
+    en_US: Ente Photos
+  tagline:
+    en_US: End-to-end encrypted photo storage
+  description:
+    en_US: >-
+      Ente is a self-hosted, end-to-end encrypted platform to store, share,
+      and rediscover your photos and videos across all your devices.
+
+      **Features**
+
+      - End-to-end encryption for every photo and video you upload.
+
+      - Web app for your library plus a separate public-albums app for
+        sharing.
+
+      - PostgreSQL for application data and MinIO (S3-compatible) for object
+        storage, both bundled and pre-wired.
+
+      - Bundled Mailpit catcher for sign-up verification codes — no SMTP
+        setup required to get started, with the option to switch to a real
+        provider later.
+
+      - Per-account storage cap automatically raised well beyond the
+        10 GiB free-tier default (configurable or removable).
+
+      - Persistent storage under /DATA/AppData/$AppID for both Postgres and
+        MinIO data.
+
+      **How to use?**
+
+      1. Open Ente Photos from the ZimaOS dashboard.
+
+      2. Complete the initial setup and create your administrator account.
+
+      3. Sign up for an account in the web app.
+
+      4. Retrieve your verification code from the bundled Mailpit catcher at
+         http://<IP>:8407 (or your real inbox if you've configured
+         SMTP).
+
+      5. Start uploading photos and videos, and set up a public album to
+         share with others.
+
+      6. SMTP delivery, the storage cap, and S3 endpoint hostnames can all be
+         changed later via the service environment variables — no rebuild
+         required, just a container restart.
+  tips:
+    before_install:
+      en_US: >-
+        1. **Server Endpoint:** http://<IP>:8403
+
+        2. **Mail Server:** http://<IP>:8407 (no login required unless
+           you set MP_UI_AUTH)
+
+        2. This app ships with working sample passwords and keys so it
+           starts instantly — change-me-* values on the museum, postgres,
+           and minio services (ENTE_DB_PASSWORD / POSTGRES_PASSWORD,
+           ENTE_S3_B2_EU_CEN_SECRET / MINIO_ROOT_PASSWORD) plus
+           ENTE_KEY_ENCRYPTION, ENTE_KEY_HASH, and ENTE_JWT_SECRET on
+           museum — before storing real photos.
+
+        4. ENTE_DB_PASSWORD must match POSTGRES_PASSWORD exactly, and
+           ENTE_S3_B2_EU_CEN_SECRET must match MINIO_ROOT_PASSWORD exactly —
+           update both sides of each pair together.
+
+        5. **Important:** changing ENTE_DB_PASSWORD or MINIO_ROOT_PASSWORD
+            later without also updating the already-initialized
+            Postgres/MinIO credentials will lock museum out — a manual
+            credential update inside that container (or a fresh volume) is
+            required.
+  index: /
+  port_map: "8404"
+  scheme: http
+  is_uncontrolled: false
+
+  website: "https://ente.io"
+  repo: "https://github.com/ente/ente"
+  support: "https://github.com/ente/ente/issues"
+  docs: "https://ente.com/help/self-hosting/"

@@ -1,0 +1,283 @@
+name: cloudreve
+
+services:
+  cloudreve:
+
+    image: cloudreve/cloudreve:4.16.0
+    container_name: cloudreve
+    restart: unless-stopped
+    stop_grace_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - CR_CONF_Database.Type=postgres
+      - CR_CONF_Database.Host=postgres
+      - CR_CONF_Database.Port=5432
+      - CR_CONF_Database.User=cloudreve
+
+      - CR_CONF_Database.Password=CHANGEME_DB_PASSWORD
+      - CR_CONF_Database.Name=cloudreve
+      - CR_CONF_Redis.Server=redis:6379
+    ports:
+      - target: 5212
+        published: "8409"
+        protocol: tcp
+
+      - target: 6888
+        published: "8410"
+        protocol: tcp
+      - target: 6888
+        published: "8410"
+        protocol: udp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /cloudreve/data
+        bind:
+          create_host_path: true
+    networks:
+      - cloudreve_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Cloudreve/icon.png
+    x-casaos:
+      id: com.hiraappstore.cloudreve
+      envs:
+        - container: CR_CONF_Database.Password
+          description:
+            en_US: >-
+              Postgres password for the cloudreve user. Must match
+              POSTGRES_PASSWORD on the postgres service. Change from the
+              placeholder before first start.
+      ports:
+        - container: "5212"
+          description:
+            en_US: Web UI and API (published on host as 8409)
+        - container: "6888"
+          description:
+            en_US: >-
+              Aria2 remote-download port, tcp+udp (published on host as
+              8410). Only used if you enable remote downloads.
+      volumes:
+        - container: /cloudreve/data
+          description:
+            en_US: >-
+              conf.ini, avatars, the master encryption key (if enabled),
+              and any files uploaded under the Local storage policy
+
+  postgres:
+
+    image: postgres:17
+    container_name: cloudreve-postgres
+    restart: unless-stopped
+
+    stop_grace_period: 60s
+    environment:
+      - POSTGRES_USER=cloudreve
+      - POSTGRES_DB=cloudreve
+
+      - POSTGRES_PASSWORD=CHANGEME_DB_PASSWORD
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cloudreve -d cloudreve"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    networks:
+      - cloudreve_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Cloudreve/icon.png
+    x-casaos:
+      id: com.hiraappstore.cloudreve
+      envs:
+        - container: POSTGRES_PASSWORD
+          description:
+            en_US: >-
+              Database password for the cloudreve user. Must match
+              CR_CONF_Database.Password on the cloudreve service.
+      volumes:
+        - container: /var/lib/postgresql/data
+          description:
+            en_US: Postgres data directory — all Cloudreve metadata lives here
+
+  redis:
+    image: redis:7-alpine
+    container_name: cloudreve-redis
+    restart: unless-stopped
+    stop_grace_period: 40s
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/redis
+        target: /data
+        bind:
+          create_host_path: true
+    networks:
+      - cloudreve_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 128M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Cloudreve/icon.png
+    x-casaos:
+      id: com.hiraappstore.cloudreve
+      volumes:
+        - container: /data
+          description:
+            en_US: Redis persistence (session/cache/queue data)
+
+networks:
+  cloudreve_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.cloudreve
+  architectures:
+    - amd64
+    - arm64
+  main: cloudreve
+  author: HSinghHira
+  category: Productivity
+  developer: cloudreve
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Cloudreve/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Cloudreve/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Cloudreve/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Cloudreve/screenshot-2.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Cloudreve/screenshot-3.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Cloudreve/screenshot-4.png
+  title:
+    en_US: Cloudreve
+  tagline:
+    en_US: Self-hosted file management and cloud storage
+  description:
+    en_US: >-
+      Cloudreve is an open-source, self-hosted file management and sharing
+      platform — think a private Dropbox or Google Drive that you fully
+      control, with support for ten different storage backends.
+
+      **Features**
+
+      - Drag-and-drop uploads, in-browser previews, and shareable public
+        links with optional passwords and expiration.
+
+      - Native WebDAV support for mounting Cloudreve as a network drive on
+        Windows, macOS, or Linux.
+
+      - Ten storage backends supported — Local, S3-compatible (MinIO,
+        Backblaze B2, Cloudflare R2, AWS S3), OneDrive, Aliyun OSS, Tencent
+        COS, and more — assignable per user group.
+
+      - Optional Aria2/qBittorrent integration for remote downloads
+        straight to your storage.
+
+      - PostgreSQL for application data and Redis for caching, both
+        bundled and pre-wired.
+
+      - Persistent storage under /DATA/AppData/$AppID for app data,
+        Postgres, and Redis.
+
+      **How to use?**
+
+      1. Open Cloudreve from the ZimaOS dashboard.
+
+      2. Register an account — the first account created becomes the
+         administrator.
+
+      3. Start uploading files and creating folders under the default
+         Local storage policy.
+
+      4. Optional: connect an S3-compatible bucket or other remote backend
+         from the admin panel so uploads survive beyond this host.
+
+      5. Optional: enable WebDAV in your user settings to mount Cloudreve
+         as a network drive, or enable Aria2 remote downloads in the admin
+         panel (uses the published 8410 port).
+
+      6. Further server settings — storage policies, user groups, sharing
+         rules — are all configured later through the in-app Admin Panel,
+         no compose file edits needed.
+  tips:
+    before_install:
+      en_US: >-
+        1. Open the app configuration before starting the installation.
+
+        2. Find the CHANGEME_DB_PASSWORD placeholder in both the
+           cloudreve service (CR_CONF_Database.Password) and the postgres
+           service (POSTGRES_PASSWORD).
+
+        3. Replace both CHANGEME_DB_PASSWORD values with the same strong
+           password — they must match exactly.
+
+        4. Confirm both values match before starting the install; a
+           mismatch surfaces as a database connection failure, not a clear
+           error message.
+
+        5. Start the Cloudreve installation.
+
+        6. Wait for the postgres and redis containers to report healthy
+           (service_healthy) before opening Cloudreve — this is handled
+           automatically via depends_on, no action needed.
+
+        7. Open Cloudreve from the ZimaOS dashboard.
+
+        8. Register an account — the first account you create automatically
+           becomes the administrator, so register your own account first
+           before sharing access with anyone else.
+
+        9. All further configuration (storage backends, user groups,
+           sharing policies, WebDAV, remote downloads) lives in the in-app
+           Admin Panel — no need to touch this file again.
+
+        10. Important: POSTGRES_PASSWORD and CR_CONF_Database.Password
+            only take effect the way you'd expect at first run — changing
+            either later without updating the other, or without also
+            updating the already-initialized Postgres user's password,
+            will lock Cloudreve out of the database until you manually
+            reset it (or start from a fresh volume).
+  index: /
+  port_map: "8409"
+  scheme: http
+  is_uncontrolled: false
+  version: "4.16.0"
+  update_at: "2026-08-13"
+  release_notes:
+    en_US: |-
+      - Initial version
+  website: "https://cloudreve.org"
+  repo: "https://github.com/cloudreve/Cloudreve"
+  support: "https://github.com/cloudreve/Cloudreve/issues"
+  docs: "https://docs.cloudreve.org/en/overview/deploy/docker-compose"
