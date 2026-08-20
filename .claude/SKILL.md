@@ -32,7 +32,8 @@ apps were added:
 | deGoogle | 8416 |
 | Web-Check | 8419 |
 | VERT | 8420 |
-| **Next new app starts at** | **8421** |
+| WatchYourLAN | 8421 (web UI, on host network — not a published Docker port) |
+| **Next new app starts at** | **8422** |
 
 - Claim the next unused number(s) in sequence and record them in this table
   *before* writing the manifest, so two apps in progress at once can't

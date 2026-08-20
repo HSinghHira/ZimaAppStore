@@ -1,0 +1,170 @@
+name: watchyourlan
+
+services:
+  watchyourlan:
+    image: aceberg/watchyourlan:2.1.4
+    container_name: watchyourlan
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: host
+    environment:
+      - TZ=UTC
+      - IFACES=CHANGEME_IFACE
+      - PORT=8421
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /data/WatchYourLAN
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/WatchYourLAN/icon.png
+    x-casaos:
+      id: com.hiraappstore.watchyourlan
+      envs:
+        - container: TZ
+          description:
+            en_US: Your timezone, like Europe/London or America/New_York. Keeps scan times and history correct.
+        - container: IFACES
+          description:
+            en_US: The network interface to scan, like eth0 or enp3s0. You can list more than one, separated by a space. Must be a real interface name on this host.
+        - container: PORT
+          description:
+            en_US: Port the web UI listens on. This app uses host networking, so this is also the actual port on the host itself, not a remapped one.
+      volumes:
+        - container: /data/WatchYourLAN
+          description:
+            en_US: Stores the app's SQLite database, config file, and scan history.
+
+x-casaos:
+  id: com.hiraappstore.watchyourlan
+  architectures:
+    - amd64
+    - arm64
+  main: watchyourlan
+  author: HSinghHira
+  category: Networking
+  developer: aceberg
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/WatchYourLAN/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/WatchYourLAN/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/WatchYourLAN/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/WatchYourLAN/thumbnail-1.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/WatchYourLAN/thumbnail-2.png
+  title:
+    en_US: WatchYourLAN
+  tagline:
+    en_US: A lightweight scanner that watches every device on your network
+  description:
+    en_US: >-
+      WatchYourLAN is a lightweight network IP scanner with a clean web GUI,
+      built to keep track of every device that joins or leaves your local
+      network.
+
+
+      **Features**
+
+
+      - Uses arp-scan to build a live list of every host on your LAN, with
+      vendor and hostname lookup
+
+      - Sends a notification the moment a new, unrecognized device shows up
+
+      - Tracks online/offline history for each host over time
+
+      - Can push data to InfluxDB2 or Prometheus for a Grafana dashboard
+
+      - SQLite storage by default, with optional PostgreSQL support
+
+      - Runs with host networking so arp-scan can see real traffic on the
+      local network, rather than the isolated Docker bridge
+
+
+      **How to use?**
+
+
+      1. Open WatchYourLAN from the ZimaAppStore dashboard.
+
+
+      2. The app opens straight to the host list — no account or login step.
+
+
+      3. Go to Config and check the interface(s) being scanned, in case it
+      needs adjusting from what you set at install time.
+
+
+      4. Give it a minute for the first scan to finish, then refresh to see
+      devices appear.
+
+
+      5. Click a host to name it, tag it, or see its online/offline history.
+
+
+      6. Set a Shoutrrr URL in Config to get a notification whenever a new
+      device joins the network.
+
+
+      7. Scan interval, theme, and every other setting can be changed later
+      from the in-app Config page — no rebuild needed.
+  tips:
+    before_install:
+      en_US: >-
+        1. This app needs to know which network card to scan.
+
+
+        2. Find IFACES in the environment settings before you install.
+
+
+        3. Change CHANGEME_IFACE to your real network interface name, like
+        eth0 or enp3s0.
+
+
+        4. Not sure what it's called? Check your system's network settings
+        first.
+
+
+        5. Also set TZ to your own timezone, like Europe/London.
+
+
+        6. This app uses host networking. It does not use the normal port
+        system. It talks straight to your host's network.
+
+
+        7. Because of this, make sure port 8421 is free on your host before
+        you install.
+
+
+        8. Start the WatchYourLAN installation.
+
+
+        9. Open WatchYourLAN from the ZimaAppStore dashboard.
+
+
+        10. Give it a minute. The first scan takes a little time.
+
+
+        11. Refresh the page and your devices should start showing up.
+
+
+        12. Important: changing IFACES later means editing the environment
+        variable and restarting the app.
+  index: /
+  port_map: "8421"
+  scheme: http
+  is_uncontrolled: false
+  version: "2.1.4"
+  update_at: "2026-08-20"
+  release_notes:
+    en_US: |-
+      - Initial version
+  repo: "https://github.com/aceberg/WatchYourLAN"
+  support: "https://github.com/aceberg/WatchYourLAN/issues"
+  docs: "https://github.com/aceberg/WatchYourLAN/tree/main/docs"
