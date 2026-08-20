@@ -30,8 +30,9 @@ apps were added:
 | Continuwuity (Matrix) | 8414 |
 | Dispatcharr | 8415 |
 | deGoogle | 8416 |
-| Cobalt | 8417 (API), 8418 (Web) |
-| **Next new app starts at** | **8419** |
+| Web-Check | 8419 |
+| VERT | 8420 |
+| **Next new app starts at** | **8421** |
 
 - Claim the next unused number(s) in sequence and record them in this table
   *before* writing the manifest, so two apps in progress at once can't
