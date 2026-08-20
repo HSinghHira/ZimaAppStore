@@ -111,7 +111,7 @@ x-casaos:
   is_uncontrolled: false
   release_notes:
     en_US: |-
-      - Initial version.
+      - Initial version. 
       - Upstream only publishes a floating `latest` tag (plus per-commit
         `sha-*` tags) via ghcr.io/vert-sh/vert, so no versioned release
         exists yet to pin against.
