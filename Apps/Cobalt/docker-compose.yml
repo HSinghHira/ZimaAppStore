@@ -26,7 +26,7 @@ services:
           cpus: "0.00"
           memory: 128M
     labels:
-      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Cobalt/icon.png
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Cobalt/icon.png
     x-casaos:
       id: com.hiraappstore.cobalt
       envs:
@@ -70,7 +70,7 @@ services:
           cpus: "0.00"
           memory: 256M
     labels:
-      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Cobalt/icon.png
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Cobalt/icon.png
     x-casaos:
       id: com.hiraappstore.cobalt
       envs:
@@ -102,10 +102,10 @@ x-casaos:
   author: HSinghHira
   category: Media
   developer: imputnet
-  icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Cobalt/icon.png
-  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Cobalt/thumbnail.png
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Cobalt/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Cobalt/thumbnail.png
   screenshot_link:
-    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Cobalt/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Cobalt/thumbnail.png
   title:
     en_US: Cobalt
   tagline:
@@ -137,7 +137,7 @@ x-casaos:
 
       **How to use?**
 
-      1. Open cobalt from the ZimaOS dashboard — this opens the web UI,
+      1. Open cobalt from the ZimaAppStore dashboard — this opens the web UI,
          not the raw API.
 
       2. Paste a link to the video, audio, or media you want to save into
@@ -175,7 +175,7 @@ x-casaos:
 
         5. Start the cobalt installation.
 
-        6. Open cobalt from the ZimaOS dashboard — this opens the web UI
+        6. Open cobalt from the ZimaAppStore dashboard — this opens the web UI
            on port 8418. Paste a link to test that downloads work.
 
         7. Optional: if you need to download from sources that require

@@ -39,7 +39,7 @@ services:
           cpus: "0.00"
           memory: 64M
     labels:
-      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Mailpit/icon.png
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Mailpit/icon.png
     x-casaos:
       id: com.hiraappstore.mailpit
       envs:
@@ -91,10 +91,10 @@ x-casaos:
   author: HSinghHira
   category: Networking
   developer: axllent
-  icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Mailpit/icon.png
-  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Mailpit/thumbnail.png
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Mailpit/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Mailpit/thumbnail.png
   screenshot_link:
-    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Mailpit/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Mailpit/thumbnail.png
   title:
     en_US: Mailpit
   tagline:
@@ -127,7 +127,7 @@ x-casaos:
 
       **How to use?**
 
-      1. Open Mailpit from the ZimaOS dashboard to view the web UI —
+      1. Open Mailpit from the ZimaAppStore dashboard to view the web UI —
          empty until something sends mail.
 
       2. Point any app's SMTP settings at this NAS's IP on port 8412
@@ -157,7 +157,7 @@ x-casaos:
 
         3. Start the Mailpit installation.
 
-        4. Open Mailpit from the ZimaOS dashboard to confirm the web UI
+        4. Open Mailpit from the ZimaAppStore dashboard to confirm the web UI
            loads.
 
         5. Point any other app's SMTP host/port settings at this NAS's IP

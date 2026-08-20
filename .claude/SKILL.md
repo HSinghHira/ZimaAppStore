@@ -1,4 +1,4 @@
-
+# Adding a new app to Hira's ZimaAppStore App Store
 
 Checklist distilled from getting OmniRoute, SearXNG, and Ente working. Follow
 this in order for every new app — most of these were real, specific failures
@@ -9,7 +9,7 @@ it correctly.
 
 ---
 
-
+## 0. Port ledger — update before writing the manifest
 
 **Rule: every published port across the whole store must be unique, and
 must be ≤ 65535.**
@@ -50,48 +50,48 @@ apps were added:
   *published* host port (not the internal Docker network) needs that
   reference updated too.
 
+## 1. `docker-compose.yml` structure
 
-
-
+### 1a. Required top-level keys
 
 ```yaml
-name: <appname>          
-                          
-                          
+name: <appname>          # REQUIRED — omitted once and the app didn't
+                          # appear in the store with no error. lowercase,
+                          # matches the app's folder name in Apps/.
 
 services:
-  <appname>:              
+  <appname>:              # primary service; service key = app name
     ...
 
-x-casaos:                 
+x-casaos:                 # REQUIRED top-level block, see 1c
   id: com.hiraappstore.<appname>
   ...
 ```
 
-
+### 1b. Required per-service keys
 
 For every service (not just the "main" one):
 
 ```yaml
 services:
   <servicename>:
-    image: <org>/<repo>:<tag>   
-                                 
-                                 
-                                 
-                                 
+    image: <org>/<repo>:<tag>   # avoid :latest if upstream publishes real
+                                 # tags; if they only publish floating tags
+                                 # (latest/main/next), say so in
+                                 # x-casaos.release_notes instead of a
+                                 # comment here — see 1e and 1g.
     container_name: <servicename>
     restart: unless-stopped
-    stop_grace_period: 40s       
-                                  
-    network_mode: bridge         
-                                  
+    stop_grace_period: 40s       # give apps time to shut down cleanly;
+                                  # adjust up for DBs/anything with WAL
+    network_mode: bridge         # unless the app needs to share a network
+                                  # namespace with a sibling service
     environment:
-      - SOME_VAR=CHANGEME        
-    ports:                       
+      - SOME_VAR=CHANGEME        # see section 4 — never real secrets
+    ports:                       # omit entirely for internal-only services
       - target: <container-port>
-        published: "<host-port>" 
-                                  
+        published: "<host-port>" # from the ledger in section 0, 4-digit
+                                  # 84xx only
         protocol: tcp
     volumes:
       - type: bind
@@ -110,7 +110,7 @@ services:
     labels:
       icon: <self-hosted icon URL — section 3>
     x-casaos:
-      id: com.hiraappstore.<appname>   
+      id: com.hiraappstore.<appname>   # mirror the top-level id here too
       envs:
         - container: SOME_VAR
           description:
@@ -129,26 +129,26 @@ Multi-container apps (DB, cache, relay, etc.) get one service block each,
 all under the same `services:` key, sharing the app's port sub-range as a
 contiguous block.
 
-
+### 1c. Top-level `x-casaos:` block
 
 ```yaml
 x-casaos:
-  id: com.hiraappstore.<appname>      
-                                       
-                                       
-                                       
+  id: com.hiraappstore.<appname>      # REQUIRED, reverse-domain, unique.
+                                       # Build action hard-fails without
+                                       # it: "ERROR App 'X' is missing
+                                       # required x-casaos.id"
   architectures:
     - amd64
     - arm64
-  main: <servicename>                 
+  main: <servicename>                 # which service owns port_map/Open
   author: HSinghHira
   category: <must exist in category-list.json — check before using>
   developer: <upstream author/org>
   icon: <self-hosted jsdelivr URL — section 3, required>
-  
-  
-  
-  
+  # thumbnail: <self-hosted jsdelivr URL — leave commented until captured>
+  # screenshot_link:
+  #   - <self-hosted jsdelivr URL>
+  #   - ...
   title:
     en_US: <App Name>
   tagline:
@@ -175,7 +175,7 @@ x-casaos:
 
       **How to use?**
 
-      1. Open <App Name> from the ZimaOS dashboard.
+      1. Open <App Name> from the ZimaAppStore dashboard.
 
       2. Complete the initial setup and create your administrator account
          (if applicable).
@@ -207,7 +207,7 @@ x-casaos:
         6. <wait for any migration/setup job to finish before first use,
            if applicable>
 
-        7. Open <App Name> from the ZimaOS dashboard.
+        7. Open <App Name> from the ZimaAppStore dashboard.
 
         8. <first-run account/setup step, if applicable>
 
@@ -219,18 +219,18 @@ x-casaos:
             password; a manual reset is required.">
   index: /
   port_map: "<host-port-of-main-service>"
-  scheme: http                        
+  scheme: http                        # or https if the app terminates TLS
   is_uncontrolled: false
-  version: "<upstream version, e.g. 1.0>"   
-  update_at: "<YYYY-MM-DD>"                 
-                                             
-                                             
+  version: "<upstream version, e.g. 1.0>"   # see note below
+  update_at: "<YYYY-MM-DD>"                 # date this manifest was last
+                                             # updated/verified against
+                                             # that version
   release_notes:
     en_US: |-
       - <what changed in this manifest update, one bullet per change>
   repo: "https://github.com/<org>/<repo>"
   support: "https://github.com/<org>/<repo>/issues"
-  docs: "https://github.com/<org>/<repo>/tree/main/docs"  
+  docs: "https://github.com/<org>/<repo>/tree/main/docs"  # or wherever
 ```
 
 Standard fields to always fill in: `architectures`, `main` (which service
@@ -280,7 +280,7 @@ prose:
   `x-casaos.release_notes` instead (per 1g — no comments), and add the
   fields once upstream starts tagging releases.
 
-
+### 1d. Volumes and config
 
 - Data lives under `/DATA/AppData/$AppID` on the host, bind-mounted with
   `create_host_path: true`.
@@ -294,23 +294,23 @@ prose:
   file must be pre-created (or created by an init step) before the
   container starts — not a comment on the volume (per 1g).
 
-
+### 1e. Image tag
 
 - Prefer a pinned version tag over `:latest` if upstream publishes one.
 - If upstream only publishes floating tags, say so in `x-casaos.release_notes`
   (per 1g — no comments) so future maintainers know *why* there's no
   version tracking, instead of assuming it was an oversight.
 
-
+### 1f. Resource limits
 
 - Always set `deploy.resources.limits` (cpus + memory) and
   `deploy.resources.reservations` (cpus + memory) — don't leave an app
   unbounded on a shared box. Size to what the upstream docs recommend as a
   minimum; pad modestly.
 
+### 1g. No comments in `docker-compose.yml`
 
-
-**Never use `
+**Never use `#` comments to explain anything in the file** — not why a tag
 is floating, not why a var needs a specific value, not which two services
 share a password, not what a port is for. If something needs explaining,
 it belongs in a real field the store UI actually shows, not a comment
@@ -329,12 +329,12 @@ nobody but a repo browser will ever read:
   put that step in `tips.before_install`, not a comment on the volume.
 
 The one exception: temporarily disabling a whole field that isn't ready
-yet (`
+yet (`# thumbnail: ...`, `# screenshot_link:` — see section 3) is fine,
 since that's a placeholder toggle, not an explanation. Everything else
 that would previously have been "add a comment saying..." now means "add
 a sentence to the matching `x-casaos` description field instead."
 
-
+## 2. Required manifest fields, summarized
 
 - **Top-level `name:`** — e.g. `name: omniroute`. Missing this caused Ente
   to not appear in the store at all with no error message. Every app's
@@ -345,7 +345,7 @@ a sentence to the matching `x-casaos` description field instead."
   service-level `x-casaos:` block too is harmless and keeps things
   consistent.
 
-
+## 3. Icons and screenshots — always self-hosted, always via jsdelivr
 
 - Download every image into `Apps/<AppName>/` in this repo (`icon.png`,
   `thumbnail.png`, `thumbnail-N.png`, ...).
@@ -356,13 +356,13 @@ a sentence to the matching `x-casaos` description field instead."
   so keep new apps consistent with it:
 
   ```
-  https:
+  https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/<AppName>/<file>
   ```
 
   Example (Ente's icon):
 
   ```
-  https:
+  https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/icon.png
   ```
 
   Pattern: `@main` pins the branch (swap only if you deliberately want a
@@ -385,15 +385,15 @@ a sentence to the matching `x-casaos` description field instead."
   the real screenshots:
 
   ```yaml
-  icon: https:
-  
-  
-  
-  
-  
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/<AppName>/icon.png
+  # thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/<AppName>/thumbnail.png
+  # screenshot_link:
+  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/<AppName>/thumbnail.png
+  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/<AppName>/thumbnail-1.png
+  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/<AppName>/thumbnail-2.png
   ```
 
-
+## 4. Public-store secrets rule
 
 **Nothing personal (real email, real API keys, real passwords) goes in the
 repo — ever.** This store is public, so:
@@ -411,7 +411,7 @@ repo — ever.** This store is public, so:
   `x-casaos.envs[].description` (e.g. "must match `POSTGRES_PASSWORD` in
   the `db` service"), per 1g — not a comment in the file.
 
-
+## 5. Common pitfalls to check before publishing
 
 - **YAML validity** — run every manifest through a YAML parser before
   committing. A syntax error won't always fail loudly.
@@ -420,17 +420,17 @@ repo — ever.** This store is public, so:
   note.
 - every `category:` Choose one category from: Media, Productivity, Home, Networking, AI, Finance, Social, Developer, Others
 
-
+## 7. `README.md` app table — every new/changed app needs a row
 
 The root `README.md` has a single markdown table listing every app, kept in
 the same order as the port ledger in section 0. Add or update a row here
 for every app you touch — this is a separate step from the manifest, easy
 to forget, and there's no build error if you skip it.
 
-
+### 7a. Row format
 
 ```markdown
-| <h2><img src=Apps/<AppName>/icon.png width=21 height=21> <App Name></h2> [![tag](https:
+| <h2><img src=Apps/<AppName>/icon.png width=21 height=21> <App Name></h2> [![tag](https://img.shields.io/badge/<org>/<repo>-latest-blue?style=plastic)](https://github.com/<org>/<repo>) [![tag](https://img.shields.io/badge/visit-project-green?style=plastic)](<upstream homepage or repo URL>) [![<port label>](https://img.shields.io/badge/<port label>-<port>-9cf?style=plastic)]() <br /> <1–2 sentence description matching the manifest's opening pitch>. | ![thumbnail](Apps/<AppName>/thumbnail.png) |
 ```
 
 - **Icon path** — if `<AppName>` contains a space, URL-encode it as `%20`
@@ -443,7 +443,7 @@ to forget, and there's no build error if you skip it.
 - **Port badge(s)** — one `9cf` (light-blue) badge per published port,
   using the same host port committed in the section 0 ledger. Label each
   badge with what the port is for, matching the ledger's wording:
-  - Single-port app: `[![port](https:
+  - Single-port app: `[![port](https://img.shields.io/badge/port-<port>-9cf?style=plastic)]()`
   - Multi-port app: one badge per port, labeled (e.g. `API`, `Web`,
     `web_UI`, `SMTP`) instead of the generic `port` label — see Ente,
     Mailpit, Cobalt, Cloudreve for examples. Use `_` instead of spaces in
@@ -468,7 +468,7 @@ to forget, and there's no build error if you skip it.
   captured yet. Don't point this at a file that doesn't exist in the repo
   — same silent-broken-image problem as section 3's manifest thumbnails.
 
-
+### 7b. Keep the table and the ledger in sync
 
 - Row order in the README should match the order apps were added in the
   section 0 port ledger.
@@ -477,7 +477,7 @@ to forget, and there's no build error if you skip it.
 - If an app gains or loses a published port (e.g. a new sidecar service),
   update both the ledger *and* the README badges together.
 
-
+## 8. Before pushing
 
 1. Validate YAML for every changed/new `docker-compose.yml`.
 2. Confirm the port table in section 0 is updated and non-colliding.
@@ -491,7 +491,7 @@ to forget, and there's no build error if you skip it.
    *this* change (not just copy-pasted from the last app).
 8. Confirm `README.md` has a matching row (icon, tags, port badge(s),
    description, thumbnail) for every app added or changed, per section 7.
-9. Confirm `docker-compose.yml` has no explanatory `
+9. Confirm `docker-compose.yml` has no explanatory `#` comments anywhere
    (per 1g) — only the allowed commented-out placeholder fields
    (`thumbnail`/`screenshot_link`) may remain.
 10. Read `tips.before_install` back and confirm it's written in simple,

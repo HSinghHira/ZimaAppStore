@@ -36,7 +36,7 @@ services:
           cpus: "0.25"
           memory: 128M
     labels:
-      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/SearXNG/icon.png
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/SearXNG/icon.png
     x-casaos:
       id: com.hiraappstore.searxng
       envs:
@@ -78,7 +78,7 @@ services:
           cpus: "0.00"
           memory: 64M
     labels:
-      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/SearXNG/icon.png
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/SearXNG/icon.png
     x-casaos:
       id: com.hiraappstore.searxng
       volumes:
@@ -99,11 +99,11 @@ x-casaos:
   author: HSinghHira
   category: Networking
   developer: searxng
-  icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/SearXNG/icon.png
-  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/SearXNG/thumbnail.png
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/SearXNG/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/SearXNG/thumbnail.png
   screenshot_link:
-    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/SearXNG/thumbnail.png
-    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/SearXNG/screenshot-2.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/SearXNG/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/SearXNG/screenshot-2.png
   title:
     en_US: SearXNG
   tagline:
@@ -129,7 +129,7 @@ x-casaos:
 
       **How to use?**
 
-      1. Open SearXNG from the ZimaOS dashboard.
+      1. Open SearXNG from the ZimaAppStore dashboard.
 
       2. Start searching immediately — no account or setup required.
 
@@ -155,7 +155,7 @@ x-casaos:
         4. The searxng-valkey (cache) container starts first automatically
            via depends_on — no action needed.
 
-        5. Open SearXNG from the ZimaOS dashboard and start searching.
+        5. Open SearXNG from the ZimaAppStore dashboard and start searching.
 
         6. Further configuration (engines, ranking, appearance) lives in
            settings.yml under the config volume

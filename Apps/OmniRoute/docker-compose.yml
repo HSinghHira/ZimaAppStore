@@ -29,7 +29,7 @@ services:
           cpus: "0.00"
           memory: 512M
     labels:
-      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/OmniRoute/icon.png
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/OmniRoute/icon.png
     x-casaos:
       id: com.hiraappstore.omniroute
       envs:
@@ -54,13 +54,13 @@ x-casaos:
   author: HSinghHira
   category: AI
   developer: diegosouzapw
-  icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/OmniRoute/icon.png
-  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/OmniRoute/thumbnail.png
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/OmniRoute/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/OmniRoute/thumbnail.png
   screenshot_link:
-    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/OmniRoute/thumbnail.png
-    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/OmniRoute/screenshot-2.png
-    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/OmniRoute/screenshot-3.png
-    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/OmniRoute/screenshot-4.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/OmniRoute/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/OmniRoute/screenshot-2.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/OmniRoute/screenshot-3.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/OmniRoute/screenshot-4.png
   title:
     en_US: OmniRoute
   tagline:
@@ -87,7 +87,7 @@ x-casaos:
 
       **How to use?**
 
-      1. Open OmniRoute from the ZimaOS dashboard.
+      1. Open OmniRoute from the ZimaAppStore dashboard.
 
       2. Log in with the initial admin password you set in
          INITIAL_PASSWORD, then change it immediately from the dashboard.
@@ -113,7 +113,7 @@ x-casaos:
 
         3. Start the OmniRoute installation.
 
-        4. Open OmniRoute from the ZimaOS dashboard.
+        4. Open OmniRoute from the ZimaAppStore dashboard.
 
         5. Log in using the password you set in INITIAL_PASSWORD.
 

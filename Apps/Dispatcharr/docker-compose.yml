@@ -35,7 +35,7 @@ services:
           cpus: "0.50"
           memory: 1024M
     labels:
-      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Dispatcharr/icon.png
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Dispatcharr/icon.png
     x-casaos:
       id: com.hiraappstore.dispatcharr
       envs:
@@ -52,7 +52,7 @@ services:
               Optional. Set to your reverse proxy's IP/CIDR if Dispatcharr
               sits behind one, so Network Access, Stats, and rate limits
               see real client IPs. Set to "none" to ignore forwarded
-              headers entirely. Leave unset for a normal ZimaOS install.
+              headers entirely. Leave unset for a normal ZimaAppStore install.
       ports:
         - container: "9191"
           description:
@@ -73,13 +73,13 @@ x-casaos:
   author: HSinghHira
   category: Media
   developer: Dispatcharr
-  icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Dispatcharr/icon.png
-  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Dispatcharr/thumbnail.png
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Dispatcharr/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Dispatcharr/thumbnail.png
   screenshot_link:
-    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Dispatcharr/thumbnail.png
-    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Dispatcharr/thumbnail-1.png
-    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Dispatcharr/thumbnail-2.png
-    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Dispatcharr/thumbnail-3.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Dispatcharr/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Dispatcharr/thumbnail-1.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Dispatcharr/thumbnail-2.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Dispatcharr/thumbnail-3.png
   title:
     en_US: Dispatcharr
   tagline:
@@ -122,7 +122,7 @@ x-casaos:
 
       **How to use?**
 
-      1. Open Dispatcharr from the ZimaOS dashboard.
+      1. Open Dispatcharr from the ZimaAppStore dashboard.
 
       2. Complete the initial setup and create your administrator
          account. If you're accessing the setup page from your local
@@ -162,7 +162,7 @@ x-casaos:
 
         4. Start the Dispatcharr installation.
 
-        5. Open Dispatcharr from the ZimaOS dashboard once the
+        5. Open Dispatcharr from the ZimaAppStore dashboard once the
            container is running — first boot needs a few extra
            seconds to initialize the bundled database.
 

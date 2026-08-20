@@ -1,0 +1,116 @@
+name: web-check
+
+services:
+  web-check:
+    image: lissy93/web-check:latest
+    container_name: web-check
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    ports:
+      - target: 3000
+        published: "8419"
+        protocol: tcp
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Web-Check/icon.png
+    x-casaos:
+      id: com.hiraappstore.webcheck
+      ports:
+        - container: "3000"
+          description:
+            en_US: Web UI for running OSINT checks against any domain (published on host as 8419).
+
+x-casaos:
+  id: com.hiraappstore.webcheck
+  architectures:
+    - amd64
+    - arm64
+  main: web-check
+  author: HSinghHira
+  category: Networking
+  developer: Lissy93
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Web-Check/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Web-Check/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Web-Check/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Web-Check/screenshot-1.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Web-Check/screenshot-2.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Web-Check/screenshot-3.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Web-Check/screenshot-4.png
+  title:
+    en_US: Web-Check
+  tagline:
+    en_US: All-in-one OSINT tool for analysing any website
+  description:
+    en_US: >-
+      Web-Check is a self-hosted OSINT tool that runs dozens of checks
+      against any domain — DNS, SSL, headers, hosting, tech stack, and
+      more — and lays it all out in one clean report.
+
+
+      **Features**
+
+
+      - Dozens of checks in one report: DNS records, SSL/TLS details,
+        security headers, WHOIS, hosting/server info, tech stack,
+        blacklist status, and more
+
+      - No database or persistent storage — every scan runs fresh, so
+        there's nothing to back up
+
+      - Optional third-party API keys (Google, Shodan, WhoAPI, and others)
+        can be added later to unlock a few extra checks, but the app works
+        fully out of the box without any of them
+
+      - Clean, shareable report for any domain you enter
+
+
+      **How to use?**
+
+      1. Open Web-Check from the ZimaAppStore dashboard.
+
+      2. Type in the domain or URL you want to check.
+
+      3. Run the scan and browse the report sections as they load.
+
+      4. To unlock the optional extra checks later, add the relevant API
+         key as an environment variable on the container and restart it —
+         see the project's GitHub README for the full list of supported
+         keys.
+  tips:
+    before_install:
+      en_US: >-
+        1. No setup is needed before installing. Web-Check works right out
+           of the box.
+
+        2. Start the Web-Check installation.
+
+        3. Open Web-Check from the ZimaAppStore dashboard.
+
+        4. Type a website address into the search box to run your first
+           check.
+
+        5. If you want extra checks later (like Shodan or Google lookups),
+           add the matching API key as an environment variable on the
+           container, then restart it.
+  index: /
+  port_map: "8419"
+  scheme: http
+  is_uncontrolled: false
+  release_notes:
+    en_US: |-
+      - Initial version.
+      - Uses the `latest` tag rather than the pinned `1.0.0` tag: `1.0.0`
+        on Docker Hub is nearly two years old and predates many merged
+        fixes/features, so `latest` is the more current and reliable
+        choice for this app.
+  repo: "https://github.com/lissy93/web-check"
+  support: "https://github.com/lissy93/web-check/issues"

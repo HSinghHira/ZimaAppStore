@@ -36,7 +36,7 @@ services:
           cpus: "0.00"
           memory: 256M
     labels:
-      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Degoog/icon.png
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Degoog/icon.png
     x-casaos:
       id: com.hiraappstore.degoog
       envs:
@@ -85,12 +85,12 @@ x-casaos:
   author: HSinghHira
   category: Networking
   developer: degoog-org
-  icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Degoog/icon.png
-  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Degoog/thumbnail.png
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Degoog/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Degoog/thumbnail.png
   screenshot_link:
-    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Degoog/thumbnail.png
-    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Degoog/thumbnail-1.png
-    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Degoog/thumbnail-2.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Degoog/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Degoog/thumbnail-1.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Degoog/thumbnail-2.png
   title:
     en_US: deGoog
   tagline:
@@ -119,7 +119,7 @@ x-casaos:
 
       **How to use?**
 
-      1. Open Degoog from the ZimaOS dashboard.
+      1. Open Degoog from the ZimaAppStore dashboard.
 
       2. Complete the first-run setup wizard.
 
@@ -154,7 +154,7 @@ x-casaos:
 
         5. Start the Degoog installation.
 
-        6. Open Degoog from the ZimaOS dashboard.
+        6. Open Degoog from the ZimaAppStore dashboard.
 
         7. Complete the first-run setup wizard, then sign in to Settings
            with the password from step 3.

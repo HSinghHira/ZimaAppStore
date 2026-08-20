@@ -4,9 +4,6 @@ on:
   push:
     branches: [main]
   workflow_dispatch: {}
-
-
-
 concurrency:
   group: gh-pages-deploy
   cancel-in-progress: true
@@ -26,7 +23,7 @@ jobs:
         with:
           source: .
           output: dist
-          base-url: https:
+          base-url: https://Zimaos.hsinghhira.me/
 
       - name: Add latest.zip
         run: |
@@ -43,14 +40,14 @@ jobs:
           <head>
             <meta charset="UTF-8">
             <title>Redirecting…</title>
-            <meta http-equiv="refresh" content="0; url=https://github.com/HSinghHira/zimaos">
-            <link rel="canonical" href="https://github.com/HSinghHira/zimaos">
+            <meta http-equiv="refresh" content="0; url=https://github.com/HSinghHira/ZimaAppStore">
+            <link rel="canonical" href="https://github.com/HSinghHira/ZimaAppStore">
             <script>
-              window.location.replace("https://github.com/HSinghHira/zimaos");
+              window.location.replace("https://github.com/HSinghHira/ZimaAppStore");
             </script>
           </head>
           <body>
-            <p>Redirecting to <a href="https://github.com/HSinghHira/zimaos">https:
+            <p>Redirecting to <a href="https://github.com/HSinghHira/ZimaAppStore">https://github.com/HSinghHira/ZimaAppStore</a>…</p>
           </body>
           </html>
           EOF
@@ -61,8 +58,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
           publish_branch: gh-pages
-          cname: zimaos.hsinghhira.me
-          
-          
-          
+          cname: Zimaos.hsinghhira.me
           force_orphan: true

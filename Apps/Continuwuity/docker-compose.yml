@@ -36,7 +36,7 @@ services:
           cpus: "0.25"
           memory: 256M
     labels:
-      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Continuwuity/icon.png
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Continuwuity/icon.png
     x-casaos:
       id: com.hiraappstore.continuwuity
       envs:
@@ -79,10 +79,10 @@ x-casaos:
   author: HSinghHira
   category: Social
   developer: Continuwuity contributors
-  icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Continuwuity/icon.png
-  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Continuwuity/thumbnail.png
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Continuwuity/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Continuwuity/thumbnail.png
   screenshot_link:
-    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Continuwuity/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Continuwuity/thumbnail.png
 
   title:
     en_US: Continuwuity (Matrix)
@@ -125,7 +125,7 @@ x-casaos:
          reverse proxy in front of the published port (Matrix federation
          requires HTTPS).
 
-      3. Open Continuwuity from the ZimaOS dashboard once it's running.
+      3. Open Continuwuity from the ZimaAppStore dashboard once it's running.
 
       4. Check the container logs for a one-time registration token —
          Continuwuity prints it on first start.
@@ -162,7 +162,7 @@ x-casaos:
         5. Start the app, then check its logs for the one-time
            registration token printed on first boot.
 
-        6. Open Continuwuity from the ZimaOS dashboard, then use any
+        6. Open Continuwuity from the ZimaAppStore dashboard, then use any
            Matrix client to register your first account against your
            domain using that registration token — you'll be auto-invited
            to the admin room.

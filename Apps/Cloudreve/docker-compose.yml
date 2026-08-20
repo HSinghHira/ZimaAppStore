@@ -49,7 +49,7 @@ services:
           cpus: "0.25"
           memory: 128M
     labels:
-      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Cloudreve/icon.png
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Cloudreve/icon.png
     x-casaos:
       id: com.hiraappstore.cloudreve
       envs:
@@ -110,7 +110,7 @@ services:
           cpus: "0.25"
           memory: 256M
     labels:
-      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Cloudreve/icon.png
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Cloudreve/icon.png
     x-casaos:
       id: com.hiraappstore.cloudreve
       envs:
@@ -151,7 +151,7 @@ services:
           cpus: "0.00"
           memory: 64M
     labels:
-      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Cloudreve/icon.png
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Cloudreve/icon.png
     x-casaos:
       id: com.hiraappstore.cloudreve
       volumes:
@@ -172,13 +172,13 @@ x-casaos:
   author: HSinghHira
   category: Productivity
   developer: cloudreve
-  icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Cloudreve/icon.png
-  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Cloudreve/thumbnail.png
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Cloudreve/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Cloudreve/thumbnail.png
   screenshot_link:
-    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Cloudreve/thumbnail.png
-    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Cloudreve/screenshot-2.png
-    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Cloudreve/screenshot-3.png
-    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/Cloudreve/screenshot-4.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Cloudreve/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Cloudreve/screenshot-2.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Cloudreve/screenshot-3.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Cloudreve/screenshot-4.png
   title:
     en_US: Cloudreve
   tagline:
@@ -212,7 +212,7 @@ x-casaos:
 
       **How to use?**
 
-      1. Open Cloudreve from the ZimaOS dashboard.
+      1. Open Cloudreve from the ZimaAppStore dashboard.
 
       2. Register an account — the first account created becomes the
          administrator.
@@ -252,7 +252,7 @@ x-casaos:
            (service_healthy) before opening Cloudreve — this is handled
            automatically via depends_on, no action needed.
 
-        7. Open Cloudreve from the ZimaOS dashboard.
+        7. Open Cloudreve from the ZimaAppStore dashboard.
 
         8. Register an account — the first account you create automatically
            becomes the administrator, so register your own account first

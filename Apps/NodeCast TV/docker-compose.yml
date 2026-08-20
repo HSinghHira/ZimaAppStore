@@ -32,7 +32,7 @@ services:
           cpus: "0.25"
           memory: 256M
     labels:
-      icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/NodecastTV/icon.png
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/NodecastTV/icon.png
     x-casaos:
       id: com.hiraappstore.nodecast-tv
       envs:
@@ -69,11 +69,11 @@ x-casaos:
   author: HSinghHira
   category: Media
   developer: technomancer702
-  icon: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/NodecastTV/icon.png
-  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/NodecastTV/thumbnail.png
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/NodecastTV/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/NodecastTV/thumbnail.png
   screenshot_link:
-    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/NodecastTV/thumbnail.png
-    - https://cdn.jsdelivr.net/gh/HSinghHira/dApps@main/Apps/NodecastTV/screenshot-1.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/NodecastTV/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/NodecastTV/screenshot-1.png
   title:
     en_US: Nodecast TV
   tagline:
@@ -110,7 +110,7 @@ x-casaos:
 
       **How to use?**
 
-      1. Open Nodecast TV from the ZimaOS dashboard.
+      1. Open Nodecast TV from the ZimaAppStore dashboard.
 
       2. Complete the initial setup and create your administrator account.
 
@@ -151,7 +151,7 @@ x-casaos:
 
         4. Start the Nodecast TV installation.
 
-        5. Open Nodecast TV from the ZimaOS dashboard and create your
+        5. Open Nodecast TV from the ZimaAppStore dashboard and create your
            administrator account on first run.
 
         6. Go to Settings → Content Sources to add your Xtream Codes or

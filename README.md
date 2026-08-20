@@ -1,24 +1,24 @@
-# ZimaOS / CasaOS Custom App Store — Hira's dApps
+# ZimaAppStore / CasaOS Custom App Store — Hira's ZimaAppStore
 
-A custom app store for [ZimaOS](https://www.zimaspace.com/zimaos) and [CasaOS](https://casaos.io/), maintained by [HSinghHira](https://github.com/HSinghHira).
+A custom app store for [ZimaAppStore](https://www.zimaspace.com/ZimaAppStore) and [CasaOS](https://casaos.io/), maintained by [HSinghHira](https://github.com/HSinghHira).
 
 ---
 
-## 🟢 ZimaOS
+## 🟢 ZimaAppStore
 
-ZimaOS reads app stores from a `store.json` manifest.
+ZimaAppStore reads app stores from a `store.json` manifest.
 
-1. Open the **ZimaOS** dashboard.
+1. Open the **ZimaAppStore** dashboard.
 2. Go to **App Store** → click the **⚙️ Community store**.
 3. Click ➕ **Icon**.
 4. Paste below URL:
    
    ```
-   https://dapps.hsinghhira.me/store.json
+   https://ZimaOS.HSinghHira.me/store.json
    ```
 5. **Add**, then refresh the App Store page.
 
-> 💡 If the store doesn't show up right away, try refreshing or restarting the App Store service — ZimaOS occasionally caches store sources.
+> 💡 If the store doesn't show up right away, try refreshing or restarting the App Store service — ZimaAppStore occasionally caches store sources.
 
 ---
 
@@ -32,7 +32,7 @@ CasaOS doesn't read `store.json` — instead, it can install a full custom app s
 4. Paste in the store archive URL:
    
    ```
-   https://dapps.hsinghhira.me/latest.zip
+   https://ZimaOS.HSinghHira.me/latest.zip
    ```
 5. Confirm **Add**.
 
@@ -42,17 +42,30 @@ CasaOS doesn't read `store.json` — instead, it can install a full custom app s
 
 | App | Thumbnail |
 | :-- | --- |
+
 | <h2><img src=Apps/AFFiNE/icon.png width=21 height=21> AFFiNE</h2> [![tag](https://img.shields.io/badge/toeverything/affine-latest-blue?style=plastic)](https://github.com/toeverything/affine) [![tag](https://img.shields.io/badge/visit-project-green?style=plastic)](https://affine.pro/) [![port](https://img.shields.io/badge/port-8408-9cf?style=plastic)]() <br /> AFFiNE is an open-source, all-in-one workspace that combines rich-text documents, an infinite-canvas whiteboard, and structured databases into a single integrated editor — think Notion and Miro combined. | ![thumbnail](Apps/AFFiNE/thumbnail.png) |
+
 | <h2><img src=Apps/Cloudreve/icon.png width=21 height=21> Cloudreve</h2> [![tag](https://img.shields.io/badge/cloudreve/cloudreve-latest-blue?style=plastic)](https://github.com/cloudreve/Cloudreve) [![tag](https://img.shields.io/badge/visit-project-green?style=plastic)](https://cloudreve.org/) [![web/API](https://img.shields.io/badge/web%2FAPI-8409-9cf?style=plastic)]() [![Aria2](https://img.shields.io/badge/Aria2-8410-9cf?style=plastic)]() *(tcp+udp)* <br /> Cloudreve is a self-hosted cloud drive that lets you manage files across multiple storage backends (local disk, S3, OneDrive, and more) through a single polished web interface, with sharing, permissions, and offline downloads built in. | ![thumbnail](Apps/Cloudreve/thumbnail.png) |
+
 | <h2><img src=Apps/Cobalt/icon.png width=21 height=21> Cobalt</h2> [![tag](https://img.shields.io/badge/imputnet/cobalt-latest-blue?style=plastic)](https://github.com/imputnet/cobalt) [![tag](https://img.shields.io/badge/visit-project-green?style=plastic)](https://cobalt.tools/) [![API](https://img.shields.io/badge/API-8417-9cf?style=plastic)]() [![Web](https://img.shields.io/badge/Web-8418-9cf?style=plastic)]() <br /> Cobalt is a self-hosted media downloader that saves videos, audio, and images from popular platforms without ads, trackers, or watermarks, giving you a clean, private front end for grabbing content you want to keep. | ![thumbnail](Apps/Cobalt/thumbnail.png) |
+
 | <h2><img src=Apps/Continuwuity/icon.png width=21 height=21> Continuwuity</h2> [![tag](https://img.shields.io/badge/continuwuation/continuwuity-latest-blue?style=plastic)](https://github.com/continuwuation/continuwuity) [![tag](https://img.shields.io/badge/visit-project-green?style=plastic)](https://continuwuity.org/) [![port](https://img.shields.io/badge/port-8414-9cf?style=plastic)]() <br /> Continuwuity is a community-maintained fork of Conduwuit, a lightweight Matrix homeserver written in Rust, letting you self-host your own federated chat server without the overhead of the reference Synapse implementation. | | ![thumbnail](Apps/Continuwuity/thumbnail.png) |
+
 | <h2><img src=Apps/deGoog/icon.png width=21 height=21> deGoog</h2> [![tag](https://img.shields.io/badge/degoog--org/degoog-latest-blue?style=plastic)](https://github.com/degoog-org/degoog) [![tag](https://img.shields.io/badge/visit-project-green?style=plastic)](https://degoog-org.github.io/) [![port](https://img.shields.io/badge/port-8416-9cf?style=plastic)]() <br /> deGoog is a self-hosted search engine aggregator that queries multiple providers at once and merges the results into one clean, tracker-free interface, with a plugin system for custom engines, bang commands, and themes. | ![thumbnail](Apps/deGoog/thumbnail.png) |
+
 | <h2><img src=Apps/Dispatcharr/icon.png width=21 height=21> Dispatcharr</h2> [![tag](https://img.shields.io/badge/Dispatcharr/Dispatcharr-latest-blue?style=plastic)](https://github.com/Dispatcharr/Dispatcharr) [![tag](https://img.shields.io/badge/visit-project-green?style=plastic)](https://github.com/Dispatcharr/Dispatcharr) [![port](https://img.shields.io/badge/port-8415-9cf?style=plastic)]() <br /> Dispatcharr is a self-hosted IPTV and M3U management tool that lets you organize channels, build custom playlists, and manage EPG data through a web dashboard, acting as a hub between your streaming sources and the players that consume them. | ![thumbnail](Apps/Dispatcharr/thumbnail.png) |
+
 | <h2><img src=Apps/Ente/icon.png width=21 height=21> Ente</h2> [![tag](https://img.shields.io/badge/ente--io/ente-latest-blue?style=plastic)](https://github.com/ente-io/ente) [![tag](https://img.shields.io/badge/visit-project-green?style=plastic)](https://ente.io/) [![API](https://img.shields.io/badge/API-8403-9cf?style=plastic)]() [![Photos_web](https://img.shields.io/badge/Photos_web-8404-9cf?style=plastic)]() [![public_albums](https://img.shields.io/badge/public_albums-8405-9cf?style=plastic)]() [![MinIO_S3](https://img.shields.io/badge/MinIO_S3-8406-9cf?style=plastic)]() [![Mailpit](https://img.shields.io/badge/Mailpit-8407-9cf?style=plastic)]() <br /> Ente is an end-to-end encrypted photo and video storage platform that you can self-host, offering automatic backup, cross-device sync, and private sharing without handing your memories over to a third party. | ![thumbnail](Apps/Ente/thumbnail.png) |
+
 | <h2><img src=Apps/Mailpit/icon.png width=21 height=21> Mailpit</h2> [![tag](https://img.shields.io/badge/axllent/mailpit-latest-blue?style=plastic)](https://github.com/axllent/mailpit) [![tag](https://img.shields.io/badge/visit-project-green?style=plastic)](https://mailpit.axllent.org/) [![web_UI](https://img.shields.io/badge/web_UI-8411-9cf?style=plastic)]() [![SMTP](https://img.shields.io/badge/SMTP-8412-9cf?style=plastic)]() <br /> Mailpit is a self-hosted email testing tool that catches all outgoing SMTP mail from your apps in one inbox-style web UI, making it easy to inspect, debug, and preview emails during development without ever sending real messages. | ![thumbnail](Apps/Mailpit/thumbnail.png) |
+
 | <h2><img src=Apps/NodeCast%20TV/icon.png width=21 height=21> NodeCast TV</h2> [![tag](https://img.shields.io/badge/technomancer702/nodecast--tv-latest-blue?style=plastic)](https://github.com/technomancer702/nodecast-tv) [![tag](https://img.shields.io/badge/visit-project-green?style=plastic)](https://github.com/technomancer702/nodecast-tv) [![port](https://img.shields.io/badge/port-8413-9cf?style=plastic)]() <br /> NodeCast TV is a self-hosted, browser-based IPTV player for Live TV, Movies, and Series from Xtream Codes or M3U sources, with an interactive EPG guide, favorites, and optional hardware-accelerated transcoding for large channel libraries. | ![thumbnail](Apps/NodeCast%20TV/thumbnail.png) |
+
 | <h2><img src=Apps/OmniRoute/icon.png width=21 height=21> OmniRoute</h2> [![tag](https://img.shields.io/badge/diegosouzapw/OmniRoute-latest-blue?style=plastic)](https://github.com/diegosouzapw/OmniRoute) [![tag](https://img.shields.io/badge/visit-project-green?style=plastic)](https://omniroute.online/) [![port](https://img.shields.io/badge/port-8401-9cf?style=plastic)]() <br /> OmniRoute is a self-hosted AI gateway that puts one OpenAI-compatible endpoint in front of hundreds of LLM providers and models, with smart routing, automatic fallback, rate limiting, and a dashboard for cost and usage observability. | ![thumbnail](Apps/OmniRoute/thumbnail.png) |
+
 | <h2><img src=Apps/SearXNG/icon.png width=21 height=21> SearXNG</h2> [![tag](https://img.shields.io/badge/searxng/searxng-latest-blue?style=plastic)](https://github.com/searxng/searxng) [![tag](https://img.shields.io/badge/visit-project-green?style=plastic)](https://searxng.org/) [![port](https://img.shields.io/badge/port-8402-9cf?style=plastic)]() <br /> SearXNG is a free, privacy-respecting metasearch engine that aggregates results from dozens of search services without tracking or profiling you, and is fully self-hostable and highly customizable through its extensive settings and engine list. | ![thumbnail](Apps/SearXNG/thumbnail.png) |
+
+| <h2><img src=Apps/Web-Check/icon.png width=21 height=21> Web-Check</h2> [![tag](https://img.shields.io/badge/lissy93/web--check-latest-blue?style=plastic)](https://github.com/lissy93/web-check) [![tag](https://img.shields.io/badge/visit-project-green?style=plastic)](https://web-check.xyz/) [![port](https://img.shields.io/badge/port-8419-9cf?style=plastic)]() <br /> Web-Check is a self-hosted OSINT tool that runs dozens of checks against any domain — DNS, SSL, headers, hosting, tech stack, and more — and lays it all out in one clean report. | ![thumbnail](Apps/Web-Check/thumbnail.png) |
 
 ---
 
@@ -62,5 +75,5 @@ CasaOS doesn't read `store.json` — instead, it can install a full custom app s
 
 ## Support
 
-Found a bug or want to request an app? Open an issue on the [dApps GitHub repository](https://github.com/HSinghHira/dApps/issues).
+Found a bug or want to request an app? Open an issue on the [ZimaAppStore GitHub repository](https://github.com/HSinghHira/ZimaAppStore/issues).
 
