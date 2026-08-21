@@ -1,154 +1,273 @@
 name: stoatchat
 
 services:
-  config-init:
-    image: docker.io/node:20-bookworm-slim
-    container_name: stoatchat-config-init
+  init:
+    image: alpine:3.21
+    container_name: stoatchat-init
     restart: "no"
+    stop_grace_period: 20s
+    network_mode: bridge
     environment:
-      - STOAT_HOSTNAME=CHANGEME_192.168.1.50:8422
-    entrypoint: ["bash", "-c"]
-    command:
-      - |
-        set -e
-        if [ -f /config/secrets.env ]; then
-          echo "Stoat is already configured, skipping."
-          exit 0
-        fi
-        apt-get update -qq
-        apt-get install -y -qq --no-install-recommends git bash curl openssl ca-certificates
-        rm -rf /tmp/stoat-src
-        git clone --depth 1 https://github.com/stoatchat/self-hosted /tmp/stoat-src
-        cd /tmp/stoat-src
-        chmod +x ./generate_config.sh
-        yes y | ./generate_config.sh "$STOAT_HOSTNAME"
-        cp -f Revolt.toml secrets.env .env.web Caddyfile stoat.json /config/
-        echo "Stoat config generated for $STOAT_HOSTNAME"
+      - STOAT_PORT=8422
     volumes:
       - type: bind
-        source: /DATA/AppData/$AppID/config
+        source: /DATA/AppData/stoatchat/config
         target: /config
         bind:
           create_host_path: true
+    entrypoint:
+      - /bin/sh
+      - -ec
+      - |
+        apk add --no-cache openssl >/dev/null
+
+        if [ ! -f /config/secrets.env ]; then
+          API_SECRET="$(openssl rand -hex 32)"
+          LIVEKIT_KEY="$(openssl rand -hex 16)"
+          LIVEKIT_SECRET="$(openssl rand -hex 32)"
+
+          cat > /config/secrets.env <<EOF
+        REVOLT__API__SECRET=$API_SECRET
+        REVOLT__API__LIVEKIT__NODES__WORLDWIDE__KEY=$LIVEKIT_KEY
+        REVOLT__API__LIVEKIT__NODES__WORLDWIDE__SECRET=$LIVEKIT_SECRET
+        EOF
+        fi
+
+        if [ ! -f /config/livekit.yml ]; then
+          LIVEKIT_KEY="$(grep '^REVOLT__API__LIVEKIT__NODES__WORLDWIDE__KEY=' /config/secrets.env | cut -d= -f2-)"
+          LIVEKIT_SECRET="$(grep '^REVOLT__API__LIVEKIT__NODES__WORLDWIDE__SECRET=' /config/secrets.env | cut -d= -f2-)"
+
+          cat > /config/livekit.yml <<EOF
+        port: 7880
+        bind_addresses:
+          - "0.0.0.0"
+        rtc:
+          tcp_port: 7881
+          port_range_start: 50000
+          port_range_end: 50100
+        keys:
+          $LIVEKIT_KEY: $LIVEKIT_SECRET
+        redis:
+          address: redis:6379
+        EOF
+        fi
+
+        if [ ! -f /config/Revolt.toml ]; then
+          cat > /config/Revolt.toml <<'EOF'
+        [database]
+        type = "MongoDB"
+        url = "mongodb://database:27017"
+
+        [redis]
+        url = "redis://redis:6379"
+
+        [rabbit]
+        host = "rabbit"
+        username = "rabbituser"
+        password = "rabbitpass"
+
+        [files]
+        storage = "s3"
+        endpoint = "http://minio:9000"
+        bucket = "revolt-uploads"
+        access_key = "minioautumn"
+        secret_key = "minioautumn"
+
+        [api]
+        bind = "0.0.0.0:8000"
+
+        [api.vapid]
+        public_key = ""
+        private_key = ""
+
+        [pushd.vapid]
+        public_key = ""
+        private_key = ""
+
+        [api.livekit.nodes.worldwide]
+        hostname = "livekit:7880"
+        key = "${REVOLT__API__LIVEKIT__NODES__WORLDWIDE__KEY}"
+        secret = "${REVOLT__API__LIVEKIT__NODES__WORLDWIDE__SECRET}"
+        EOF
+        fi
+
+        if [ ! -f /config/.env.web ]; then
+          cat > /config/.env.web <<'EOF'
+        PUBLIC_API_URL=/api
+        PUBLIC_WS_URL=/ws
+        PUBLIC_AUTUMN_URL=/autumn
+        PUBLIC_JANUARY_URL=/january
+        PUBLIC_GIFBOX_URL=/gifbox
+        PUBLIC_LIVEKIT_URL=/livekit
+        EOF
+        fi
+
+        if [ ! -f /config/Caddyfile ]; then
+          cat > /config/Caddyfile <<'EOF'
+        :80 {
+          encode zstd gzip
+
+          handle /api* {
+            reverse_proxy api:8000
+          }
+
+          handle /ws* {
+            reverse_proxy api:8000
+          }
+
+          handle /autumn* {
+            reverse_proxy autumn:8000
+          }
+
+          handle /january* {
+            reverse_proxy january:8000
+          }
+
+          handle /gifbox* {
+            reverse_proxy gifbox:8000
+          }
+
+          handle /livekit* {
+            reverse_proxy livekit:7880
+          }
+
+          handle {
+            reverse_proxy web:5000
+          }
+        }
+        EOF
+        fi
+
+        echo "Stoat Chat configuration is ready."
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+        reservations:
+          cpus: "0.05"
+          memory: 64M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Stoat%20Chat/icon.png
+    x-casaos:
+      id: com.hiraappstore.stoatchat
+      volumes:
+        - container: /config
+          description:
+            en_US: Stores automatically generated Stoat configuration and secrets.
+
+  database:
+    image: mongo:8.0
+    container_name: stoatchat-database
+    restart: unless-stopped
+    stop_grace_period: 60s
+    network_mode: bridge
+    volumes:
+      - type: bind
+        source: /DATA/AppData/stoatchat/mongodb
+        target: /data/db
+        bind:
+          create_host_path: true
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.50"
+          memory: 512M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Stoat%20Chat/icon.png
+    x-casaos:
+      id: com.hiraappstore.stoatchat
+      volumes:
+        - container: /data/db
+          description:
+            en_US: Stores persistent Stoat database data.
+
+  redis:
+    image: eqalpha/keydb:latest
+    container_name: stoatchat-redis
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
     deploy:
       resources:
         limits:
           cpus: "1.00"
           memory: 512M
         reservations:
-          cpus: "0.00"
+          cpus: "0.10"
           memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSingHira/ZimaAppStore@main/Apps/Stoat%20Chat/icon.png
     x-casaos:
       id: com.hiraappstore.stoatchat
-      envs:
-        - container: STOAT_HOSTNAME
-          description:
-            en_US: Your NAS's LAN IP or domain, followed by :8422 (this app's port). Example 192.168.1.50:8422. Get this right before first install — Stoat bakes it into the config on first start only, and changing it later means wiping the config folder and losing access to existing uploads.
-      volumes:
-        - container: /config
-          description:
-            en_US: Stoat's generated Revolt.toml, secrets.env, .env.web, Caddyfile, and stoat.json. Made automatically on first start by the official generate_config.sh script.
 
-  database:
-    image: docker.io/mongo:latest
-    container_name: stoatchat-database
+  rabbit:
+    image: rabbitmq:4
+    container_name: stoatchat-rabbit
     restart: unless-stopped
-    stop_grace_period: 40s
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 10s
+    stop_grace_period: 60s
+    network_mode: bridge
+    environment:
+      - RABBITMQ_DEFAULT_USER=rabbituser
+      - RABBITMQ_DEFAULT_PASS=rabbitpass
     volumes:
       - type: bind
-        source: /DATA/AppData/$AppID/db
-        target: /data/db
+        source: /DATA/AppData/stoatchat/rabbitmq
+        target: /var/lib/rabbitmq
         bind:
           create_host_path: true
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
     deploy:
       resources:
         limits:
           cpus: "1.00"
           memory: 1024M
         reservations:
-          cpus: "0.00"
+          cpus: "0.25"
           memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Stoat%20Chat/icon.png
     x-casaos:
       id: com.hiraappstore.stoatchat
-      volumes:
-        - container: /data/db
-          description:
-            en_US: Stoat's MongoDB database. All servers, messages, and user records live here.
-
-  redis:
-    image: docker.io/eqalpha/keydb:latest
-    container_name: stoatchat-redis
-    restart: unless-stopped
-    stop_grace_period: 40s
-    deploy:
-      resources:
-        limits:
-          cpus: "0.50"
-          memory: 256M
-        reservations:
-          cpus: "0.00"
-          memory: 64M
-    x-casaos:
-      id: com.hiraappstore.stoatchat
-
-  rabbit:
-    image: docker.io/rabbitmq:4
-    container_name: stoatchat-rabbit
-    restart: unless-stopped
-    stop_grace_period: 40s
-    environment:
-      - RABBITMQ_DEFAULT_USER=rabbituser
-      - RABBITMQ_DEFAULT_PASS=rabbitpass
-    healthcheck:
-      test: rabbitmq-diagnostics -q ping
-      interval: 10s
-      timeout: 10s
-      retries: 3
-      start_period: 20s
-    volumes:
-      - type: bind
-        source: /DATA/AppData/$AppID/rabbit
-        target: /var/lib/rabbitmq
-        bind:
-          create_host_path: true
-    deploy:
-      resources:
-        limits:
-          cpus: "0.50"
-          memory: 512M
-        reservations:
-          cpus: "0.00"
-          memory: 128M
-    x-casaos:
-      id: com.hiraappstore.stoatchat
-      envs:
-        - container: RABBITMQ_DEFAULT_USER
-          description:
-            en_US: Internal RabbitMQ login. Only used between Stoat's own services, never reachable from outside. Matches upstream's default, safe to leave as-is.
-        - container: RABBITMQ_DEFAULT_PASS
-          description:
-            en_US: Internal RabbitMQ password. Only used between Stoat's own services, never reachable from outside. Matches upstream's default, safe to leave as-is.
       volumes:
         - container: /var/lib/rabbitmq
           description:
-            en_US: RabbitMQ's own message queue data.
+            en_US: Stores internal RabbitMQ data.
 
   minio:
-    image: docker.io/minio/minio:latest
+    image: minio/minio:latest
     container_name: stoatchat-minio
     restart: unless-stopped
-    stop_grace_period: 40s
+    stop_grace_period: 60s
+    network_mode: bridge
     command: server /data
     environment:
       - MINIO_ROOT_USER=minioautumn
       - MINIO_ROOT_PASSWORD=minioautumn
-      - MINIO_DOMAIN=minio
+    volumes:
+      - type: bind
+        source: /DATA/AppData/stoatchat/minio
+        target: /data
+        bind:
+          create_host_path: true
     networks:
       default:
         aliases:
@@ -159,489 +278,548 @@ services:
           - icons.minio
           - banners.minio
           - emojis.minio
-    volumes:
-      - type: bind
-        source: /DATA/AppData/$AppID/minio
-        target: /data
-        bind:
-          create_host_path: true
     deploy:
       resources:
         limits:
-          cpus: "0.50"
-          memory: 512M
+          cpus: "1.00"
+          memory: 1024M
         reservations:
-          cpus: "0.00"
-          memory: 128M
+          cpus: "0.25"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Stoat%20Chat/icon.png
     x-casaos:
       id: com.hiraappstore.stoatchat
-      envs:
-        - container: MINIO_ROOT_USER
-          description:
-            en_US: Internal S3 login used only by Stoat's own file server. Never reachable from outside. Matches upstream's default, safe to leave as-is.
-        - container: MINIO_ROOT_PASSWORD
-          description:
-            en_US: Internal S3 password used only by Stoat's own file server. Never reachable from outside. Matches upstream's default, safe to leave as-is.
       volumes:
         - container: /data
           description:
-            en_US: All uploaded files, avatars, banners, icons, and emojis, stored as S3 objects.
+            en_US: Stores uploaded files and media.
 
   createbuckets:
-    image: docker.io/minio/mc:latest
+    image: minio/mc:latest
     container_name: stoatchat-createbuckets
     restart: "no"
+    stop_grace_period: 30s
+    network_mode: bridge
     depends_on:
-      - minio
-    entrypoint: >
-      /bin/sh -c "
-      while ! /usr/bin/mc ready minio; do
-      /usr/bin/mc alias set minio http://minio:9000 minioautumn minioautumn;
-      echo 'Waiting minio...' && sleep 1;
-      done;
-      /usr/bin/mc mb minio/revolt-uploads;
-      exit 0;
-      "
+      minio:
+        condition: service_started
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        until /usr/bin/mc alias set minio http://minio:9000 minioautumn minioautumn; do sleep 2; done
+        until /usr/bin/mc ready minio; do sleep 2; done
+        /usr/bin/mc mb --ignore-existing minio/revolt-uploads
     deploy:
       resources:
         limits:
           cpus: "0.25"
-          memory: 128M
+          memory: 256M
         reservations:
-          cpus: "0.00"
-          memory: 32M
+          cpus: "0.05"
+          memory: 64M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Stoat%20Chat/icon.png
     x-casaos:
       id: com.hiraappstore.stoatchat
+
+  livekit:
+    image: ghcr.io/stoatchat/livekit-server:v1.9.13
+    container_name: stoatchat-livekit
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    command: --config /etc/livekit.yml
+    depends_on:
+      init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+    volumes:
+      - type: bind
+        source: /DATA/AppData/stoatchat/config/livekit.yml
+        target: /etc/livekit.yml
+        bind:
+          create_host_path: false
+    ports:
+      - target: 7881
+        published: "8423"
+        protocol: tcp
+      - target: 50000
+        published: "8424"
+        protocol: udp
+      - target: 50001
+        published: "8425"
+        protocol: udp
+      - target: 50002
+        published: "8426"
+        protocol: udp
+      - target: 50003
+        published: "8427"
+        protocol: udp
+      - target: 50004
+        published: "8428"
+        protocol: udp
+      - target: 50005
+        published: "8429"
+        protocol: udp
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.50"
+          memory: 512M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Stoat%20Chat/icon.png
+    x-casaos:
+      id: com.hiraappstore.stoatchat
+      ports:
+        - container: "7881"
+          description:
+            en_US: LiveKit voice TCP traffic published on host port 8423.
+        - container: "50000"
+          description:
+            en_US: LiveKit voice UDP traffic begins on host port 8424.
 
   api:
     image: ghcr.io/stoatchat/api:v0.13.8
     container_name: stoatchat-api
     restart: unless-stopped
     stop_grace_period: 40s
+    network_mode: bridge
     env_file:
       - /DATA/AppData/stoatchat/config/secrets.env
     depends_on:
+      init:
+        condition: service_completed_successfully
       database:
         condition: service_healthy
       redis:
         condition: service_started
       rabbit:
         condition: service_healthy
-      config-init:
-        condition: service_completed_successfully
     volumes:
       - type: bind
-        source: /DATA/AppData/$AppID/config/Revolt.toml
+        source: /DATA/AppData/stoatchat/config/Revolt.toml
         target: /Revolt.toml
+        bind:
+          create_host_path: false
     deploy:
       resources:
         limits:
-          cpus: "1.00"
-          memory: 512M
+          cpus: "2.00"
+          memory: 2048M
         reservations:
-          cpus: "0.00"
-          memory: 128M
+          cpus: "0.50"
+          memory: 512M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Stoat%20Chat/icon.png
     x-casaos:
       id: com.hiraappstore.stoatchat
-      volumes:
-        - container: /Revolt.toml
-          description:
-            en_US: Stoat's shared configuration file. Made automatically on first start by the official generate_config.sh script.
 
   events:
     image: ghcr.io/stoatchat/events:v0.13.8
     container_name: stoatchat-events
     restart: unless-stopped
     stop_grace_period: 40s
+    network_mode: bridge
     env_file:
       - /DATA/AppData/stoatchat/config/secrets.env
     depends_on:
+      init:
+        condition: service_completed_successfully
       database:
         condition: service_healthy
       redis:
         condition: service_started
-      config-init:
-        condition: service_completed_successfully
     volumes:
       - type: bind
-        source: /DATA/AppData/$AppID/config/Revolt.toml
+        source: /DATA/AppData/stoatchat/config/Revolt.toml
         target: /Revolt.toml
+        bind:
+          create_host_path: false
     deploy:
       resources:
         limits:
-          cpus: "0.50"
-          memory: 256M
+          cpus: "1.00"
+          memory: 1024M
         reservations:
-          cpus: "0.00"
-          memory: 64M
+          cpus: "0.25"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Stoat%20Chat/icon.png
     x-casaos:
       id: com.hiraappstore.stoatchat
-      volumes:
-        - container: /Revolt.toml
-          description:
-            en_US: Stoat's shared configuration file. Made automatically on first start by the official generate_config.sh script.
 
   autumn:
     image: ghcr.io/stoatchat/file-server:v0.13.8
     container_name: stoatchat-autumn
     restart: unless-stopped
     stop_grace_period: 40s
+    network_mode: bridge
     env_file:
       - /DATA/AppData/stoatchat/config/secrets.env
     depends_on:
+      init:
+        condition: service_completed_successfully
       database:
         condition: service_healthy
       createbuckets:
-        condition: service_started
-      config-init:
         condition: service_completed_successfully
     volumes:
       - type: bind
-        source: /DATA/AppData/$AppID/config/Revolt.toml
+        source: /DATA/AppData/stoatchat/config/Revolt.toml
         target: /Revolt.toml
+        bind:
+          create_host_path: false
     deploy:
       resources:
         limits:
-          cpus: "0.50"
-          memory: 256M
+          cpus: "1.00"
+          memory: 1024M
         reservations:
-          cpus: "0.00"
-          memory: 64M
+          cpus: "0.25"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Stoat%20Chat/icon.png
     x-casaos:
       id: com.hiraappstore.stoatchat
-      volumes:
-        - container: /Revolt.toml
-          description:
-            en_US: Stoat's shared configuration file. Made automatically on first start by the official generate_config.sh script.
 
   january:
     image: ghcr.io/stoatchat/proxy:v0.13.8
     container_name: stoatchat-january
     restart: unless-stopped
     stop_grace_period: 40s
+    network_mode: bridge
     env_file:
       - /DATA/AppData/stoatchat/config/secrets.env
     depends_on:
-      config-init:
+      init:
         condition: service_completed_successfully
     volumes:
       - type: bind
-        source: /DATA/AppData/$AppID/config/Revolt.toml
+        source: /DATA/AppData/stoatchat/config/Revolt.toml
         target: /Revolt.toml
+        bind:
+          create_host_path: false
     deploy:
       resources:
         limits:
-          cpus: "0.50"
-          memory: 256M
+          cpus: "1.00"
+          memory: 1024M
         reservations:
-          cpus: "0.00"
-          memory: 64M
+          cpus: "0.25"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Stoat%20Chat/icon.png
     x-casaos:
       id: com.hiraappstore.stoatchat
-      volumes:
-        - container: /Revolt.toml
-          description:
-            en_US: Stoat's shared configuration file. Made automatically on first start by the official generate_config.sh script.
 
   gifbox:
     image: ghcr.io/stoatchat/gifbox:v0.13.8
     container_name: stoatchat-gifbox
     restart: unless-stopped
     stop_grace_period: 40s
+    network_mode: bridge
     env_file:
       - /DATA/AppData/stoatchat/config/secrets.env
     depends_on:
-      config-init:
+      init:
         condition: service_completed_successfully
     volumes:
       - type: bind
-        source: /DATA/AppData/$AppID/config/Revolt.toml
+        source: /DATA/AppData/stoatchat/config/Revolt.toml
         target: /Revolt.toml
+        bind:
+          create_host_path: false
     deploy:
       resources:
         limits:
-          cpus: "0.25"
-          memory: 128M
+          cpus: "0.50"
+          memory: 512M
         reservations:
-          cpus: "0.00"
-          memory: 32M
+          cpus: "0.10"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Stoat%20Chat/icon.png
     x-casaos:
       id: com.hiraappstore.stoatchat
-      volumes:
-        - container: /Revolt.toml
-          description:
-            en_US: Stoat's shared configuration file. Made automatically on first start by the official generate_config.sh script.
 
   crond:
     image: ghcr.io/stoatchat/crond:v0.13.8
     container_name: stoatchat-crond
     restart: unless-stopped
     stop_grace_period: 40s
+    network_mode: bridge
     env_file:
       - /DATA/AppData/stoatchat/config/secrets.env
     depends_on:
+      init:
+        condition: service_completed_successfully
       database:
         condition: service_healthy
       minio:
         condition: service_started
-      config-init:
-        condition: service_completed_successfully
     volumes:
       - type: bind
-        source: /DATA/AppData/$AppID/config/Revolt.toml
+        source: /DATA/AppData/stoatchat/config/Revolt.toml
         target: /Revolt.toml
+        bind:
+          create_host_path: false
     deploy:
       resources:
         limits:
-          cpus: "0.25"
-          memory: 128M
+          cpus: "0.50"
+          memory: 512M
         reservations:
-          cpus: "0.00"
-          memory: 32M
+          cpus: "0.10"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Stoat%20Chat/icon.png
     x-casaos:
       id: com.hiraappstore.stoatchat
-      volumes:
-        - container: /Revolt.toml
-          description:
-            en_US: Stoat's shared configuration file. Made automatically on first start by the official generate_config.sh script.
 
   pushd:
     image: ghcr.io/stoatchat/pushd:v0.13.8
     container_name: stoatchat-pushd
     restart: unless-stopped
     stop_grace_period: 40s
+    network_mode: bridge
     env_file:
       - /DATA/AppData/stoatchat/config/secrets.env
     depends_on:
+      init:
+        condition: service_completed_successfully
       database:
         condition: service_healthy
       redis:
         condition: service_started
       rabbit:
         condition: service_healthy
-      config-init:
-        condition: service_completed_successfully
     volumes:
       - type: bind
-        source: /DATA/AppData/$AppID/config/Revolt.toml
+        source: /DATA/AppData/stoatchat/config/Revolt.toml
         target: /Revolt.toml
+        bind:
+          create_host_path: false
     deploy:
       resources:
         limits:
-          cpus: "0.25"
-          memory: 128M
+          cpus: "0.50"
+          memory: 512M
         reservations:
-          cpus: "0.00"
-          memory: 32M
+          cpus: "0.10"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Stoat%20Chat/icon.png
     x-casaos:
       id: com.hiraappstore.stoatchat
-      volumes:
-        - container: /Revolt.toml
-          description:
-            en_US: Stoat's shared configuration file. Made automatically on first start by the official generate_config.sh script.
+
+  voice-ingress:
+    image: ghcr.io/stoatchat/voice-ingress:v0.13.8
+    container_name: stoatchat-voice-ingress
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    env_file:
+      - /DATA/AppData/stoatchat/config/secrets.env
+    depends_on:
+      init:
+        condition: service_completed_successfully
+      database:
+        condition: service_healthy
+      rabbit:
+        condition: service_healthy
+      livekit:
+        condition: service_started
+    volumes:
+      - type: bind
+        source: /DATA/AppData/stoatchat/config/Revolt.toml
+        target: /Revolt.toml
+        bind:
+          create_host_path: false
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Stoat%20Chat/icon.png
+    x-casaos:
+      id: com.hiraappstore.stoatchat
 
   web:
     image: ghcr.io/stoatchat/for-web:746bee5
     container_name: stoatchat-web
     restart: unless-stopped
     stop_grace_period: 40s
+    network_mode: bridge
     env_file:
       - /DATA/AppData/stoatchat/config/.env.web
     depends_on:
-      config-init:
+      init:
         condition: service_completed_successfully
+      api:
+        condition: service_started
     deploy:
       resources:
         limits:
-          cpus: "0.50"
-          memory: 256M
+          cpus: "1.00"
+          memory: 1024M
         reservations:
-          cpus: "0.00"
-          memory: 64M
+          cpus: "0.25"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Stoat%20Chat/icon.png
     x-casaos:
       id: com.hiraappstore.stoatchat
 
   caddy:
-    image: docker.io/caddy:latest
+    image: caddy:2.8-alpine
     container_name: stoatchat-caddy
     restart: unless-stopped
     stop_grace_period: 40s
-    env_file:
-      - /DATA/AppData/stoatchat/config/.env.web
+    network_mode: bridge
     depends_on:
-      config-init:
+      init:
         condition: service_completed_successfully
+      web:
+        condition: service_started
+      api:
+        condition: service_started
+      autumn:
+        condition: service_started
+      january:
+        condition: service_started
+      gifbox:
+        condition: service_started
+      livekit:
+        condition: service_started
     ports:
-      - target: 8880
+      - target: 80
         published: "8422"
         protocol: tcp
     volumes:
       - type: bind
-        source: /DATA/AppData/$AppID/config/Caddyfile
+        source: /DATA/AppData/stoatchat/config/Caddyfile
         target: /etc/caddy/Caddyfile
+        bind:
+          create_host_path: false
       - type: bind
-        source: /DATA/AppData/$AppID/config/stoat.json
-        target: /stoat.json
-      - type: bind
-        source: /DATA/AppData/$AppID/caddy-data
+        source: /DATA/AppData/stoatchat/caddy-data
         target: /data
         bind:
           create_host_path: true
       - type: bind
-        source: /DATA/AppData/$AppID/caddy-config
+        source: /DATA/AppData/stoatchat/caddy-config
         target: /config
         bind:
           create_host_path: true
-    labels:
-      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/StoatChat/icon.png
     deploy:
       resources:
         limits:
-          cpus: "0.50"
-          memory: 256M
+          cpus: "1.00"
+          memory: 512M
         reservations:
-          cpus: "0.00"
-          memory: 64M
+          cpus: "0.10"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Stoat%20Chat/icon.png
     x-casaos:
       id: com.hiraappstore.stoatchat
       ports:
-        - container: "8880"
+        - container: "80"
           description:
-            en_US: Stoat's single web entry point (web app, API, file server, and proxy all route through here), published on host as 8422
+            en_US: Stoat Chat web interface published on host port 8422.
       volumes:
-        - container: /etc/caddy/Caddyfile
-          description:
-            en_US: Caddy's routing rules. Made automatically on first start by the official generate_config.sh script.
-        - container: /stoat.json
-          description:
-            en_US: Trusted-domain list used by Caddy. Made automatically on first start by the official generate_config.sh script.
         - container: /data
           description:
-            en_US: Caddy's own TLS certificates and state.
+            en_US: Stores Caddy runtime data.
         - container: /config
           description:
-            en_US: Caddy's own runtime configuration.
+            en_US: Stores Caddy configuration data.
 
 x-casaos:
   id: com.hiraappstore.stoatchat
   architectures:
     - amd64
-    - arm64
   main: caddy
   author: HSinghHira
   category: Social
   developer: stoatchat
-  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/StoatChat/icon.png
-  # thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/StoatChat/thumbnail.png
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Stoat%20Chat/icon.png
+  # thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Stoat%20Chat/thumbnail.png
   # screenshot_link:
-  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/StoatChat/thumbnail.png
+  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Stoat%20Chat/thumbnail.png
   title:
     en_US: Stoat Chat
   tagline:
-    en_US: Self-hosted, user-first chat for your own community
+    en_US: A modern self-hosted chat platform that installs in one click.
   description:
     en_US: >-
-      Stoat (formerly Revolt) is an open-source, self-hosted chat platform
-      that looks and feels like Discord — servers, channels, roles, custom
-      emoji, and file sharing — without handing your community's data to a
-      third party.
+      Stoat Chat is an open-source, self-hosted communication platform for
+      communities, friends, and teams. This ZimaOS and CasaOS package includes
+      the complete Stoat stack and automatically creates its configuration,
+      services, and secrets.
 
 
       **Features**
 
 
-      - Servers, channels, roles, and permissions, just like Discord
+      - One-click installation with no database or service setup required.
 
-      - Custom emoji, animated avatars, and profile banners with no
-        subscription required
+      - Includes MongoDB, KeyDB, RabbitMQ, MinIO, Caddy, LiveKit, and all
+        required Stoat services.
 
-      - Group DMs with up to 50 members
+      - Automatically creates and saves the required Stoat configuration.
 
-      - A public API for bots and custom clients
+      - Automatically creates persistent private application secrets.
 
-      - MongoDB for all server, message, and user data
+      - Real-time servers, channels, direct messages, file uploads, and media.
 
-      - MinIO (S3-compatible) storage for uploads, avatars, and emoji
+      - Voice communication through LiveKit.
 
-      - RabbitMQ and KeyDB power real-time events and push notifications
+      - Only the main web interface is published on port 8422.
 
-      - Config is generated automatically on first start by Stoat's own
-        setup script — no files to hand-create before installing
-
-      - This manifest covers text chat only — voice and video (LiveKit) are
-        not included, so it stays a manageable single-port install
+      - All application data is stored under /DATA/AppData/stoatchat.
 
 
       **How to use?**
 
+      1. Press Install.
 
-      1. Open Stoat Chat from the ZimaAppStore dashboard.
+      2. Wait for the first installation to finish.
 
-      2. You'll land on the Stoat web app. Create the first account — this
-         becomes an ordinary user, so make it your own account first.
+      3. Open Stoat Chat from the ZimaOS or CasaOS dashboard.
 
-      3. Create your first server from the "+" button on the server list.
+      4. Create your account.
 
-      4. Add channels, invite people with a server invite link, and set up
-         roles under server settings.
+      5. Start chatting.
 
-      5. Install the Stoat mobile or desktop app and point it at your
-         instance's address if you don't want to use the web app.
+      6. Your database, file storage, message broker, and other required
+         services are managed automatically.
 
-      6. Ongoing settings (registration rules, captcha, email verification,
-         upload limits) live in Revolt.toml on the host and take a container
-         restart to apply.
   tips:
     before_install:
       en_US: >-
-        1. Before you install, set the STOAT_HOSTNAME field on the
-           config-init service.
+        1. Press Install.
 
+        2. Wait for the first setup to finish.
 
-        2. Put in your NAS's LAN IP, followed by :8422. Example:
-           192.168.1.50:8422.
+        3. Do not change or delete the files in /DATA/AppData/stoatchat/config.
 
+        4. Open Stoat Chat from the dashboard.
 
-        3. Use a domain instead of an IP if you have one, still followed
-           by :8422.
+        5. Create your account.
 
+        6. Start chatting.
 
-        4. Get this right before install. Stoat only builds its config
-           once, the first time it starts.
-
-
-        5. Start the Stoat Chat installation.
-
-
-        6. The first start takes a minute or two longer than normal. A
-           setup step is downloading Stoat's official config tool and
-           building your config file.
-
-
-        7. Wait about a minute more after that. MongoDB and MinIO need a
-           moment to finish setting up too.
-
-
-        8. Open Stoat Chat from the ZimaAppStore dashboard on port 8422.
-
-
-        9. The first account you make is a normal user account, not an
-           admin account. Stoat has no separate admin login.
-
-
-        10. Important: secrets.env holds the keys that let you decrypt
-            your own uploaded files. Back up the whole config folder.
-
-
-        11. Important: changing STOAT_HOSTNAME after first install does
-            nothing by itself. To change it, delete everything in the
-            config folder and restart, which builds fresh secrets and
-            loses access to old files.
-
-
-        12. Important: changing Revolt.toml later needs a restart of the
-            api, events, autumn, january, gifbox, crond, and pushd
-            containers to take effect.
   index: /
   port_map: "8422"
   scheme: http
@@ -650,17 +828,10 @@ x-casaos:
   update_at: "2026-08-21"
   release_notes:
     en_US: |-
-      - Config is now generated automatically by a config-init container
-        that runs Stoat's own generate_config.sh on first start, driven by
-        a single STOAT_HOSTNAME field
-      - Fixes env_file paths that previously relied on $AppID, which
-        CasaOS only rewrites inside native volumes bind-mount sources, not
-        env_file entries
-      - Ships text chat only; LiveKit voice/video is left out to keep this
-        to a single published port
-      - Caddy is the only published service; api, events, autumn, january,
-        gifbox, crond, pushd, web, database, redis, rabbit, and minio all
-        stay on the internal network
-  repo: "https://github.com/stoatchat/self-hosted"
+      - Initial one-click ZimaOS and CasaOS manifest.
+      - Includes all required Stoat services internally.
+      - Automatically creates persistent configuration and secrets.
+      - Publishes the main web interface on port 8422.
+  repo: "https://github.com/stoatchat/stoatchat"
   support: "https://github.com/stoatchat/self-hosted/issues"
-  docs: "https://github.com/stoatchat/self-hosted/blob/main/README.md"
+  docs: "https://github.com/stoatchat/self-hosted"
