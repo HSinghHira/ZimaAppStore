@@ -171,7 +171,7 @@ services:
     restart: unless-stopped
     stop_grace_period: 40s
     env_file:
-      - /DATA/AppData/$AppID/config/secrets.env
+      - /DATA/AppData/stoatchat/config/secrets.env
     depends_on:
       database:
         condition: service_healthy
@@ -204,7 +204,7 @@ services:
     restart: unless-stopped
     stop_grace_period: 40s
     env_file:
-      - /DATA/AppData/$AppID/config/secrets.env
+      - /DATA/AppData/stoatchat/config/secrets.env
     depends_on:
       database:
         condition: service_healthy
@@ -235,7 +235,7 @@ services:
     restart: unless-stopped
     stop_grace_period: 40s
     env_file:
-      - /DATA/AppData/$AppID/config/secrets.env
+      - /DATA/AppData/stoatchat/config/secrets.env
     depends_on:
       database:
         condition: service_healthy
@@ -266,7 +266,7 @@ services:
     restart: unless-stopped
     stop_grace_period: 40s
     env_file:
-      - /DATA/AppData/$AppID/config/secrets.env
+      - /DATA/AppData/stoatchat/config/secrets.env
     volumes:
       - type: bind
         source: /DATA/AppData/$AppID/config/Revolt.toml
@@ -292,7 +292,7 @@ services:
     restart: unless-stopped
     stop_grace_period: 40s
     env_file:
-      - /DATA/AppData/$AppID/config/secrets.env
+      - /DATA/AppData/stoatchat/config/secrets.env
     volumes:
       - type: bind
         source: /DATA/AppData/$AppID/config/Revolt.toml
@@ -318,7 +318,7 @@ services:
     restart: unless-stopped
     stop_grace_period: 40s
     env_file:
-      - /DATA/AppData/$AppID/config/secrets.env
+      - /DATA/AppData/stoatchat/config/secrets.env
     depends_on:
       database:
         condition: service_healthy
@@ -349,7 +349,7 @@ services:
     restart: unless-stopped
     stop_grace_period: 40s
     env_file:
-      - /DATA/AppData/$AppID/config/secrets.env
+      - /DATA/AppData/stoatchat/config/secrets.env
     depends_on:
       database:
         condition: service_healthy
@@ -382,7 +382,7 @@ services:
     restart: unless-stopped
     stop_grace_period: 40s
     env_file:
-      - /DATA/AppData/$AppID/config/.env.web
+      - /DATA/AppData/stoatchat/config/.env.web
     deploy:
       resources:
         limits:
@@ -400,7 +400,7 @@ services:
     restart: unless-stopped
     stop_grace_period: 40s
     env_file:
-      - /DATA/AppData/$AppID/config/.env.web
+      - /DATA/AppData/stoatchat/config/.env.web
     ports:
       - target: 80
         published: "8422"
@@ -466,9 +466,9 @@ x-casaos:
   category: Social
   developer: stoatchat
   icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/StoatChat/icon.png
-  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/StoatChat/thumbnail.png
-  screenshot_link:
-    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/StoatChat/thumbnail.png
+  # thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/StoatChat/thumbnail.png
+  # screenshot_link:
+  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/StoatChat/thumbnail.png
   title:
     en_US: Stoat Chat
   tagline:
