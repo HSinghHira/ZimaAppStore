@@ -257,7 +257,6 @@ services:
     container_name: stoatchat-minio
     restart: unless-stopped
     stop_grace_period: 60s
-    network_mode: bridge
     command: server /data
     environment:
       - MINIO_ROOT_USER=minioautumn
