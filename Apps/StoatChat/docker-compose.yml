@@ -1,6 +1,54 @@
 name: stoatchat
 
 services:
+  config-init:
+    image: docker.io/node:20-bookworm-slim
+    container_name: stoatchat-config-init
+    restart: "no"
+    environment:
+      - STOAT_HOSTNAME=CHANGEME_192.168.1.50:8422
+    entrypoint: ["bash", "-c"]
+    command:
+      - |
+        set -e
+        if [ -f /config/secrets.env ]; then
+          echo "Stoat is already configured, skipping."
+          exit 0
+        fi
+        apt-get update -qq
+        apt-get install -y -qq --no-install-recommends git bash curl openssl ca-certificates
+        rm -rf /tmp/stoat-src
+        git clone --depth 1 https://github.com/stoatchat/self-hosted /tmp/stoat-src
+        cd /tmp/stoat-src
+        chmod +x ./generate_config.sh
+        yes y | ./generate_config.sh "$STOAT_HOSTNAME"
+        cp -f Revolt.toml secrets.env .env.web Caddyfile stoat.json /config/
+        echo "Stoat config generated for $STOAT_HOSTNAME"
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/config
+        target: /config
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+    x-casaos:
+      id: com.hiraappstore.stoatchat
+      envs:
+        - container: STOAT_HOSTNAME
+          description:
+            en_US: Your NAS's LAN IP or domain, followed by :8422 (this app's port). Example 192.168.1.50:8422. Get this right before first install — Stoat bakes it into the config on first start only, and changing it later means wiping the config folder and losing access to existing uploads.
+      volumes:
+        - container: /config
+          description:
+            en_US: Stoat's generated Revolt.toml, secrets.env, .env.web, Caddyfile, and stoat.json. Made automatically on first start by the official generate_config.sh script.
+
   database:
     image: docker.io/mongo:latest
     container_name: stoatchat-database
@@ -179,6 +227,8 @@ services:
         condition: service_started
       rabbit:
         condition: service_healthy
+      config-init:
+        condition: service_completed_successfully
     volumes:
       - type: bind
         source: /DATA/AppData/$AppID/config/Revolt.toml
@@ -196,7 +246,7 @@ services:
       volumes:
         - container: /Revolt.toml
           description:
-            en_US: Stoat's shared configuration file. Made by the official generate_config.sh script.
+            en_US: Stoat's shared configuration file. Made automatically on first start by the official generate_config.sh script.
 
   events:
     image: ghcr.io/stoatchat/events:v0.13.8
@@ -210,6 +260,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+      config-init:
+        condition: service_completed_successfully
     volumes:
       - type: bind
         source: /DATA/AppData/$AppID/config/Revolt.toml
@@ -227,7 +279,7 @@ services:
       volumes:
         - container: /Revolt.toml
           description:
-            en_US: Stoat's shared configuration file. Made by the official generate_config.sh script.
+            en_US: Stoat's shared configuration file. Made automatically on first start by the official generate_config.sh script.
 
   autumn:
     image: ghcr.io/stoatchat/file-server:v0.13.8
@@ -241,6 +293,8 @@ services:
         condition: service_healthy
       createbuckets:
         condition: service_started
+      config-init:
+        condition: service_completed_successfully
     volumes:
       - type: bind
         source: /DATA/AppData/$AppID/config/Revolt.toml
@@ -258,7 +312,7 @@ services:
       volumes:
         - container: /Revolt.toml
           description:
-            en_US: Stoat's shared configuration file. Made by the official generate_config.sh script.
+            en_US: Stoat's shared configuration file. Made automatically on first start by the official generate_config.sh script.
 
   january:
     image: ghcr.io/stoatchat/proxy:v0.13.8
@@ -267,6 +321,9 @@ services:
     stop_grace_period: 40s
     env_file:
       - /DATA/AppData/stoatchat/config/secrets.env
+    depends_on:
+      config-init:
+        condition: service_completed_successfully
     volumes:
       - type: bind
         source: /DATA/AppData/$AppID/config/Revolt.toml
@@ -284,7 +341,7 @@ services:
       volumes:
         - container: /Revolt.toml
           description:
-            en_US: Stoat's shared configuration file. Made by the official generate_config.sh script.
+            en_US: Stoat's shared configuration file. Made automatically on first start by the official generate_config.sh script.
 
   gifbox:
     image: ghcr.io/stoatchat/gifbox:v0.13.8
@@ -293,6 +350,9 @@ services:
     stop_grace_period: 40s
     env_file:
       - /DATA/AppData/stoatchat/config/secrets.env
+    depends_on:
+      config-init:
+        condition: service_completed_successfully
     volumes:
       - type: bind
         source: /DATA/AppData/$AppID/config/Revolt.toml
@@ -310,7 +370,7 @@ services:
       volumes:
         - container: /Revolt.toml
           description:
-            en_US: Stoat's shared configuration file. Made by the official generate_config.sh script.
+            en_US: Stoat's shared configuration file. Made automatically on first start by the official generate_config.sh script.
 
   crond:
     image: ghcr.io/stoatchat/crond:v0.13.8
@@ -324,6 +384,8 @@ services:
         condition: service_healthy
       minio:
         condition: service_started
+      config-init:
+        condition: service_completed_successfully
     volumes:
       - type: bind
         source: /DATA/AppData/$AppID/config/Revolt.toml
@@ -341,7 +403,7 @@ services:
       volumes:
         - container: /Revolt.toml
           description:
-            en_US: Stoat's shared configuration file. Made by the official generate_config.sh script.
+            en_US: Stoat's shared configuration file. Made automatically on first start by the official generate_config.sh script.
 
   pushd:
     image: ghcr.io/stoatchat/pushd:v0.13.8
@@ -357,6 +419,8 @@ services:
         condition: service_started
       rabbit:
         condition: service_healthy
+      config-init:
+        condition: service_completed_successfully
     volumes:
       - type: bind
         source: /DATA/AppData/$AppID/config/Revolt.toml
@@ -374,7 +438,7 @@ services:
       volumes:
         - container: /Revolt.toml
           description:
-            en_US: Stoat's shared configuration file. Made by the official generate_config.sh script.
+            en_US: Stoat's shared configuration file. Made automatically on first start by the official generate_config.sh script.
 
   web:
     image: ghcr.io/stoatchat/for-web:746bee5
@@ -383,6 +447,9 @@ services:
     stop_grace_period: 40s
     env_file:
       - /DATA/AppData/stoatchat/config/.env.web
+    depends_on:
+      config-init:
+        condition: service_completed_successfully
     deploy:
       resources:
         limits:
@@ -401,8 +468,11 @@ services:
     stop_grace_period: 40s
     env_file:
       - /DATA/AppData/stoatchat/config/.env.web
+    depends_on:
+      config-init:
+        condition: service_completed_successfully
     ports:
-      - target: 80
+      - target: 8880
         published: "8422"
         protocol: tcp
     volumes:
@@ -434,21 +504,17 @@ services:
           memory: 64M
     x-casaos:
       id: com.hiraappstore.stoatchat
-      envs:
-        - container: HOSTNAME
-          description:
-            en_US: Set in .env.web by generate_config.sh. Your Stoat domain, or ":80" if Stoat sits behind another reverse proxy.
       ports:
-        - container: "80"
+        - container: "8880"
           description:
             en_US: Stoat's single web entry point (web app, API, file server, and proxy all route through here), published on host as 8422
       volumes:
         - container: /etc/caddy/Caddyfile
           description:
-            en_US: Caddy's routing rules. Made by the official generate_config.sh script.
+            en_US: Caddy's routing rules. Made automatically on first start by the official generate_config.sh script.
         - container: /stoat.json
           description:
-            en_US: Trusted-domain list used by Caddy. Made by the official generate_config.sh script.
+            en_US: Trusted-domain list used by Caddy. Made automatically on first start by the official generate_config.sh script.
         - container: /data
           description:
             en_US: Caddy's own TLS certificates and state.
@@ -499,6 +565,9 @@ x-casaos:
 
       - RabbitMQ and KeyDB power real-time events and push notifications
 
+      - Config is generated automatically on first start by Stoat's own
+        setup script — no files to hand-create before installing
+
       - This manifest covers text chat only — voice and video (LiveKit) are
         not included, so it stays a manageable single-port install
 
@@ -525,58 +594,52 @@ x-casaos:
   tips:
     before_install:
       en_US: >-
-        1. Stoat needs its config files made before it can start. Do this on
-           any computer with Git and Bash first.
+        1. Before you install, set the STOAT_HOSTNAME field on the
+           config-init service.
 
 
-        2. Run these commands: git clone
-           https://github.com/stoatchat/self-hosted stoat-config, then cd
-           stoat-config.
+        2. Put in your NAS's LAN IP, followed by :8422. Example:
+           192.168.1.50:8422.
 
 
-        3. Run ./generate_config.sh yourdomain.com, using your own domain.
-           If you don't have a domain yet, run ./generate_config.sh
-           localhost and say yes when it asks about using another reverse
-           proxy.
+        3. Use a domain instead of an IP if you have one, still followed
+           by :8422.
 
 
-        4. This makes four files: Revolt.toml, secrets.env, .env.web, and
-           Caddyfile. It also makes a stoat.json file.
+        4. Get this right before install. Stoat only builds its config
+           once, the first time it starts.
 
 
-        5. Copy all four files, plus stoat.json, onto your NAS into the
-           folder /DATA/AppData/stoatchat/config. Make this folder first if
-           it does not exist.
+        5. Start the Stoat Chat installation.
 
 
-        6. Open Caddyfile in that folder. Change the address at the top to
-           :80 so Caddy listens on plain HTTP instead of trying to fetch a
-           certificate for a domain.
+        6. The first start takes a minute or two longer than normal. A
+           setup step is downloading Stoat's official config tool and
+           building your config file.
 
 
-        7. Open .env.web in that folder. Make sure HOSTNAME matches what
-           you put in Caddyfile.
+        7. Wait about a minute more after that. MongoDB and MinIO need a
+           moment to finish setting up too.
 
 
-        8. Keep secrets.env safe. It holds the keys that let you decrypt
-           your own uploaded files. If you lose it, you lose your files.
+        8. Open Stoat Chat from the ZimaAppStore dashboard on port 8422.
 
 
-        9. Start the Stoat Chat installation.
+        9. The first account you make is a normal user account, not an
+           admin account. Stoat has no separate admin login.
 
 
-        10. Wait about a minute after first start. MongoDB and MinIO need a
-            moment to finish setting up before the web app will load.
+        10. Important: secrets.env holds the keys that let you decrypt
+            your own uploaded files. Back up the whole config folder.
 
 
-        11. Open Stoat Chat from the ZimaAppStore dashboard on port 8422.
+        11. Important: changing STOAT_HOSTNAME after first install does
+            nothing by itself. To change it, delete everything in the
+            config folder and restart, which builds fresh secrets and
+            loses access to old files.
 
 
-        12. The first account you make is a normal user account, not an
-            admin account. Stoat has no separate admin login.
-
-
-        13. Important: changing Revolt.toml later needs a restart of the
+        12. Important: changing Revolt.toml later needs a restart of the
             api, events, autumn, january, gifbox, crond, and pushd
             containers to take effect.
   index: /
@@ -584,10 +647,15 @@ x-casaos:
   scheme: http
   is_uncontrolled: false
   version: "0.13.8"
-  update_at: "2026-08-20"
+  update_at: "2026-08-21"
   release_notes:
     en_US: |-
-      - Initial version, adapted from stoatchat/self-hosted's compose.yml
+      - Config is now generated automatically by a config-init container
+        that runs Stoat's own generate_config.sh on first start, driven by
+        a single STOAT_HOSTNAME field
+      - Fixes env_file paths that previously relied on $AppID, which
+        CasaOS only rewrites inside native volumes bind-mount sources, not
+        env_file entries
       - Ships text chat only; LiveKit voice/video is left out to keep this
         to a single published port
       - Caddy is the only published service; api, events, autumn, january,
