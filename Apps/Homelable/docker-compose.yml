@@ -1,0 +1,221 @@
+name: homelable
+
+services:
+  backend:
+    image: ghcr.io/pouzor/homelable-backend:latest
+    container_name: homelable-backend
+    restart: unless-stopped
+    stop_grace_period: 40s
+    cap_add:
+      - NET_RAW
+    environment:
+      SQLITE_PATH: /app/data/homelab.db
+      SECRET_KEY: CHANGEME_RANDOM_SECRET
+      AUTH_USERNAME: admin
+      AUTH_PASSWORD_HASH: CHANGEME_BCRYPT_HASH
+      CORS_ORIGINS: '["http://localhost:8431"]'
+      SCANNER_RANGES: '["192.168.1.0/24"]'
+      STATUS_CHECKER_INTERVAL: "60"
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/backend
+        target: /app/data
+        bind:
+          create_host_path: true
+    networks:
+      - homelable_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+    x-casaos:
+      id: com.hiraappstore.homelable
+      envs:
+        - container: SECRET_KEY
+          description:
+            en_US: Random secret the backend uses to sign sessions. Set this to a long random string before you start the app.
+        - container: AUTH_USERNAME
+          description:
+            en_US: Login username for the web UI. Defaults to admin.
+        - container: AUTH_PASSWORD_HASH
+          description:
+            en_US: >-
+              Login password for the web UI, as a bcrypt hash (not plain
+              text). Must match AUTH_USERNAME above. Generate one after the
+              first start with: docker exec homelable-backend python -c
+              "from passlib.context import CryptContext;
+              print(CryptContext(schemes=['bcrypt']).hash('yourpassword').replace('$','$$'))"
+              — the $$ doubling is required here because this value lives
+              in docker-compose.yml, not a .env file.
+        - container: CORS_ORIGINS
+          description:
+            en_US: Browser origins allowed to call the API directly. The bundled web UI talks to the API through its own nginx proxy, so this rarely needs changing.
+        - container: SCANNER_RANGES
+          description:
+            en_US: Default CIDR ranges for the network scanner. Fully optional — you can set or change this anytime in-app via Scan Network.
+
+  frontend:
+    image: ghcr.io/pouzor/homelable-frontend:latest
+    container_name: homelable-frontend
+    restart: unless-stopped
+    stop_grace_period: 40s
+    depends_on:
+      - backend
+    ports:
+      - target: 80
+        published: "8431"
+        protocol: tcp
+    networks:
+      - homelable_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Homelable/icon.png
+    x-casaos:
+      id: com.hiraappstore.homelable
+      ports:
+        - container: "80"
+          description:
+            en_US: Web UI — the canvas, scanner, and settings (published on host as 8431).
+
+networks:
+  homelable_network:
+
+x-casaos:
+  id: com.hiraappstore.homelable
+  architectures:
+    - amd64
+    - arm64
+  main: frontend
+  author: HSinghHira
+  category: Networking
+  developer: Pouzor (Remy Pouzor)
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Homelable/icon.png
+  # thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Homelable/thumbnail.png
+  # screenshot_link:
+  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Homelable/thumbnail.png
+  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Homelable/screenshot-1.png
+  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Homelable/screenshot-2.png
+  title:
+    en_US: Homelable
+  tagline:
+    en_US: Draw and monitor your whole homelab as a live, interactive diagram
+  description:
+    en_US: >-
+      Homelable is a self-hosted infrastructure visualizer for your
+      homelab — scan your network, drop discovered devices onto a canvas,
+      and watch live health-checks light up as your gear goes on- and
+      offline.
+
+
+      **Features**
+
+
+      - One-click nmap network scans that queue unknown devices for you
+        to approve onto the canvas
+
+      - 15+ node types: routers, switches, servers, hypervisors,
+        firewalls, Docker hosts/containers, IoT, and more
+
+      - Live status checks per node (ping, TCP, HTTP /health) with
+        real-time updates over WebSocket
+
+      - Import Proxmox hosts/guests, Zigbee2MQTT meshes, and Z-Wave JS
+        networks straight onto the canvas
+
+      - Physical rack canvas with port-to-port cable patching, alongside
+        your logical network and electrical diagrams
+
+      - SQLite-backed backend, with all canvases, devices, and settings
+        stored under /DATA/AppData/$AppID
+
+
+      **How to use?**
+
+
+      1. Open Homelable from the ZimaAppStore dashboard.
+
+      2. Log in with the username and password you set in the
+         AUTH_USERNAME / AUTH_PASSWORD_HASH variables before install.
+
+      3. Click "Scan Network" in the sidebar to discover devices on your
+         LAN — or add nodes manually from "Add Node".
+
+      4. Review the Pending Devices queue and approve the ones you want
+         on your canvas.
+
+      5. Double-click any node to set its health-check method, icon, and
+         linked services.
+
+      6. Everything else — Proxmox/Zigbee/Z-Wave imports, rack canvases,
+         multiple designs, OIDC login — is configured in-app under
+         Settings, with no container restart needed except for auth
+         changes.
+  tips:
+    before_install:
+      en_US: >-
+        1. This app needs two things set before you start it: SECRET_KEY
+        and AUTH_PASSWORD_HASH, both in the backend service.
+
+
+        2. Set SECRET_KEY to any long random string you make up.
+
+
+        3. AUTH_PASSWORD_HASH is trickier. It must be a bcrypt hash of
+        your password, not the password itself.
+
+
+        4. Start the installation first with a temporary value, since you
+        need the container running to generate the hash.
+
+
+        5. Once Homelable is running, open a terminal and run: docker
+        exec homelable-backend python -c "from passlib.context import
+        CryptContext;
+        print(CryptContext(schemes=['bcrypt']).hash('yourpassword').replace('$','$$'))"
+
+
+        6. Copy the output into AUTH_PASSWORD_HASH, keeping every $$ as
+        two dollar signs, then restart the homelable-backend container.
+
+
+        7. Open Homelable from the ZimaAppStore dashboard and log in with
+        AUTH_USERNAME and the password you just hashed.
+
+
+        8. Click "Scan Network" to find devices on your LAN, or add nodes
+        by hand.
+
+
+        9. SCANNER_RANGES and STATUS_CHECKER_INTERVAL are just starting
+        defaults — change them anytime from inside the app.
+
+
+        10. Important: changing AUTH_PASSWORD_HASH later does not affect
+        anything already saved. It only changes what password logs you
+        in next time.
+  index: /
+  port_map: "8431"
+  scheme: http
+  is_uncontrolled: false
+  release_notes:
+    en_US: |-
+      - Initial version, using the official prebuilt ghcr.io/pouzor
+        images (multi-arch amd64/arm64).
+      - Using the latest tag rather than a pinned release number:
+        pulls against v3.2.0 and 3.2.0 both failed, so this tracks
+        the tip of main until a specific release tag is confirmed
+        to exist on the registry.
+  repo: "https://github.com/Pouzor/homelable"
+  support: "https://github.com/Pouzor/homelable/issues"
+  docs: "https://github.com/Pouzor/homelable/blob/main/INSTALLATION.md"
