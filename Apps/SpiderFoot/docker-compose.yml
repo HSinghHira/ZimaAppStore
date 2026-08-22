@@ -1,0 +1,149 @@
+name: spiderfoot
+
+services:
+  spiderfoot:
+    image: joshuapfritz/spiderfoot:v4.0
+    container_name: spiderfoot
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    environment:
+      - HOME=/data
+    ports:
+      - target: 5001
+        published: "8430"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/SpiderFoot/icon.png
+    x-casaos:
+      id: com.hiraappstore.spiderfoot
+      envs:
+        - container: HOME
+          description:
+            en_US: Tells SpiderFoot where to keep its config, database, and logs. Set to the persistent data folder so nothing is lost on restart.
+      ports:
+        - container: "5001"
+          description:
+            en_US: Web UI for running and reviewing OSINT scans (published on host as 8430).
+      volumes:
+        - container: /data
+          description:
+            en_US: SpiderFoot's SQLite database, scan results, and settings.
+
+x-casaos:
+  id: com.hiraappstore.spiderfoot
+  architectures:
+    - amd64
+  main: spiderfoot
+  author: HSinghHira
+  category: Networking
+  developer: Steve Micallef (smicallef)
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/SpiderFoot/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/SpiderFoot/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/SpiderFoot/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/SpiderFoot/thumbnail-1.png
+  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/SpiderFoot/screenshot-2.png
+  title:
+    en_US: SpiderFoot
+  tagline:
+    en_US: Automated OSINT reconnaissance for any domain, IP, or identity
+  description:
+    en_US: >-
+      SpiderFoot automates open-source intelligence (OSINT) gathering,
+      querying over 200 data sources to map out everything public about a
+      target — think a one-click recon report generator for your own
+      attack surface or any domain you're investigating.
+
+
+      **Features**
+
+
+      - 200+ modules covering DNS, WHOIS, breach databases, threat feeds,
+        social media, dark web mentions, and more
+
+      - Event-driven engine where modules feed each other for deeper,
+        automatic correlation
+
+      - Built-in correlation engine with pre-defined rules to surface
+        risks automatically
+
+      - Web UI and CLI, with CSV/JSON/GEXF export for scan results
+
+      - Persistent storage under /DATA/AppData/$AppID, so scans and
+        settings survive container restarts
+
+
+      **How to use?**
+
+
+      1. Open SpiderFoot from the ZimaAppStore dashboard.
+
+      2. Click "New Scan", give it a name, and enter your target (a
+         domain, IP, email, or name).
+
+      3. Pick which modules or a scan preset (e.g. "Passive", "All") to
+         run, then start the scan.
+
+      4. Watch results populate live, or come back once it finishes.
+
+      5. Use the built-in correlation view to see flagged risks, and
+         export results as CSV, JSON, or GEXF when you're done.
+
+      6. Optional third-party API keys (Shodan, HaveIBeenPwned, etc.) can
+         be added anytime under Settings to unlock extra modules — the
+         app works fully without them.
+  tips:
+    before_install:
+      en_US: >-
+        1. SpiderFoot has no login screen by default. Anyone who can reach
+        port 8430 can use it.
+
+
+        2. If this box is reachable outside your home network, put it
+        behind a reverse proxy with authentication first.
+
+
+        3. Start the SpiderFoot installation.
+
+
+        4. Open SpiderFoot from the ZimaAppStore dashboard once it's
+        running.
+
+
+        5. Click "New Scan" to start your first OSINT scan.
+
+
+        6. Add optional API keys later under Settings > API Keys to
+        unlock extra modules. You do not need any keys to start scanning.
+
+
+        7. All your scans and settings are saved in the app's data
+        folder, so they survive restarts and updates.
+  index: /
+  port_map: "8430"
+  scheme: http
+  is_uncontrolled: false
+  version: "4.0"
+  update_at: "2026-08-22"
+  release_notes:
+    en_US: |-
+      - Initial version, using joshuapfritz/spiderfoot:v4.0 since upstream
+        SpiderFoot does not publish its own Docker Hub or GHCR image.
+  repo: "https://github.com/smicallef/spiderfoot"
+  support: "https://github.com/smicallef/spiderfoot/issues"
+  docs: "https://www.spiderfoot.net/documentation/"

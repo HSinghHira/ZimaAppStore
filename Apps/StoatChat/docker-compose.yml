@@ -729,8 +729,7 @@ x-casaos:
 
 
         4. Run this to get a VAPID keypair (paste the whole thing as one
-           command):
-           docker run --rm node:20-alpine node -e "const c=require('crypto');const{publicKey,privateKey}=c.generateKeyPairSync('ec',{namedCurve:'prime256v1'});const p=publicKey.export({format:'jwk'});const s=privateKey.export({format:'jwk'});const r=Buffer.concat([Buffer.from([4]),Buffer.from(p.x,'base64url'),Buffer.from(p.y,'base64url')]);console.log('PUBLIC:',r.toString('base64url'));console.log('PRIVATE:',s.d);"
+           command): docker run --rm node:20-alpine node -e "const c=require('crypto');const{publicKey,privateKey}=c.generateKeyPairSync('ec',{namedCurve:'prime256v1'});const p=publicKey.export({format:'jwk'});const s=privateKey.export({format:'jwk'});const r=Buffer.concat([Buffer.from([4]),Buffer.from(p.x,'base64url'),Buffer.from(p.y,'base64url')]);console.log('PUBLIC:',r.toString('base64url'));console.log('PRIVATE:',s.d);"
 
 
         5. You now have 4 values: a LiveKit key, a LiveKit secret, a VAPID
