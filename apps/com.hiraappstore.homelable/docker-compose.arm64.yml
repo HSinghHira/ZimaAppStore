@@ -1,0 +1,67 @@
+name: homelable
+
+services:
+  backend:
+    image: ghcr.io/pouzor/homelable-backend:latest@sha256:90b1fb6826ca53ff2dfaaaadfec15abd338e4572f1e3267ff6bd3349a5cd883c
+    container_name: homelable-backend
+    restart: unless-stopped
+    stop_grace_period: 40s
+    cap_add:
+      - NET_RAW
+    environment:
+      SQLITE_PATH: /app/data/homelab.db
+      SECRET_KEY: 966ce567ecd086995723ff4d8ae712823102667503eacb97234cc8c7c7a79aac
+      AUTH_USERNAME: admin
+      AUTH_PASSWORD_HASH: $2a$12$sAi.frLLWflLR4lCUufIOeEOCHaNT75FvbCDUvB7AVn/GjdkY2vuS
+      CORS_ORIGINS: '["http://localhost:8431"]'
+      SCANNER_RANGES: '["192.168.1.0/24"]'
+      STATUS_CHECKER_INTERVAL: "60"
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/backend
+        target: /app/data
+        bind:
+          create_host_path: true
+    networks:
+      - homelable_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+  frontend:
+    image: ghcr.io/pouzor/homelable-frontend:latest@sha256:c1332feef61e2d57150f72ba0b2674fe82892483bdf6daed44c10f99710d5fa1
+    container_name: homelable-frontend
+    restart: unless-stopped
+    stop_grace_period: 40s
+    depends_on:
+      - backend
+    ports:
+      - target: 80
+        published: "8431"
+        protocol: tcp
+    networks:
+      - homelable_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+networks:
+  homelable_network:
+
+x-casaos:
+  id: com.hiraappstore.homelable
+  main: frontend
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.homelable/assets/icon.png
+  title:
+    en_US: Homelable
+  index: /
+  port_map: "8431"
+  scheme: http

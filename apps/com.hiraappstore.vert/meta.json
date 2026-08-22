@@ -1,0 +1,36 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Productivity",
+  "developer": "VERT-sh",
+  "thumbnail": "/apps/com.hiraappstore.vert/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.vert/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.vert/assets/thumbnail-1.webp"
+  ],
+  "tagline": "Convert files locally in your browser using WebAssembly — no uploads, no cloud",
+  "description": "VERT is an open-source, next-generation file converter that runs conversions directly on your device using WebAssembly instead of uploading files to a cloud service, think a private, self-hosted alternative to online conversion sites.\n\n**Features**\n\n- Local, in-browser conversion for images, audio, and documents using\n  WebAssembly (ImageMagick, FFmpeg, and Pandoc under the hood) — those\n  files never leave your device\n\n- Supports 250+ file formats across images, audio, documents, and video\n- No file size limits and no ads\n- Video conversion is resource-intensive, so by default it runs\n  through VERT's official shared \"vertd\" servers; the vertd daemon\n  can be self-hosted separately later for fully local video\n  conversion\n\n- Fully stateless static frontend — no database, nothing to back up\n\n**How to use?**\n\n1. Open VERT from the ZimaAppStore dashboard.\n2. Drop a file onto the upload box, or click it to browse for one.\n3. Choose the format you want to convert it to.\n4. Adjust any conversion settings shown for that format, if you want.\n5. Click convert, then download the result once it finishes.\n6. Video files convert through VERT's shared vertd servers\n   automatically — there's nothing to set up for that.",
+  "tips": {
+    "before_install": "1. There is nothing to set up before installing.\n\n2. Start the VERT installation.\n\n3. Open VERT from the ZimaAppStore dashboard.\n\n4. Drop a file to convert it.\n\n5. Video conversion uses VERT's shared servers by default. You do\n   not need to configure anything for that."
+  },
+  "is_uncontrolled": false,
+  "repo": "https://github.com/VERT-sh/VERT",
+  "support": "https://github.com/VERT-sh/VERT/issues",
+  "docs": "https://github.com/VERT-sh/VERT/blob/main/docs/GETTING_STARTED.md",
+  "title": "VERT",
+  "release_note": "- Initial version.\n- Upstream only publishes a floating `latest` tag (plus per-commit\n  `sha-*` tags) via ghcr.io/vert-sh/vert, so no versioned release\n  exists yet to pin against.",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.vert",
+  "version": "",
+  "categories": [
+    "productivity"
+  ],
+  "min_memory": 67108864,
+  "min_image_size": {
+    "amd64": 47296804,
+    "arm64": 47177467
+  }
+}

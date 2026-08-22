@@ -1,0 +1,37 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Networking",
+  "developer": "Pouzor (Remy Pouzor)",
+  "thumbnail": "/apps/com.hiraappstore.homelable/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.homelable/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.homelable/assets/thumbnail-1.webp",
+    "/apps/com.hiraappstore.homelable/assets/thumbnail-2.webp"
+  ],
+  "tagline": "Draw and monitor your whole homelab as a live, interactive diagram",
+  "description": "Homelable is a self-hosted infrastructure visualizer for your homelab — scan your network, drop discovered devices onto a canvas, and watch live health-checks light up as your gear goes on- and offline.\n\n**Features**\n\n- One-click nmap network scans that queue unknown devices for you to approve onto the canvas\n- 15+ node types: routers, switches, servers, hypervisors,\n  firewalls, Docker hosts/containers, IoT, and more\n\n- Live status checks per node (ping, TCP, HTTP /health) with\n  real-time updates over WebSocket\n\n- Import Proxmox hosts/guests, Zigbee2MQTT meshes, and Z-Wave JS\n  networks straight onto the canvas\n\n- Physical rack canvas with port-to-port cable patching, alongside\n  your logical network and electrical diagrams\n\n- SQLite-backed backend, with all canvases, devices, and settings\n  stored under /DATA/AppData/$AppID\n\n\n**How to use?**\n\n1. Open Homelable from the ZimaAppStore dashboard.\n2. Log in with the username and password (Default \"admin/admin\") you set in the\n   AUTH_USERNAME / AUTH_PASSWORD_HASH variables before install.\n\n3. Click \"Scan Network\" in the sidebar to discover devices on your\n   LAN — or add nodes manually from \"Add Node\".\n\n4. Review the Pending Devices queue and approve the ones you want\n   on your canvas.\n\n5. Double-click any node to set its health-check method, icon, and\n   linked services.\n\n6. Everything else — Proxmox/Zigbee/Z-Wave imports, rack canvases,\n   multiple designs, OIDC login — is configured in-app under\n   Settings, with no container restart needed except for auth\n   changes.",
+  "tips": {
+    "before_install": "1. This app needs two things set before you start it: SECRET_KEY and AUTH_PASSWORD_HASH, both in the backend service.\n\n2. Set SECRET_KEY to any long random string you make up.\n\n3. AUTH_PASSWORD_HASH is trickier. It must be a bcrypt hash of your password, not the password itself.\n\n4. Start the installation first with a temporary value, since you need the container running to generate the hash.\n\n5. Once Homelable is running, open a terminal and run: docker exec homelable-backend python -c \"from passlib.context import CryptContext; print(CryptContext(schemes=['bcrypt']).hash('yourpassword').replace('$','$$'))\"\n\n6. Copy the output into AUTH_PASSWORD_HASH, keeping every $$ as two dollar signs, then restart the homelable-backend container.\n\n7. Open Homelable from the ZimaAppStore dashboard and log in with AUTH_USERNAME and the password you just hashed.\n\n8. Click \"Scan Network\" to find devices on your LAN, or add nodes by hand.\n\n9. SCANNER_RANGES and STATUS_CHECKER_INTERVAL are just starting defaults — change them anytime from inside the app.\n\n10. Important: changing AUTH_PASSWORD_HASH later does not affect anything already saved. It only changes what password logs you in next time."
+  },
+  "is_uncontrolled": false,
+  "repo": "https://github.com/Pouzor/homelable",
+  "support": "https://github.com/Pouzor/homelable/issues",
+  "docs": "https://github.com/Pouzor/homelable/blob/main/INSTALLATION.md",
+  "title": "Homelable",
+  "release_note": "- Initial version, using the official prebuilt ghcr.io/pouzor\n  images (multi-arch amd64/arm64).\n- Using the latest tag rather than a pinned release number:\n  pulls against v3.2.0 and 3.2.0 both failed, so this tracks\n  the tip of main until a specific release tag is confirmed\n  to exist on the registry.",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.homelable",
+  "version": "",
+  "categories": [
+    "networking"
+  ],
+  "min_memory": 201326592,
+  "min_image_size": {
+    "amd64": 136707111,
+    "arm64": 136350335
+  }
+}

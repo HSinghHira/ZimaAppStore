@@ -1,0 +1,40 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Productivity",
+  "developer": "cloudreve",
+  "thumbnail": "/apps/com.hiraappstore.cloudreve/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.cloudreve/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.cloudreve/assets/screenshot-2.webp",
+    "/apps/com.hiraappstore.cloudreve/assets/screenshot-3.webp",
+    "/apps/com.hiraappstore.cloudreve/assets/screenshot-4.webp"
+  ],
+  "tagline": "Self-hosted file management and cloud storage",
+  "description": "Cloudreve is an open-source, self-hosted file management and sharing platform — think a private Dropbox or Google Drive that you fully control, with support for ten different storage backends.\n**Features**\n- Drag-and-drop uploads, in-browser previews, and shareable public\n  links with optional passwords and expiration.\n\n- Native WebDAV support for mounting Cloudreve as a network drive on\n  Windows, macOS, or Linux.\n\n- Ten storage backends supported — Local, S3-compatible (MinIO,\n  Backblaze B2, Cloudflare R2, AWS S3), OneDrive, Aliyun OSS, Tencent\n  COS, and more — assignable per user group.\n\n- Optional Aria2/qBittorrent integration for remote downloads\n  straight to your storage.\n\n- PostgreSQL for application data and Redis for caching, both\n  bundled and pre-wired.\n\n- Persistent storage under /DATA/AppData/$AppID for app data,\n  Postgres, and Redis.\n\n**How to use?**\n1. Open Cloudreve from the ZimaAppStore dashboard.\n2. Register an account — the first account created becomes the\n   administrator.\n\n3. Start uploading files and creating folders under the default\n   Local storage policy.\n\n4. Optional: connect an S3-compatible bucket or other remote backend\n   from the admin panel so uploads survive beyond this host.\n\n5. Optional: enable WebDAV in your user settings to mount Cloudreve\n   as a network drive, or enable Aria2 remote downloads in the admin\n   panel (uses the published 8410 port).\n\n6. Further server settings — storage policies, user groups, sharing\n   rules — are all configured later through the in-app Admin Panel,\n   no compose file edits needed.",
+  "tips": {
+    "before_install": "1. Open the app configuration before starting the installation.\n2. Find the CHANGEME_DB_PASSWORD placeholder in both the\n   cloudreve service (CR_CONF_Database.Password) and the postgres\n   service (POSTGRES_PASSWORD).\n\n3. Replace both CHANGEME_DB_PASSWORD values with the same strong\n   password — they must match exactly.\n\n4. Confirm both values match before starting the install; a\n   mismatch surfaces as a database connection failure, not a clear\n   error message.\n\n5. Start the Cloudreve installation.\n6. Wait for the postgres and redis containers to report healthy\n   (service_healthy) before opening Cloudreve — this is handled\n   automatically via depends_on, no action needed.\n\n7. Open Cloudreve from the ZimaAppStore dashboard.\n8. Register an account — the first account you create automatically\n   becomes the administrator, so register your own account first\n   before sharing access with anyone else.\n\n9. All further configuration (storage backends, user groups,\n   sharing policies, WebDAV, remote downloads) lives in the in-app\n   Admin Panel — no need to touch this file again.\n\n10. Important: POSTGRES_PASSWORD and CR_CONF_Database.Password\n    only take effect the way you'd expect at first run — changing\n    either later without updating the other, or without also\n    updating the already-initialized Postgres user's password,\n    will lock Cloudreve out of the database until you manually\n    reset it (or start from a fresh volume)."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-08-13",
+  "website": "https://cloudreve.org",
+  "repo": "https://github.com/cloudreve/Cloudreve",
+  "support": "https://github.com/cloudreve/Cloudreve/issues",
+  "docs": "https://docs.cloudreve.org/en/overview/deploy/docker-compose",
+  "title": "Cloudreve",
+  "release_note": "- Initial version",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.cloudreve",
+  "version": "4.16.0",
+  "categories": [
+    "productivity"
+  ],
+  "min_memory": 469762048,
+  "min_image_size": {
+    "amd64": 749776636,
+    "arm64": 730471622
+  }
+}

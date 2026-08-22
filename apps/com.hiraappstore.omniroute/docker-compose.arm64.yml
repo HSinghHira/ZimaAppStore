@@ -1,0 +1,38 @@
+name: omniroute
+
+services:
+  omniroute:
+    image: diegosouzapw/omniroute:latest@sha256:9acd96d6bfb42682196c2476a53b3270a5c211458dc050ec960564707c6ab95e
+    container_name: omniroute
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    environment:
+      - INITIAL_PASSWORD=CHANGEME
+    ports:
+      - target: 20128
+        published: "8401"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /app/data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.40"
+          memory: 1012M
+        reservations:
+          cpus: "0.00"
+          memory: 512M
+x-casaos:
+  id: com.hiraappstore.omniroute
+  main: omniroute
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.omniroute/assets/icon.png
+  title:
+    en_US: OmniRoute
+  index: /
+  port_map: "8401"
+  scheme: http

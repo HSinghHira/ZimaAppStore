@@ -1,0 +1,73 @@
+name: searxng
+
+services:
+  searxng:
+    image: docker.io/searxng/searxng:2026.8.10-0a118066d@sha256:89acb3021916f33297b135275ad14bc003063bd8d958bece9d0b939f2cacbd95
+    container_name: searxng
+    restart: unless-stopped
+    stop_grace_period: 40s
+    depends_on:
+      - searxng-valkey
+    environment:
+      - SEARXNG_BASE_URL=http://localhost:8402/
+    ports:
+      - target: 8080
+        published: "8402"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/config
+        target: /etc/searxng
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /var/cache/searxng
+        bind:
+          create_host_path: true
+    networks:
+      - searxng_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+  searxng-valkey:
+    image: docker.io/valkey/valkey:9-alpine@sha256:80236c273b4a41011e96a13eaeb4fdba34808fad5a415652bc959783e535516a
+    container_name: searxng-valkey
+    restart: unless-stopped
+    stop_grace_period: 40s
+    command: valkey-server --save 30 1 --loglevel warning
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/valkey
+        target: /data
+        bind:
+          create_host_path: true
+    networks:
+      - searxng_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 128M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+networks:
+  searxng_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.searxng
+  main: searxng
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.searxng/assets/icon.png
+  title:
+    en_US: SearXNG
+  index: /
+  port_map: "8402"
+  scheme: http
+  version: "2026.8.10-0a118066d"

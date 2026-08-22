@@ -1,0 +1,39 @@
+name: spiderfoot
+
+services:
+  spiderfoot:
+    image: joshuapfritz/spiderfoot:v4.0@sha256:b7bf0e68d2d46a3976eeb2d9ce6a3d280dcc9d44417b37bbd2f739d2ea44ad9a
+    container_name: spiderfoot
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    environment:
+      - HOME=/data
+    ports:
+      - target: 5001
+        published: "8430"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+x-casaos:
+  id: com.hiraappstore.spiderfoot
+  main: spiderfoot
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.spiderfoot/assets/icon.png
+  title:
+    en_US: SpiderFoot
+  index: /
+  port_map: "8430"
+  scheme: http
+  version: "4.0"

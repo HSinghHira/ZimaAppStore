@@ -1,0 +1,48 @@
+name: mailpit
+
+services:
+  mailpit:
+    image: axllent/mailpit:v1.30.7@sha256:a0ec6df78d03abfa0328c76ccb16ff164eb9e08623ef7ddd6f0fd5a43ab35ed8
+    container_name: mailpit
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    environment:   -
+        MP_DATABASE=/data/mailpit.db
+
+      - MP_MAX_MESSAGES=5000
+
+      - MP_SMTP_AUTH_ACCEPT_ANY=1
+      - MP_SMTP_AUTH_ALLOW_INSECURE=1
+
+    ports:
+      - target: 8025
+        published: "8411"
+        protocol: tcp
+      - target: 1025
+        published: "8412"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+x-casaos:
+  id: com.hiraappstore.mailpit
+  main: mailpit
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.mailpit/assets/icon.png
+  title:
+    en_US: Mailpit
+  index: /
+  port_map: "8411"
+  scheme: http
+  version: "1.30.7"

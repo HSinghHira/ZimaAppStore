@@ -1,0 +1,36 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Networking",
+  "developer": "degoog-org",
+  "thumbnail": "/apps/com.hiraappstore.degoog/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.degoog/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.degoog/assets/thumbnail-1.webp",
+    "/apps/com.hiraappstore.degoog/assets/thumbnail-2.webp"
+  ],
+  "tagline": "A self-hosted, plugin-driven search engine aggregator.",
+  "description": "Degoog queries multiple search engines at once and merges the results into a single ranked list, think a lighter, more modular alternative to SearXNG that you can extend with your own engines, plugins, and themes.\n**Features**\n- Aggregates results from every search engine you enable, deduplicating\n  and scoring across sources\n\n- Comprehensive plugin/extension system: custom search engines,\n  bang-command plugins, slot plugins (panels above/below results or in\n  the sidebar), and custom transports (curl, FlareSolverr, or your own\n  fetch strategy)\n\n- Optional community extension store for installing engines, plugins,\n  and themes without editing files by hand\n\n- Persistent storage under /DATA/AppData/$AppID for all plugins,\n  themes, engines, transports, and settings\n\n**How to use?**\n1. Open Degoog from the ZimaAppStore dashboard.\n2. Complete the first-run setup wizard.\n3. Sign in to the Settings/admin panel using the password you set in\n   DEGOOG_SETTINGS_PASSWORDS.\n\n4. Enable the search engines you want Degoog to query, and adjust\n   result scoring/theme preferences to taste.\n\n5. Optionally browse the community extension store from within\n   Settings to add extra engines, plugins, themes, or transports.\n\n6. Further configuration — engines, plugins, themes, aliases, and the\n   blocklist — can all be managed later from the in-app Settings panel\n   without rebuilding the container; the underlying JSON files live\n   under /DATA/AppData/$AppID.",
+  "tips": {
+    "before_install": "1. Open the app configuration before starting the installation.\n2. Find the DEGOOG_SETTINGS_PASSWORDS placeholder in the degoog\n   service.\n\n3. Replace CHANGEME_SETTINGS_PASSWORD with a real, strong password —\n   this gates the Settings/admin panel where extensions get\n   installed.\n\n4. Replace CHANGEME_TIMEZONE with your timezone (e.g.\n   Europe/London), and adjust PUID/PGID if you want data-volume\n   files owned by a specific host user/group.\n\n5. Start the Degoog installation.\n6. Open Degoog from the ZimaAppStore dashboard.\n7. Complete the first-run setup wizard, then sign in to Settings\n   with the password from step 3.\n\n8. Enable the search engines you want and browse the community\n   store for additional plugins/engines/themes — no rebuild needed,\n   these are managed entirely from the in-app Settings panel.\n\n9. Important: DEGOOG_PUBLIC_INSTANCE only affects read-only\n   mutation locking, it does not replace the settings password —\n   always set DEGOOG_SETTINGS_PASSWORDS on any instance reachable\n   from outside your LAN."
+  },
+  "is_uncontrolled": false,
+  "repo": "https://github.com/degoog-org/degoog",
+  "support": "https://github.com/degoog-org/degoog/issues",
+  "docs": "https://degoog-org.github.io/docs/",
+  "title": "deGoog",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.degoog",
+  "version": "",
+  "categories": [
+    "networking"
+  ],
+  "min_memory": 268435456,
+  "min_image_size": {
+    "amd64": 96155742,
+    "arm64": 96626028
+  }
+}

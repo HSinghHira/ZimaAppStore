@@ -1,0 +1,30 @@
+name: web-check
+
+services:
+  web-check:
+    image: lissy93/web-check:latest@sha256:d1aa964fcda384a8cf2f6a88e94c7b14c741eff11b2c33692007c1e9b9e86f77
+    container_name: web-check
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    ports:
+      - target: 3000
+        published: "8419"
+        protocol: tcp
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+x-casaos:
+  id: com.hiraappstore.webcheck
+  main: web-check
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.webcheck/assets/icon.png
+  title:
+    en_US: Web-Check
+  index: /
+  port_map: "8419"
+  scheme: http

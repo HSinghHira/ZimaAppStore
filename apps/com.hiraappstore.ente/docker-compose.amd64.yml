@@ -1,0 +1,264 @@
+name: ente
+services:
+  museum:
+    image: ghcr.io/ente/server:latest@sha256:e9e06eb01834c38f41a3a09f9a64885b631346ce0005ccff2153faea403bd6e2
+    container_name: ente-museum
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+      minio-init:
+        condition: service_completed_successfully
+      mailpit:
+        condition: service_started
+    environment:
+      ENTE_DB_HOST: postgres
+      ENTE_DB_PORT: "5432"
+      ENTE_DB_NAME: ente_db
+      ENTE_DB_USER: pguser
+      ENTE_DB_PASSWORD: change-me-qE7Yb2sN4wR9tK1
+      ENTE_DB_SSLMODE: disable
+      ENTE_S3_ARE_LOCAL_BUCKETS: "true"
+      ENTE_S3_USE_PATH_STYLE_URLS: "true"
+      ENTE_S3_B2_EU_CEN_KEY: ente-minio-access
+      ENTE_S3_B2_EU_CEN_SECRET: change-me-minio-vH3pL8xC0zN5
+
+      ENTE_S3_B2_EU_CEN_ENDPOINT: localhost:8406
+      ENTE_S3_B2_EU_CEN_REGION: eu-central-2
+      ENTE_S3_B2_EU_CEN_BUCKET: b2-eu-cen
+      ENTE_KEY_ENCRYPTION: yvmG/RnzKrbCb9L3mgsmoxXr9H7i2Z4qlbT0mL3ln4w=
+      ENTE_KEY_HASH: KXYiG07wC7GIgvCSdg+WmyWdXDAn6XKYJtp/wkEU7x573+byBRAYtpTP0wwvi8i/4l37uicX1dVTUzwH3sLZyw==
+      ENTE_JWT_SECRET: i2DecQmfGreG6q1vBj5tCokhlN41gcfS2cjOs9Po-u8=
+
+      ENTE_APPS_PUBLIC_ALBUMS: http://localhost:8405
+
+      ENTE_SMTP_HOST: mailpit
+      ENTE_SMTP_PORT: "1025"
+      ENTE_SMTP_USERNAME: ""
+      ENTE_SMTP_PASSWORD: ""
+      ENTE_SMTP_EMAIL: noreply@ente.local
+    ports:
+      - target: 8080
+        published: "8403"
+        protocol: tcp
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - ente_network
+    volumes: []
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+  socat:
+    image: alpine/socat@sha256:68b28fed1e6f5dc5cc7574315284573d89a655b0bc528720be4164f36b998680
+    container_name: ente-socat
+    depends_on:
+      - museum
+      - minio
+    command: TCP-LISTEN:3200,fork,reuseaddr TCP:minio:3200
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - ente_network
+    volumes: []
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 64M
+        reservations:
+          cpus: "0.00"
+          memory: 32M
+  web:
+    image: ghcr.io/ente/web:latest@sha256:c8dedd75a316460c4ac2ecf1444115c3fd70544a0828e753e30052cc8013b20e
+    container_name: ente-web
+    depends_on:
+      - museum
+    environment:
+      ENTE_API_ORIGIN: http://localhost:8403
+    ports:
+      - target: 3000
+        published: "8404"
+        protocol: tcp
+      - target: 3002
+        published: "8405"
+        protocol: tcp
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - ente_network
+    volumes: []
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+  postgres:
+    image: postgres:15@sha256:bcab099bfaab33333a73a2ebe8c1d615c9f4c2402dd43452f989a36c6da9a5ba
+    container_name: ente-postgres
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: change-me-qE7Yb2sN4wR9tK1
+      POSTGRES_DB: ente_db
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres_data
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U pguser -d ente_db
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
+    stop_grace_period: 60s
+    networks:
+      - ente_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+  minio:
+    image: minio/minio@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
+    container_name: ente-minio
+    environment:
+      MINIO_ROOT_USER: ente-minio-access
+      MINIO_ROOT_PASSWORD: change-me-minio-vH3pL8xC0zN5
+    command: server /data --address ":3200" --console-address ":3201"
+    ports:
+      - target: 3200
+        published: "8406"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/minio_data
+        target: /data
+        bind:
+          create_host_path: true
+    restart: unless-stopped
+
+    stop_grace_period: 60s
+    networks:
+      - ente_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+  minio-init:
+    image: minio/mc@sha256:a7fe349ef4bd8521fb8497f55c6042871b2ae640607cf99d9bede5e9bdf11727
+    container_name: ente-minio-init
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c " until mc alias set ente http://minio:3200 ente-minio-access
+      change-me-minio-vH3pL8xC0zN5; do sleep 1; done; mc mb --ignore-existing
+      ente/b2-eu-cen; mc mb --ignore-existing ente/wasabi-eu-central-2-v3; mc mb
+      --ignore-existing ente/scw-eu-fr-v3; exit 0; "
+    restart: "no"
+    stop_grace_period: 40s
+    networks:
+      - ente_network
+    volumes: []
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 64M
+        reservations:
+          cpus: "0.00"
+          memory: 32M
+  mailpit:
+    image: axllent/mailpit:latest@sha256:29154cb86d35bcff4c0f82f185fc6720e89248b2cd2bc43f312a2b31fddd34ad
+    container_name: ente-mailpit
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+
+    ports:
+      - target: 8025
+        published: "8407"
+        protocol: tcp
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - ente_network
+    volumes: []
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+  storage-unlimited:
+    image: postgres:15@sha256:bcab099bfaab33333a73a2ebe8c1d615c9f4c2402dd43452f989a36c6da9a5ba
+    container_name: ente-storage-unlimited
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGUSER: pguser
+      PGPASSWORD: change-me-qE7Yb2sN4wR9tK1
+      PGDATABASE: ente_db
+
+      STORAGE_BYTES: "109951162777600"
+
+      CHECK_INTERVAL_SECONDS: "30"
+    entrypoint: >
+      /bin/sh -c "
+      until pg_isready -h postgres -U pguser -d ente_db; do sleep 2; done;
+      while true; do
+        psql -q -c \"UPDATE subscriptions SET storage = $$STORAGE_BYTES WHERE storage < $$STORAGE_BYTES;\";
+        sleep $$CHECK_INTERVAL_SECONDS;
+      done
+      "
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - ente_network
+    volumes: []
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 64M
+        reservations:
+          cpus: "0.00"
+          memory: 32M
+networks:
+  ente_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.ente
+  main: web
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.ente/assets/icon.png
+  title:
+    en_US: Ente Photos
+  index: /
+  port_map: "8404"
+  scheme: http

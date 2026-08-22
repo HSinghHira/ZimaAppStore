@@ -1,0 +1,40 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Developer",
+  "developer": "msgbyte",
+  "thumbnail": "/apps/com.hiraappstore.tianji/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.tianji/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.tianji/assets/thumbnail-1.webp",
+    "/apps/com.hiraappstore.tianji/assets/thumbnail-2.webp",
+    "/apps/com.hiraappstore.tianji/assets/thumbnail-3.webp",
+    "/apps/com.hiraappstore.tianji/assets/thumbnail-4.webp"
+  ],
+  "tagline": "Website analytics, uptime monitoring, and server status in one insight hub.",
+  "description": "Tianji is an all-in-one insight hub — think Google Analytics, Uptime Kuma, and a server status page combined into a single lightweight self-hosted app.\n\n**Features**\n\n- Cookie-free, GDPR/CCPA-compliant website analytics with a simple\n  tracking script\n\n- Uptime monitoring for websites and services, with alert\n  notifications\n\n- Real-time server status and Docker container monitoring via a\n  lightweight reporter agent\n\n- Public status pages you can share with your users\n- Survey forms, event feeds, a short-link tool, and an AI Gateway\n  with cost tracking, all built in\n\n- PostgreSQL database for persistent application data, stored under\n  /DATA/AppData/$AppID/postgres\n\n\n**How to use?**\n\n1. Open Tianji from the ZimaAppStore dashboard.\n\n2. Log in with the default account admin / admin, then immediately\n   change the password in Settings.\n\n\n3. Create a workspace, then add your first website, monitor, or\n   server to start collecting data.\n\n\n4. For website analytics, copy the tracking script from the\n   website's settings page and add it to your site.\n\n\n5. For server status, download the tianji-reporter agent from the\n   GitHub releases page and point it at this workspace.\n\n\n6. Further configuration — notifications, users, API keys — is all\n   done from the in-app Settings panel; no container changes needed.",
+  "tips": {
+    "before_install": "1. Open the app's environment variables before you start the\n   install.\n\n\n2. Find CHANGEME_DB_PASSWORD. It appears twice: in DATABASE_URL in\n   the tianji service, and as POSTGRES_PASSWORD in the tianji-db\n   service.\n\n\n3. Replace both with the same password you make up. They must\n   match exactly.\n\n\n4. Find JWT_SECRET in the tianji service. It comes pre-filled with\n   a random value.\n\n\n5. Replace it with your own random string before going live.\n   Generate one at randomkeygen.com.\n\n\n6. Double check both password spots match before you continue.\n\n7. Start the Tianji installation.\n\n8. Wait until both containers show as running. Postgres needs a\n   few seconds to finish starting up first.\n\n\n9. Open Tianji from the ZimaAppStore dashboard.\n\n10. Log in with admin / admin, then go to Settings and change the\n    password right away.\n\n\n11. Later settings — notifications, workspaces, API keys — are\n    all managed inside the app, not in this config.\n\n\n12. Important: DATABASE_URL and POSTGRES_PASSWORD only set the\n    database password the first time it starts. Changing them\n    after install will not update an already-created database\n    password."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-08-22",
+  "repo": "https://github.com/msgbyte/tianji",
+  "support": "https://github.com/msgbyte/tianji/issues",
+  "docs": "https://tianji.dev/docs/intro",
+  "title": "Tianji",
+  "release_note": "- Initial version",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.tianji",
+  "version": "1.31.19",
+  "categories": [
+    "developer"
+  ],
+  "min_memory": 402653184,
+  "min_image_size": {
+    "amd64": 849681181,
+    "arm64": 853066883
+  }
+}

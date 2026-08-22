@@ -1,0 +1,37 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "AI",
+  "developer": "diegosouzapw",
+  "thumbnail": "/apps/com.hiraappstore.omniroute/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.omniroute/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.omniroute/assets/screenshot-2.webp",
+    "/apps/com.hiraappstore.omniroute/assets/screenshot-3.webp",
+    "/apps/com.hiraappstore.omniroute/assets/screenshot-4.webp"
+  ],
+  "tagline": "Self-hosted AI gateway for 290+ providers",
+  "description": "OmniRoute is a self-hosted AI gateway that puts a single OpenAI-compatible endpoint in front of 290+ providers and 500+ models, including Claude, GPT, Gemini, DeepSeek, and many free-tier options.\n**Features**\n- Single OpenAI-compatible endpoint in front of 290+ providers and\n  500+ models.\n\n- Smart routing, load balancing, and automatic fallback between\n  providers, so tools like Claude Code, Cursor, Cline, and Copilot\n  keep working even if one provider goes down or hits its quota.\n\n- Admin dashboard for managing provider keys and routing rules.\n- All configuration, keys, and routing data persist under\n  /DATA/AppData/$AppID.\n\n**How to use?**\n1. Open OmniRoute from the ZimaAppStore dashboard.\n2. Log in with the initial admin password you set in\n   INITIAL_PASSWORD, then change it immediately from the dashboard.\n\n3. Add your provider API keys (OpenAI, Anthropic, Gemini, etc.) in\n   the admin panel.\n\n4. Point your tools (Claude Code, Cursor, Cline, Copilot, etc.) at\n   OmniRoute's OpenAI-compatible endpoint instead of calling\n   providers directly.\n\n5. Configure routing rules, fallback order, and load balancing from\n   the dashboard as needed — no rebuild required, changes apply\n   immediately.",
+  "tips": {
+    "before_install": "1. Open the app configuration before starting the installation.\n2. Find the INITIAL_PASSWORD placeholder on the omniroute service\n   and replace CHANGEME with a real password — don't leave the\n   default in place.\n\n3. Start the OmniRoute installation.\n4. Open OmniRoute from the ZimaAppStore dashboard.\n5. Log in using the password you set in INITIAL_PASSWORD.\n6. Change your password again from the dashboard right after first\n   login — the env var only sets the initial value and isn't\n   re-applied on restart.\n\n7. Add your AI provider keys and configure routing from the admin\n   dashboard — this is where all further configuration lives\n   post-install, no compose file edits needed.\n\n8. Important: application data, keys, and routing config persist\n   under /DATA/AppData/$AppID; back up this path if you want to\n   preserve your setup."
+  },
+  "is_uncontrolled": false,
+  "repo": "https://github.com/diegosouzapw/OmniRoute",
+  "support": "https://github.com/diegosouzapw/OmniRoute/issues",
+  "docs": "https://github.com/diegosouzapw/OmniRoute/tree/main/docs",
+  "title": "OmniRoute",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.omniroute",
+  "version": "",
+  "categories": [
+    "ai"
+  ],
+  "min_memory": 536870912,
+  "min_image_size": {
+    "amd64": 483473031,
+    "arm64": 482950592
+  }
+}
