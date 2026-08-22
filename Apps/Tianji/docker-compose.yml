@@ -112,11 +112,13 @@ x-casaos:
   category: Developer
   developer: msgbyte
   icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Tianji/icon.png
-  # thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Tianji/thumbnail.png
-  # screenshot_link:
-  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Tianji/thumbnail.png
-  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Tianji/thumbnail-1.png
-  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Tianji/thumbnail-2.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Tianji/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Tianji/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Tianji/thumbnail-1.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Tianji/thumbnail-2.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Tianji/thumbnail-3.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Tianji/thumbnail-4.png
   title:
     en_US: Tianji
   tagline:
