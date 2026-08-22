@@ -1,0 +1,236 @@
+name: tianji
+
+services:
+  tianji:
+    image: moonrailgun/tianji:1.31.19
+    container_name: tianji
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - tianji_network
+    depends_on:
+      - tianji-db
+    environment:
+      - DATABASE_URL=postgresql://tianji:CHANGEME_DB_PASSWORD@tianji-db:5432/tianji
+      - JWT_SECRET=b74de56f062662d08dde6acf48d02126a4eaf58ad63081e69806e0c8eb393cee
+      - ALLOW_REGISTER=false
+      - ALLOW_OPENAPI=true
+      - PUBLIC_URL=
+    ports:
+      - target: 12345
+        published: "8432"
+        protocol: tcp
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Tianji/icon.png
+    x-casaos:
+      id: com.hiraappstore.tianji
+      envs:
+        - container: DATABASE_URL
+          description:
+            en_US: PostgreSQL connection string. The password segment must match POSTGRES_PASSWORD in the tianji-db service.
+        - container: JWT_SECRET
+          description:
+            en_US: Pre-filled with a random value. Replace it with your own — generate one at randomkeygen.com — before going live.
+        - container: ALLOW_REGISTER
+          description:
+            en_US: Set to true to let new users sign themselves up. Leave false to only allow accounts you create.
+        - container: ALLOW_OPENAPI
+          description:
+            en_US: Set to true to enable Tianji's OpenAPI for programmatic access. Set to false to disable it.
+        - container: PUBLIC_URL
+          description:
+            en_US: The full public URL you will access Tianji at, e.g. https://tianji.example.com. Leave blank to use the default.
+      ports:
+        - container: "12345"
+          description:
+            en_US: Tianji web dashboard (published on host as 8432).
+      volumes: []
+
+  tianji-db:
+    image: postgres:15.4-alpine
+    container_name: tianji-db
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - tianji_network
+    environment:
+      - POSTGRES_DB=tianji
+      - POSTGRES_USER=tianji
+      - POSTGRES_PASSWORD=CHANGEME_DB_PASSWORD
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tianji -d tianji"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Tianji/icon.png
+    x-casaos:
+      id: com.hiraappstore.tianji
+      envs:
+        - container: POSTGRES_PASSWORD
+          description:
+            en_US: Database password. Must match the password segment of DATABASE_URL in the tianji service.
+      ports: []
+      volumes:
+        - container: /var/lib/postgresql/data
+          description:
+            en_US: Tianji's PostgreSQL database — all analytics, monitor, and account data lives here.
+
+networks:
+  tianji_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.tianji
+  architectures:
+    - amd64
+    - arm64
+  main: tianji
+  author: HSinghHira
+  category: Developer
+  developer: msgbyte
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Tianji/icon.png
+  # thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Tianji/thumbnail.png
+  # screenshot_link:
+  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Tianji/thumbnail.png
+  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Tianji/thumbnail-1.png
+  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Tianji/thumbnail-2.png
+  title:
+    en_US: Tianji
+  tagline:
+    en_US: Website analytics, uptime monitoring, and server status in one insight hub.
+  description:
+    en_US: >-
+      Tianji is an all-in-one insight hub — think Google Analytics, Uptime
+      Kuma, and a server status page combined into a single lightweight
+      self-hosted app.
+
+
+      **Features**
+
+
+      - Cookie-free, GDPR/CCPA-compliant website analytics with a simple
+        tracking script
+
+      - Uptime monitoring for websites and services, with alert
+        notifications
+
+      - Real-time server status and Docker container monitoring via a
+        lightweight reporter agent
+
+      - Public status pages you can share with your users
+
+      - Survey forms, event feeds, a short-link tool, and an AI Gateway
+        with cost tracking, all built in
+
+      - PostgreSQL database for persistent application data, stored under
+        /DATA/AppData/$AppID/postgres
+
+
+      **How to use?**
+
+
+      1. Open Tianji from the ZimaAppStore dashboard.
+
+
+      2. Log in with the default account admin / admin, then immediately
+         change the password in Settings.
+
+
+      3. Create a workspace, then add your first website, monitor, or
+         server to start collecting data.
+
+
+      4. For website analytics, copy the tracking script from the
+         website's settings page and add it to your site.
+
+
+      5. For server status, download the tianji-reporter agent from the
+         GitHub releases page and point it at this workspace.
+
+
+      6. Further configuration — notifications, users, API keys — is all
+         done from the in-app Settings panel; no container changes needed.
+  tips:
+    before_install:
+      en_US: >-
+        1. Open the app's environment variables before you start the
+           install.
+
+
+        2. Find CHANGEME_DB_PASSWORD. It appears twice: in DATABASE_URL in
+           the tianji service, and as POSTGRES_PASSWORD in the tianji-db
+           service.
+
+
+        3. Replace both with the same password you make up. They must
+           match exactly.
+
+
+        4. Find JWT_SECRET in the tianji service. It comes pre-filled with
+           a random value.
+
+
+        5. Replace it with your own random string before going live.
+           Generate one at randomkeygen.com.
+
+
+        6. Double check both password spots match before you continue.
+
+
+        7. Start the Tianji installation.
+
+
+        8. Wait until both containers show as running. Postgres needs a
+           few seconds to finish starting up first.
+
+
+        9. Open Tianji from the ZimaAppStore dashboard.
+
+
+        10. Log in with admin / admin, then go to Settings and change the
+            password right away.
+
+
+        11. Later settings — notifications, workspaces, API keys — are
+            all managed inside the app, not in this config.
+
+
+        12. Important: DATABASE_URL and POSTGRES_PASSWORD only set the
+            database password the first time it starts. Changing them
+            after install will not update an already-created database
+            password.
+  index: /
+  port_map: "8432"
+  scheme: http
+  is_uncontrolled: false
+  version: "1.31.19"
+  update_at: "2026-08-22"
+  release_notes:
+    en_US: |-
+      - Initial version
+  repo: "https://github.com/msgbyte/tianji"
+  support: "https://github.com/msgbyte/tianji/issues"
+  docs: "https://tianji.dev/docs/intro"

@@ -205,21 +205,27 @@ x-casaos:
         3. <replace with a real value — note if it must match across
            services, e.g. a shared DB password>
 
-        4. <confirm consistency before starting install, if applicable>
+        4. <find every pre-filled random secret var, name the exact
+           services/vars, e.g. "SECRET_KEY in the app service">
 
-        5. Start the <App Name> installation.
+        5. <replace it with your own — generate one at randomkeygen.com
+           (or bcrypt-generator.com for a bcrypt hash) — before going live>
 
-        6. <wait for any migration/setup job to finish before first use,
+        6. <confirm consistency before starting install, if applicable>
+
+        7. Start the <App Name> installation.
+
+        8. <wait for any migration/setup job to finish before first use,
            if applicable>
 
-        7. Open <App Name> from the ZimaAppStore dashboard.
+        9. Open <App Name> from the ZimaAppStore dashboard.
 
-        8. <first-run account/setup step, if applicable>
+        10. <first-run account/setup step, if applicable>
 
-        9. <note where further config lives post-install — config file
-           path and/or in-app admin panel>
+        11. <note where further config lives post-install — config file
+            path and/or in-app admin panel>
 
-        10. <call out any one-way/gotcha steps, e.g. "Important: changing
+        12. <call out any one-way/gotcha steps, e.g. "Important: changing
             an env var later does not change an already-initialized DB
             password; a manual reset is required.">
   index: /
@@ -254,10 +260,13 @@ prose:
 - `tips.before_install` is a single numbered list covering the full
   install-to-first-use sequence, not just pre-install prep: placeholder
   values to replace (name the exact `CHANGEME_*` vars and which services
-  they're in), any password/value that must match across services, when
-  to wait for a migration job, first-run account setup, where post-install
-  config lives, and any one-way gotchas (e.g. env vars that only apply at
-  DB init time and can't be changed by editing the compose file later).
+  they're in), pre-filled random secret values to swap for the
+  installer's own (name the exact vars, e.g. `SECRET_KEY`, and point to
+  randomkeygen.com / bcrypt-generator.com per section 4), any
+  password/value that must match across services, when to wait for a
+  migration job, first-run account setup, where post-install config
+  lives, and any one-way gotchas (e.g. env vars that only apply at DB
+  init time and can't be changed by editing the compose file later).
 - **Keep `tips.before_install` language simple — write it like you're
   explaining it to a 4th grader.** Short sentences, everyday words, one
   instruction per numbered step. Don't over-explain: no restating why a
@@ -403,9 +412,30 @@ a sentence to the matching `x-casaos` description field instead."
 **Nothing personal (real email, real API keys, real passwords) goes in the
 repo — ever.** This store is public, so:
 
-- Any credential the app needs (SMTP login, API keys, DB passwords) ships
-  as a `CHANGEME_*` placeholder in `environment:`, with a matching
-  `x-casaos.envs[].description` explaining what to put there and why.
+- Any credential that just identifies something (SMTP login/username, an
+  account email, an API *username*) ships as a `CHANGEME_*` placeholder in
+  `environment:`, with a matching `x-casaos.envs[].description` explaining
+  what to put there and why.
+- Any credential that's a **cryptographic secret** — `SECRET_KEY`,
+  `JWT_SECRET`, session/cookie signing keys, encryption keys, bcrypt/argon2
+  password hashes, API *keys* (not usernames), and similar — must **not**
+  ship as `CHANGEME_*`. Generate a real random value for it instead
+  (e.g. `openssl rand -hex 32`, or a UUID/base64 token of the length
+  upstream expects) and put that generated value in `environment:`. A
+  `CHANGEME_*` string is a bad default for these because most apps will
+  boot and run with the literal placeholder still in place, which is
+  worse than an app that fails to start until you set a real secret — it
+  quietly ships every install with the same guessable key.
+- Every such generated-secret var still needs an `x-casaos.envs[].description`
+  telling the installer it's pre-filled with a random value **and** that
+  they should replace it with their own before relying on the app for
+  anything sensitive. Point them at a generator matching the value's
+  format:
+  - General random strings/tokens (`SECRET_KEY`, session keys, API keys):
+    [randomkeygen.com](https://randomkeygen.com/)
+  - bcrypt password hashes specifically: [bcrypt-generator.com](https://bcrypt-generator.com/)
+  - Example description: `"Pre-filled with a random value. Replace it with
+    your own — generate one at randomkeygen.com — before going live."`
 - If the app needs an external service to function fully (e.g. real email
   sending), prefer bundling a **generic, self-contained relay/service**
   (see Ente's `postfix` service) over hardcoding one provider's config.
@@ -486,7 +516,11 @@ to forget, and there's no build error if you skip it.
 
 1. Validate YAML for every changed/new `docker-compose.yml`.
 2. Confirm the port table in section 0 is updated and non-colliding.
-3. Confirm no personal secrets anywhere in the diff.
+3. Confirm no personal secrets anywhere in the diff. Confirm every
+   cryptographic-secret var (`SECRET_KEY`, JWT/session keys, bcrypt
+   hashes, API keys, etc.) uses a freshly generated random value, not a
+   `CHANGEME_*` placeholder, and has a description telling the installer
+   to replace it with their own (randomkeygen.com / bcrypt-generator.com).
 4. Confirm `category:`.
 5. Confirm icon/thumbnail/screenshot URLs point at this repo, not upstream.
 6. Confirm `x-casaos.id` is present at the top level (and mirrored into

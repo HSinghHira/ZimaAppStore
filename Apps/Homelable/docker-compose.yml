@@ -121,8 +121,7 @@ x-casaos:
       **Features**
 
 
-      - One-click nmap network scans that queue unknown devices for you
-        to approve onto the canvas
+      - One-click nmap network scans that queue unknown devices for you to approve onto the canvas
 
       - 15+ node types: routers, switches, servers, hypervisors,
         firewalls, Docker hosts/containers, IoT, and more
