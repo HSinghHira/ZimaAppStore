@@ -58,6 +58,10 @@ configs:
       [api]
       bind = "0.0.0.0:8000"
 
+      [api.security.captcha]
+      hcaptcha_key = "0x0000000000000000000000000000000000000000"
+      hcaptcha_sitekey = "10000000-ffff-ffff-ffff-000000000001"
+
       [api.vapid]
       public_key = ""
       private_key = ""
@@ -267,7 +271,7 @@ services:
     stop_grace_period: 40s
     command: --config /etc/livekit.yml
     environment:
-      - "LIVEKIT_KEYS=CHANGEME_livekit_key: CHANGEME_livekit_secret"
+      - "LIVEKIT_KEYS=7c4cff3b1ee23bb0874ec4420816c2a2: 85a4d1c5f5d17e4ab2d0352ddb2cdabfe1da13d523b4b1f1da8a9e3e8c9f41bd"
     configs:
       - source: stoat_livekit_yml
         target: /etc/livekit.yml
@@ -326,10 +330,10 @@ services:
     restart: unless-stopped
     stop_grace_period: 40s
     environment:
-      - REVOLT__API__VAPID__PUBLIC_KEY=CHANGEME_vapid_public_key
-      - REVOLT__API__VAPID__PRIVATE_KEY=CHANGEME_vapid_private_key
-      - REVOLT__API__LIVEKIT__NODES__WORLDWIDE__KEY=CHANGEME_livekit_key
-      - REVOLT__API__LIVEKIT__NODES__WORLDWIDE__SECRET=CHANGEME_livekit_secret
+      - REVOLT__API__VAPID__PUBLIC_KEY=BMHJ0YgfIFgVehh91a_Pg-GVSocLnZEdGwPct-tqcR4JOD7ymOPaHxPBUYCIHRHFi6nv-OtiwOzmX1xB1-ZBizw
+      - REVOLT__API__VAPID__PRIVATE_KEY=evRmVlW91Wq2oAtim5co_wWuQ9tDqkaTvgiO-ZotcNY
+      - REVOLT__API__LIVEKIT__NODES__WORLDWIDE__KEY=7c4cff3b1ee23bb0874ec4420816c2a2
+      - REVOLT__API__LIVEKIT__NODES__WORLDWIDE__SECRET=85a4d1c5f5d17e4ab2d0352ddb2cdabfe1da13d523b4b1f1da8a9e3e8c9f41bd
     configs:
       - source: stoat_revolt_toml
         target: /Revolt.toml
@@ -355,7 +359,7 @@ services:
       envs:
         - container: REVOLT__API__VAPID__PUBLIC_KEY
           description:
-            en_US: Web-push public key. Generate a real EC keypair with the one-time command in this app's install notes — do not leave as CHANGEME.
+            en_US: Web-push public key. Filled in with a real test keypair for now — generate your own before real use.
         - container: REVOLT__API__VAPID__PRIVATE_KEY
           description:
             en_US: Web-push private key, paired with the public key above. Keep this secret.
@@ -492,8 +496,8 @@ services:
     restart: unless-stopped
     stop_grace_period: 40s
     environment:
-      - REVOLT__PUSHD__VAPID__PUBLIC_KEY=CHANGEME_vapid_public_key
-      - REVOLT__PUSHD__VAPID__PRIVATE_KEY=CHANGEME_vapid_private_key
+      - REVOLT__PUSHD__VAPID__PUBLIC_KEY=BMHJ0YgfIFgVehh91a_Pg-GVSocLnZEdGwPct-tqcR4JOD7ymOPaHxPBUYCIHRHFi6nv-OtiwOzmX1xB1-ZBizw
+      - REVOLT__PUSHD__VAPID__PRIVATE_KEY=evRmVlW91Wq2oAtim5co_wWuQ9tDqkaTvgiO-ZotcNY
     configs:
       - source: stoat_revolt_toml
         target: /Revolt.toml
@@ -530,8 +534,8 @@ services:
     restart: unless-stopped
     stop_grace_period: 40s
     environment:
-      - REVOLT__API__LIVEKIT__NODES__WORLDWIDE__KEY=CHANGEME_livekit_key
-      - REVOLT__API__LIVEKIT__NODES__WORLDWIDE__SECRET=CHANGEME_livekit_secret
+      - REVOLT__API__LIVEKIT__NODES__WORLDWIDE__KEY=7c4cff3b1ee23bb0874ec4420816c2a2
+      - REVOLT__API__LIVEKIT__NODES__WORLDWIDE__SECRET=85a4d1c5f5d17e4ab2d0352ddb2cdabfe1da13d523b4b1f1da8a9e3e8c9f41bd
     configs:
       - source: stoat_revolt_toml
         target: /Revolt.toml
@@ -745,7 +749,9 @@ x-casaos:
            service, and the same two values again on the pushd service.
 
 
-        9. Press Install once every CHANGEME field above is replaced.
+        9. This copy is pre-filled with a working test keypair and
+           LiveKit key/secret so you can install immediately — generate
+           your own with the commands above before any real use.
 
 
         10. Open Stoat Chat from the dashboard on port 8422.
@@ -770,10 +776,13 @@ x-casaos:
         (static inline content), which Compose materializes directly with
         no host file and no race condition
       - VAPID keys and the LiveKit key/secret are now plain environment
-        placeholders (CHANGEME_*) generated once by the person installing,
-        the same pattern used elsewhere in this store
-      - Includes LiveKit voice/video, published on 8423 (TCP) and
-        8424-8429 (UDP, six ports)
+        values, generated once by the person installing (this test copy
+        ships with a working sample set — replace before real use)
+      - Added [api.security.captcha] with hCaptcha's official public test
+        keypair, which always verifies successfully — the web client
+        ships with this same test sitekey baked in by default, and
+        without a matching secret configured server-side, every signup
+        failed with CaptchaFailed
   repo: "https://github.com/stoatchat/self-hosted"
   support: "https://github.com/stoatchat/self-hosted/issues"
   docs: "https://github.com/stoatchat/self-hosted"

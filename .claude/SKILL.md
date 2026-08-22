@@ -33,8 +33,8 @@ apps were added:
 | Web-Check | 8419 |
 | VERT | 8420 |
 | WatchYourLAN | 8421 (web UI, on host network — not a published Docker port) |
-| Stoat Chat | 8422 |
-| **Next new app starts at** | **8423** |
+| Stoat Chat | 8422 (web UI), 8423 (LiveKit voice, tcp), 8424-8429 (LiveKit voice, udp x6) |
+| **Next new app starts at** | **8430** |
 
 - Claim the next unused number(s) in sequence and record them in this table
   *before* writing the manifest, so two apps in progress at once can't
