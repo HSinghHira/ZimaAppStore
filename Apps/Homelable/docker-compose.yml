@@ -10,9 +10,9 @@ services:
       - NET_RAW
     environment:
       SQLITE_PATH: /app/data/homelab.db
-      SECRET_KEY: CHANGEME_RANDOM_SECRET
+      SECRET_KEY: 966ce567ecd086995723ff4d8ae712823102667503eacb97234cc8c7c7a79aac
       AUTH_USERNAME: admin
-      AUTH_PASSWORD_HASH: CHANGEME_BCRYPT_HASH
+      AUTH_PASSWORD_HASH: $2a$12$sAi.frLLWflLR4lCUufIOeEOCHaNT75FvbCDUvB7AVn/GjdkY2vuS
       CORS_ORIGINS: '["http://localhost:8431"]'
       SCANNER_RANGES: '["192.168.1.0/24"]'
       STATUS_CHECKER_INTERVAL: "60"
@@ -101,11 +101,11 @@ x-casaos:
   category: Networking
   developer: Pouzor (Remy Pouzor)
   icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Homelable/icon.png
-  # thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Homelable/thumbnail.png
-  # screenshot_link:
-  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Homelable/thumbnail.png
-  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Homelable/screenshot-1.png
-  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Homelable/screenshot-2.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Homelable/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Homelable/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Homelable/thumbnail-1.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Homelable/thumbnail-2.png
   title:
     en_US: Homelable
   tagline:
@@ -145,7 +145,7 @@ x-casaos:
 
       1. Open Homelable from the ZimaAppStore dashboard.
 
-      2. Log in with the username and password you set in the
+      2. Log in with the username and password (Default "admin/admin") you set in the
          AUTH_USERNAME / AUTH_PASSWORD_HASH variables before install.
 
       3. Click "Scan Network" in the sidebar to discover devices on your
