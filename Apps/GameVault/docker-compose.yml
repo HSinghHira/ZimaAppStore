@@ -1,0 +1,236 @@
+name: gamevault
+
+services:
+  gamevault-backend:
+    image: phalcode/gamevault-backend:16.3.0
+    container_name: gamevault-backend
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    environment:
+      - DB_HOST=gamevault-db
+      - DB_USERNAME=gamevault
+      - DB_PASSWORD=CHANGEME_DB_PASSWORD
+      - DB_DATABASE=gamevault
+      - SAVEFILES_ENABLED=true
+    ports:
+      - target: 8080
+        published: "8433"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/files
+        target: /files
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/media
+        target: /media
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/config
+        target: /config
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/savefiles
+        target: /savefiles
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/GameVault/icon.png
+    x-casaos:
+      id: com.hiraappstore.gamevault
+      envs:
+        - container: DB_HOST
+          description:
+            en_US: Hostname of the PostgreSQL database service. Must match the gamevault-db service's container name.
+        - container: DB_USERNAME
+          description:
+            en_US: Username GameVault uses to log into its PostgreSQL database. Must match POSTGRES_USER in the gamevault-db service.
+        - container: DB_PASSWORD
+          description:
+            en_US: Password GameVault uses to log into its PostgreSQL database. Replace CHANGEME_DB_PASSWORD with your own password, and set the exact same value as POSTGRES_PASSWORD in the gamevault-db service.
+        - container: DB_DATABASE
+          description:
+            en_US: Name of the PostgreSQL database GameVault uses. Must match POSTGRES_DB in the gamevault-db service.
+        - container: SAVEFILES_ENABLED
+          description:
+            en_US: Lets players upload and sync their game save files through GameVault. Saved to the savefiles volume.
+      ports:
+        - container: "8080"
+          description:
+            en_US: Web UI and API for GameVault (published on host as 8433).
+      volumes:
+        - container: /files
+          description:
+            en_US: Your DRM-free game files and folders. GameVault indexes this folder for games.
+        - container: /media
+          description:
+            en_US: Cover art, screenshots, and other media GameVault downloads or lets you upload for your games.
+        - container: /config
+          description:
+            en_US: GameVault configuration files, such as config.yaml and news.md.
+        - container: /savefiles
+          description:
+            en_US: Uploaded game save files, used for save file syncing between devices.
+
+  gamevault-db:
+    image: postgres:17
+    container_name: gamevault-db
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    environment:
+      - POSTGRES_USER=gamevault
+      - POSTGRES_PASSWORD=CHANGEME_DB_PASSWORD
+      - POSTGRES_DB=gamevault
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/database
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/GameVault/icon.png
+    x-casaos:
+      id: com.hiraappstore.gamevault
+      envs:
+        - container: POSTGRES_USER
+          description:
+            en_US: Username for the GameVault PostgreSQL database. Must match DB_USERNAME in the gamevault-backend service.
+        - container: POSTGRES_PASSWORD
+          description:
+            en_US: Password for the GameVault PostgreSQL database. Replace CHANGEME_DB_PASSWORD with your own password, and set the exact same value as DB_PASSWORD in the gamevault-backend service.
+        - container: POSTGRES_DB
+          description:
+            en_US: Name of the GameVault PostgreSQL database. Must match DB_DATABASE in the gamevault-backend service.
+      volumes:
+        - container: /var/lib/postgresql/data
+          description:
+            en_US: PostgreSQL database files that store your GameVault library, users, and settings.
+
+x-casaos:
+  id: com.hiraappstore.gamevault
+  architectures:
+    - amd64
+    - arm64
+  main: gamevault-backend
+  author: HSinghHira
+  category: Media
+  developer: Phalcode
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/GameVault/icon.png
+  # thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/GameVault/thumbnail.png
+  # screenshot_link:
+  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/GameVault/thumbnail.png
+  title:
+    en_US: GameVault
+  tagline:
+    en_US: Your self-hosted, DRM-free Steam alternative.
+  description:
+    en_US: >-
+      GameVault is a self-hosted gaming platform that lets you and your
+      friends enjoy DRM-free games stored on your own file server in an
+      organized, Steam-like library.
+
+
+      **Features**
+
+
+      - Automatic library indexing that scans your games folder and detects
+        titles, versions, and file formats
+
+      - Rich metadata, cover art, and screenshots pulled in from IGDB
+
+      - Multi-user support with roles, online status, and per-user download
+        stats
+
+      - Optional save file syncing so players can pick up where they left
+        off on any device
+
+      - PostgreSQL database for persistent application data, with
+        configuration, media, and save files stored under
+        /DATA/AppData/$AppID
+
+
+      **How to use?**
+
+
+      1. Open GameVault from the ZimaAppStore dashboard.
+
+      2. Register the first account and sign in. The first registered user
+         is automatically made an admin.
+
+      3. Copy some DRM-free game archives into the files volume so
+         GameVault can index them.
+
+      4. Open the Library to browse indexed games, add cover art, and
+         invite other users.
+
+      5. Turn on IGDB metadata, save file syncing, or other options later
+         through environment variables or a config.yaml file in the config
+         volume, without rebuilding the container.
+  tips:
+    before_install:
+      en_US: >-
+        1. Open the app configuration before starting the installation.
+
+
+        2. Find DB_PASSWORD in the gamevault-backend service and
+           POSTGRES_PASSWORD in the gamevault-db service. Both say
+           CHANGEME_DB_PASSWORD.
+
+
+        3. Replace both with the same password you make up. They must
+           match exactly.
+
+
+        4. Start the GameVault installation.
+
+
+        5. Wait about a minute for the database to start and GameVault to
+           finish its first-time setup.
+
+
+        6. Open GameVault from the ZimaAppStore dashboard.
+
+
+        7. Register your first user account. This account becomes the
+           admin automatically.
+
+
+        8. Put your DRM-free games into the files folder so GameVault can
+           find them.
+
+
+        9. More settings live in a config.yaml file in the config folder,
+           or in the app's admin panel.
+  index: /
+  port_map: "8433"
+  scheme: http
+  is_uncontrolled: false
+  version: "16.3.0"
+  update_at: "2026-08-22"
+  release_notes:
+    en_US: |-
+      - Initial version
+  repo: "https://github.com/Phalcode/gamevault-backend"
+  support: "https://github.com/Phalcode/gamevault-backend/issues"
+  docs: "https://gamevau.lt/docs/server-docs/setup/docker-compose/"
