@@ -663,9 +663,15 @@ x-casaos:
   category: Social
   developer: stoatchat
   icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/StoatChat/icon.png
-  # thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/StoatChat/thumbnail.png
-  # screenshot_link:
-  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/StoatChat/thumbnail.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/StoatChat/thumbnail.webp
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/StoatChat/thumbnail.webp
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/StoatChat/thumbnail-1.webp
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/StoatChat/thumbnail-2.webp
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/StoatChat/thumbnail-3.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/StoatChat/thumbnail-4.webp
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/StoatChat/thumbnail-5.webp
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/StoatChat/thumbnail-6.webp
   title:
     en_US: Stoat Chat
   tagline:
