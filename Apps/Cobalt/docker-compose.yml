@@ -2,16 +2,13 @@ name: cobalt
 
 services:
   cobalt:
-
     image: ghcr.io/imputnet/cobalt:11.7.1-a636575
     container_name: cobalt
     restart: unless-stopped
     stop_grace_period: 40s
     network_mode: bridge
     environment:
-
-      - API_URL=CHANGEME_API_URL
-
+      API_URL: CHANGEME_API_URL
     ports:
       - target: 9000
         published: "8417"
@@ -43,7 +40,6 @@ services:
       volumes: []
 
   cobalt-web:
-
     image: ghcr.io/spotdemo4/cobalt-web:latest
     container_name: cobalt-web
     restart: unless-stopped
@@ -52,10 +48,8 @@ services:
     depends_on:
       - cobalt
     environment:
-
-      - WEB_DEFAULT_API=CHANGEME_API_URL
-
-      - WEB_HOST=CHANGEME_WEB_HOST
+      WEB_DEFAULT_API: CHANGEME_API_URL
+      WEB_HOST: CHANGEME_WEB_HOST
     ports:
       - target: 8787
         published: "8418"
