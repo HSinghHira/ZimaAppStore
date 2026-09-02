@@ -1,0 +1,292 @@
+name: opengym
+
+services:
+  media:
+    image: alpine/git:latest
+    container_name: opengym-media
+    restart: "no"
+    networks:
+      - opengym_network
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        if [ -z "$$(ls -A /out/img 2>/dev/null)" ]; then
+          git clone --depth 1 https://github.com/hasaneyldrm/exercises-dataset /tmp/ds
+          cp /tmp/ds/images/*.jpg /out/img/ && cp /tmp/ds/videos/*.gif /out/gif/
+        fi
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/media/img
+        target: /out/img
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/media/gif
+        target: /out/gif
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+    x-casaos:
+      id: com.hiraappstore.opengym
+      volumes:
+        - container: /out/img
+          description:
+            en_US: Exercise photos, downloaded once from the public exercises-dataset project and shared with the web service.
+        - container: /out/gif
+          description:
+            en_US: Exercise animated GIFs, downloaded once from the public exercises-dataset project and shared with the web service.
+
+  api:
+    image: registry.gitlab.com/duartesantos8/opengym/api:latest
+    container_name: opengym-api
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - opengym_network
+    environment:
+      - PORT=3000
+      - DATA_DIR=/data
+      - RP_ID=CHANGEME_RP_ID
+      - ORIGIN=CHANGEME_ORIGIN
+      - RP_NAME=openGym
+      - SESSION_DAYS=90
+      - COACH_DISABLED=1
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/openGym/icon.png
+    x-casaos:
+      id: com.hiraappstore.opengym
+      envs:
+        - container: RP_ID
+          description:
+            en_US: The exact hostname passkeys are locked to. Use "localhost" for local-only testing, or your real domain (e.g. gym.example.com) once this sits behind HTTPS. Must match the hostname in ORIGIN exactly, in both services.
+        - container: ORIGIN
+          description:
+            en_US: The full web address people open openGym at, including http:// or https://, e.g. http://localhost:8435 or https://gym.example.com. Must match RP_ID's hostname exactly, or passkey login fails.
+        - container: RP_NAME
+          description:
+            en_US: The name shown in the passkey prompt when signing in. Cosmetic only — safe to leave as openGym.
+        - container: SESSION_DAYS
+          description:
+            en_US: How many days a sign-in lasts before someone has to log in again. Lower this if this instance is reachable from the open internet.
+        - container: COACH_DISABLED
+          description:
+            en_US: Keeps the optional AI Coach feature turned off for every profile. Set to empty to allow admins to turn it on later from Settings.
+      volumes:
+        - container: /data
+          description:
+            en_US: Everything openGym stores — profiles, passkeys, workout history, the session-signing secret and push notification keys. Back this up regularly.
+
+  web:
+    image: registry.gitlab.com/duartesantos8/opengym/web:latest
+    container_name: opengym-web
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - opengym_network
+    depends_on:
+      - media
+      - api
+    ports:
+      - target: 80
+        published: "8435"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/media/img
+        target: /usr/share/nginx/html/img
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/media/gif
+        target: /usr/share/nginx/html/gif
+        read_only: true
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/openGym/icon.png
+    x-casaos:
+      id: com.hiraappstore.opengym
+      ports:
+        - container: "80"
+          description:
+            en_US: Web UI (published on host as 8435)
+      volumes:
+        - container: /usr/share/nginx/html/img
+          description:
+            en_US: Read-only copy of the exercise images the media step downloaded, served alongside the app.
+        - container: /usr/share/nginx/html/gif
+          description:
+            en_US: Read-only copy of the exercise GIFs the media step downloaded, served alongside the app.
+
+networks:
+  opengym_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.opengym
+  architectures:
+    - amd64
+    - arm64
+  main: web
+  author: HSinghHira
+  category: Productivity
+  developer: DuarteSantos8
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/openGym/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/openGym/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/openGym/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/openGym/thumbnail-1.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/openGym/thumbnail-2.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/openGym/thumbnail-3.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/openGym/thumbnail-4.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/openGym/thumbnail-5.png
+  
+  title:
+    en_US: openGym
+  tagline:
+    en_US: Self-hosted gym and body-weight tracker with passkey login
+  description:
+    en_US: >-
+      openGym is a self-hosted gym and body-weight tracker: plan routines, log
+      workouts (supersets and cardio included), and track your weight and
+      progress over time, all stored on your own server.
+
+
+      **Features**
+
+
+      - Weekly routine planner and guided workout logging, with supersets,
+        drop-sets, rest-pause and planned warm-ups.
+
+      - Body-weight tracking with a goal line and progress charts, plus
+        estimated 1RM and other stats.
+
+      - Passkey (WebAuthn) sign-in — no passwords to manage, with optional
+        invite-only signup and an admin dashboard.
+
+      - Push notifications for workout-day reminders, generated on first
+        run with no setup required.
+
+      - Everything is stored as plain files under /DATA/AppData/$AppID — no
+        separate database container to run or back up.
+
+      - An exercise-media step downloads the exercise photo and GIF library
+        (~140 MB) once on first start and shares it with the web service.
+
+
+      **How to use?**
+
+
+      1. Open openGym from the ZimaAppStore dashboard.
+
+      2. On first visit, tap "Create profile" and register a passkey for
+         your account.
+
+      3. Build your first weekly routine, then start a guided workout from
+         it and log your sets as you go.
+
+      4. Add a body-weight entry and set a goal line under the Weight tab
+         to start tracking progress.
+
+      5. Optional: turn on the admin dashboard, invite-only signup, or the
+         AI Coach later from Settings — none of these need the container
+         rebuilt.
+  tips:
+    before_install:
+      en_US: >-
+        1. This app needs two matching values before it will let anyone log
+           in: RP_ID and ORIGIN, both in the api service.
+
+
+        2. If you are only testing this on the same computer, leave RP_ID as
+           localhost and set ORIGIN to http://localhost:8435.
+
+
+        3. If you want to open this app from your phone or from the
+           internet, you need a real domain name with HTTPS in front of it
+           first.
+
+
+        4. In that case, set RP_ID to just the domain, like gym.example.com.
+
+
+        5. Set ORIGIN to the full address, like https://gym.example.com.
+
+
+        6. RP_ID and ORIGIN must point at the exact same address, or sign-in
+           will fail.
+
+
+        7. Start the openGym installation.
+
+
+        8. The first time it starts, a helper step downloads about 140 MB of
+           exercise pictures and videos. This can take a few minutes — let
+           it finish before opening the app.
+
+
+        9. Open openGym from the ZimaAppStore dashboard.
+
+
+        10. Tap "Create profile" and register a passkey to sign in. There is
+            no username or password to remember.
+
+
+        11. Everything you do is saved under the app's data folder. Back
+            that folder up regularly — it holds your whole workout history.
+
+
+        12. Important: if you ever move this app to a new address, every
+            passkey stops working and everyone has to sign in fresh. Try to
+            pick your final address before inviting other people.
+  index: /
+  port_map: "8435"
+  scheme: http
+  is_uncontrolled: false
+  release_notes:
+    en_US: |-
+      - Initial version
+
+      - api and web are pinned to the :latest tag rather than a specific
+        version. openGym ships releases very frequently (several a day at
+        times), and a pinned version tag from one day was already gone
+        from the GitLab registry the next, breaking the pull. Upstream's
+        own docker-compose.yml pulls :latest too, so this follows that.
+
+      - The media service also uses the floating alpine/git:latest tag,
+        since it is a generic one-time download helper, not an openGym
+        release, and alpine/git does not publish version tags worth
+        pinning against.
+  repo: "https://gitlab.com/DuarteSantos8/opengym"
+  support: "https://gitlab.com/DuarteSantos8/opengym/-/issues"
+  docs: "https://gitlab.com/DuarteSantos8/opengym/-/blob/main/docs/SELF_HOSTING.md"
