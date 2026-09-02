@@ -8,7 +8,7 @@ A Community app store for [ZimaOS](https://www.zimaspace.com/ZimaOS) and [CasaOS
 
 ZimaOS reads app stores from a `store.json` manifest.
 
-1. Open the **ZimaAppStore** dashboard.
+1. Open the **ZimaOS** dashboard.
 2. Go to **App Store** → click the **⚙️ Community store**.
 3. Click ➕ **Icon**.
 4. Paste below URL:
@@ -61,6 +61,7 @@ CasaOS doesn't read `store.json` — instead, it can install a full custom app s
 | <h2><img src=Apps/Homelable/icon.png width=21 height=21> Homelable</h2> [![tag](https://img.shields.io/badge/pouzor/homelable-v3.2.0-blue?style=plastic)](https://github.com/Pouzor/homelable) [![tag](https://img.shields.io/badge/visit-project-green?style=plastic)](https://homelable.net/) [![port](https://img.shields.io/badge/port-8431-9cf?style=plastic)]() <br /> Homelable is a self-hosted infrastructure visualizer — scan your network, drop discovered devices onto a canvas, and watch live health-checks light up as your homelab goes on- and offline. | ![thumbnail](Apps/Homelable/thumbnail.png) |
 | <h2><img src=Apps/Tianji/icon.png width=21 height=21> Tianji</h2> [![tag](https://img.shields.io/badge/moonrailgun/tianji-1.31.19-blue?style=plastic)](https://github.com/msgbyte/tianji) [![tag](https://img.shields.io/badge/visit-project-green?style=plastic)](https://tianji.dev/) [![port](https://img.shields.io/badge/port-8432-9cf?style=plastic)]() <br /> Tianji is an all-in-one insight hub — think Google Analytics, Uptime Kuma, and a server status page combined into a single lightweight self-hosted app. | ![thumbnail](Apps/Tianji/thumbnail.png) |
 | <h2><img src=Apps/GameVault/icon.png width=21 height=21> GameVault</h2> [![tag](https://img.shields.io/badge/phalcode/gamevault--backend-16.3.0-blue?style=plastic)](https://github.com/Phalcode/gamevault-backend) [![tag](https://img.shields.io/badge/visit-project-green?style=plastic)](https://gamevau.lt/) [![port](https://img.shields.io/badge/port-8433-9cf?style=plastic)]() <br /> GameVault is a self-hosted gaming platform that lets you and your friends enjoy DRM-free games stored on your own file server in an organized, Steam-like library. | ![thumbnail](Apps/GameVault/thumbnail.png) |
+| <h2><img src=Apps/Yuvomi/icon.png width=21 height=21> Yuvomi</h2> [![tag](https://img.shields.io/badge/ulsklyc/yuvomi-2.63.0-blue?style=plastic)](https://github.com/ulsklyc/yuvomi) [![tag](https://img.shields.io/badge/visit-project-green?style=plastic)](https://yuvomi.cloud/) [![port](https://img.shields.io/badge/port-8434-9cf?style=plastic)]() <br /> Yuvomi is a self-hosted family planner that replaces a dozen separate subscription apps — tasks, calendar, budget, shopping, meals and more — with one private place that runs on your own server. | ![thumbnail](Apps/Yuvomi/thumbnail.png) |
 ---
 
 > ℹ️ **Postfix relay** — an internal SMTP relay used by the stack, not published on any host port.

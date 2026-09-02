@@ -1,0 +1,216 @@
+name: yuvomi
+
+services:
+  yuvomi:
+    image: ghcr.io/ulsklyc/yuvomi:2.63.0
+    container_name: yuvomi
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    environment:
+      - NODE_ENV=production
+      - DB_PATH=/data/yuvomi.db
+      - BACKUP_DIR=/backups
+      - SESSION_SECRET=b91786feb2057122d4e4843a813d59eb8ffe7f5237dda5aec6f7ea58550da44f
+      - DB_ENCRYPTION_KEY=ab153c16785771fc859e9adcc27ffea5d071f613802cdd4d0a809cf25141bed1
+      - SESSION_SECURE=false
+      - TZ=UTC
+    ports:
+      - target: 3000
+        published: "8434"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/backups
+        target: /backups
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/modules
+        target: /app/modules
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', r => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Yuvomi/icon.png
+    x-casaos:
+      id: com.hiraappstore.yuvomi
+      envs:
+        - container: SESSION_SECRET
+          description:
+            en_US: Pre-filled with a random value used to sign login sessions. Replace it with your own — generate one at randomkeygen.com — before going live.
+        - container: DB_ENCRYPTION_KEY
+          description:
+            en_US: Pre-filled with a random value that encrypts the database (SQLCipher/AES-256). Replace it with your own at randomkeygen.com before storing real data, and write it down — a lost or changed key never opens the database again. Clear this value entirely to run without encryption.
+        - container: SESSION_SECURE
+          description:
+            en_US: Set to true only when Yuvomi sits behind an HTTPS reverse proxy (Caddy, Nginx, Traefik). Leave as false for direct HTTP access.
+        - container: DB_PATH
+          description:
+            en_US: Path inside the container where the SQLite database file is stored. Leave as default unless you have a reason to change it.
+        - container: TZ
+          description:
+            en_US: Timezone used for scheduled backups and date displays, e.g. Europe/Berlin.
+      ports:
+        - container: "3000"
+          description:
+            en_US: Web UI (published on host as 8434)
+      volumes:
+        - container: /data
+          description:
+            en_US: The SQLite database and core app data — this is your whole household's data.
+        - container: /backups
+          description:
+            en_US: Scheduled and manual backup archives.
+        - container: /app/modules
+          description:
+            en_US: Optional drop-in third-party Yuvomi modules.
+
+x-casaos:
+  id: com.hiraappstore.yuvomi
+  architectures:
+    - amd64
+    - arm64
+  main: yuvomi
+  author: HSinghHira
+  category: Home
+  developer: ulsklyc
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Yuvomi/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Yuvomi/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Yuvomi/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Yuvomi/thumbnail-1.png
+  title:
+    en_US: Yuvomi
+  tagline:
+    en_US: One private home for tasks, calendar, budget, meals, and everything else that runs a household
+  description:
+    en_US: >-
+      Yuvomi is a self-hosted family planner that replaces a dozen separate
+      subscription apps — tasks, calendar, budget, shopping, meals and more —
+      with one private place that runs on your own server.
+
+
+      **Features**
+
+
+      - Nineteen independent modules: Tasks, Shopping, Meals, Recipes,
+        Pantry, Calendar, Documents, Inventory, Budget, Housekeeping,
+        Rewards, Health, Schedule, Notes & Contacts, Birthdays, Family,
+        Reminders, API Tokens, and Backup — turn on only what your
+        household needs.
+
+      - Modules talk to each other: a meal plan writes the shopping list,
+        ticking off a chore pays reward points, a filed receipt links to a
+        transaction and an inventory item at once.
+
+      - Two-way Google/CalDAV calendar sync, optional OIDC single sign-on,
+        two-factor authentication, and invite-link onboarding for family
+        members.
+
+      - Optional AES-256 database encryption (SQLCipher), zero telemetry,
+        and only one outbound call — a version check against the GitHub
+        releases API.
+
+      - Single SQLite database file for storage, with scheduled backup and
+        restore, and a documented REST/MCP API for automation.
+
+      - Persistent storage under /DATA/AppData/$AppID: database, backups,
+        and optional drop-in modules.
+
+
+      **How to use?**
+
+
+      1. Open Yuvomi from the ZimaAppStore dashboard.
+
+      2. The first visit walks you through creating your household's
+         administrator account.
+
+      3. Turn on the modules your household actually wants under Settings —
+         everything else stays out of the way.
+
+      4. Invite the rest of the family through an invite link; each member
+         picks their own password.
+
+      5. Set up your first task list, calendar, or shopping list, and start
+         connecting modules (e.g. link a meal plan to the shopping list).
+
+      6. Calendar sync, weather widgets, OIDC/SSO, and WebDAV backup targets
+         can all be added later from Settings without rebuilding the
+         container.
+  tips:
+    before_install:
+      en_US: >-
+        1. This app comes with two secret values already filled in for you:
+           SESSION_SECRET and DB_ENCRYPTION_KEY.
+
+
+        2. These are safe to use for testing, but not safe to share with
+           anyone else.
+
+
+        3. Before you rely on this app for real family data, open the app
+           settings and replace both values.
+
+
+        4. Go to randomkeygen.com and copy two new random values.
+
+
+        5. Put one new value in SESSION_SECRET.
+
+
+        6. Put the other new value in DB_ENCRYPTION_KEY.
+
+
+        7. Write down your DB_ENCRYPTION_KEY somewhere safe. If you lose it,
+           nobody can unlock your database again — not even the app maker.
+
+
+        8. If you don't want database encryption at all, just delete the
+           DB_ENCRYPTION_KEY value and leave it blank.
+
+
+        9. Start the Yuvomi installation.
+
+
+        10. Open Yuvomi from the ZimaAppStore dashboard.
+
+
+        11. The first screen you see will help you create your admin
+            account. Follow the steps on screen.
+
+
+        12. Later settings like calendar sync, weather, and backups can be
+            turned on any time from inside the app — you don't need to
+            touch this page again.
+  index: /
+  port_map: "8434"
+  scheme: http
+  is_uncontrolled: false
+  version: "2.63.0"
+  update_at: "2026-09-02"
+  release_notes:
+    en_US: |-
+      - Initial version
+  repo: "https://github.com/ulsklyc/yuvomi"
+  support: "https://github.com/ulsklyc/yuvomi/issues"
+  docs: "https://github.com/ulsklyc/yuvomi/tree/main/docs"

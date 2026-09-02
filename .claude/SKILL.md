@@ -38,7 +38,8 @@ apps were added:
 | Homelable | 8431 (frontend web UI). Backend has no published port — reached only over the internal homelable_network. |
 | Tianji | 8432 |
 | GameVault | 8433 |
-| **Next new app starts at** | **8434** |
+| yuvomi | 8434 |
+| **Next new app starts at** | **8435** |
 
 - Claim the next unused number(s) in sequence and record them in this table
   *before* writing the manifest, so two apps in progress at once can't
