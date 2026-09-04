@@ -1,0 +1,441 @@
+name: outline
+
+services:
+  outline:
+    image: docker.getoutline.com/outlinewiki/outline:1.0.0
+    container_name: outline-app
+    restart: unless-stopped
+    stop_grace_period: 30s
+    environment:
+      - NODE_ENV=production
+      - SECRET_KEY=de6ae672db31ad0267c52ed6ec1ee5346968660f286a28c5cc526bca7c96e3f6
+      - UTILS_SECRET=483db105eab371dfb53208623ed3bf1d00e5794bd931d7544994aaf657342481
+      - DATABASE_URL=postgres://outline:f39067eaad7cf26bd6020e066d0a283cccc9c50e1644dbf4@postgres:5432/outline
+      - PGSSLMODE=disable
+      - REDIS_URL=redis://redis:6379
+      - URL=CHANGEME_YOUR_SECURE_SERVER_URL
+      - PORT=3000
+      - FILE_STORAGE=local
+      - FILE_STORAGE_UPLOAD_MAX_SIZE=26214400
+      - DEFAULT_LANGUAGE=en_US
+      - OIDC_CLIENT_ID=CHANGEME_OIDC_CLIENT_ID
+      - OIDC_CLIENT_SECRET=CHANGEME_OIDC_CLIENT_SECRET
+      - OIDC_AUTH_URI=CHANGEME_OIDC_AUTH_URI
+      - OIDC_TOKEN_URI=CHANGEME_OIDC_TOKEN_URI
+      - OIDC_USERINFO_URI=CHANGEME_OIDC_USERINFO_URI
+      - OIDC_USERNAME_CLAIM=preferred_username
+      - OIDC_DISPLAY_NAME=SSO
+      - OIDC_SCOPES=openid profile email not required
+    ports:
+      - target: 3000
+        published: "8437"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /var/lib/outline/data
+        bind:
+          create_host_path: true
+    depends_on:
+      - postgres
+      - redis
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.25"
+          memory: 512M
+    networks:
+      - outline_network
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Outline/icon.png
+    x-casaos:
+      id: com.hiraappstore.outline
+      envs:
+        - container: SECRET_KEY
+          description:
+            en_US: Pre-filled with a random value used to sign cookies and sessions. Replace it with your own — generate one at randomkeygen.com — before going live.
+        - container: UTILS_SECRET
+          description:
+            en_US: Pre-filled with a random value used by internal utilities. Replace it with your own — generate one at randomkeygen.com — before going live.
+        - container: DATABASE_URL
+          description:
+            en_US: Connection string for the Outline database. The password inside must match POSTGRES_PASSWORD in the postgres service.
+        - container: URL
+          description:
+            en_US: Set this to the exact web address you will use to open Outline, e.g. http://your-server-ip:8437.
+        - container: OIDC_CLIENT_ID
+          description:
+            en_US: Client ID for your OIDC provider. Outline requires at least one sign-in method (OIDC, Google, Slack, or Azure) — Pocket ID works well if you have it installed.
+        - container: OIDC_CLIENT_SECRET
+          description:
+            en_US: Client secret for your OIDC provider.
+        - container: OIDC_AUTH_URI
+          description:
+            en_US: Your OIDC provider's authorization endpoint, e.g. http://your-pocket-id:8436/authorize.
+        - container: OIDC_TOKEN_URI
+          description:
+            en_US: Your OIDC provider's token endpoint, e.g. http://your-pocket-id:8436/api/oidc/token.
+        - container: OIDC_USERINFO_URI
+          description:
+            en_US: Your OIDC provider's userinfo endpoint, e.g. http://your-pocket-id:8436/api/oidc/userinfo.
+        - container: OIDC_DISPLAY_NAME
+          description:
+            en_US: The name shown on the "Login with ..." button on the sign-in page.
+      ports:
+        - container: "3000"
+          description:
+            en_US: Outline web app and API (published on host as 8437)
+      volumes:
+        - container: /var/lib/outline/data
+          description:
+            en_US: Locally stored file uploads, avatars, and document attachments.
+
+  postgres:
+    image: postgres:16
+    container_name: outline-db
+    restart: unless-stopped
+    stop_grace_period: 40s
+    environment:
+      - POSTGRES_USER=outline
+      - POSTGRES_PASSWORD=f39067eaad7cf26bd6020e066d0a283cccc9c50e1644dbf4
+      - POSTGRES_DB=outline
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.10"
+          memory: 256M
+    networks:
+      - outline_network
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Outline/icon.png
+    x-casaos:
+      id: com.hiraappstore.outline
+      envs:
+        - container: POSTGRES_USER
+          description:
+            en_US: Must match the username in DATABASE_URL in the outline service.
+        - container: POSTGRES_PASSWORD
+          description:
+            en_US: Pre-filled with a random value. Must match the password in DATABASE_URL in the outline service. Replace it with your own — generate one at randomkeygen.com — before going live.
+        - container: POSTGRES_DB
+          description:
+            en_US: Must match the database name in DATABASE_URL in the outline service.
+      volumes:
+        - container: /var/lib/postgresql/data
+          description:
+            en_US: PostgreSQL database files - documents, collections, users, and permissions.
+
+  redis:
+    image: redis:7-alpine
+    container_name: outline-redis
+    restart: unless-stopped
+    stop_grace_period: 20s
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/redis
+        target: /data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+        reservations:
+          cpus: "0.05"
+          memory: 64M
+    networks:
+      - outline_network
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Outline/icon.png
+    x-casaos:
+      id: com.hiraappstore.outline
+      volumes:
+        - container: /data
+          description:
+            en_US: Redis cache and job queue data - safe to clear, not a source of truth.
+
+networks:
+  outline_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.outline
+  architectures:
+    - amd64
+    - arm64
+  main: outline
+  author: HSinghHira
+  category: Productivity
+  developer: Outline
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Outline/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Outline/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Outline/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Outline/thumbnail-1.png
+  title:
+    en_US: Outline
+  tagline:
+    en_US: The fastest wiki and knowledge base for growing teams, self-hosted.
+  description:
+    en_US: >-
+      Outline is a fast, beautifully designed wiki and knowledge base for
+      teams - real-time collaborative editing, nested collections, and
+      powerful search, all running on infrastructure you control.
+
+
+      **Features**
+
+      - Real-time collaborative document editing with a clean Markdown
+        editor.
+
+      - Nested collections and documents, full-text search, and a
+        keyboard-first interface.
+
+      - Sign-in via OIDC, Google, Slack, or Azure - no built-in
+        password auth.
+
+      - API for integrations and automation.
+
+      - PostgreSQL for documents and metadata, Redis for caching and
+        background jobs, and local file storage for uploads.
+
+      - Persistent storage for the database, cache, and uploaded files
+        under /DATA/AppData/$AppID.
+
+
+      **How to use?**
+
+      1. Before installing, set up an OIDC application (or Google, Slack,
+         or Azure app) - Outline requires at least one sign-in method
+         configured to start. Pocket ID works well if you have it
+         installed.
+
+      2. Fill in the OIDC client ID, secret, and endpoint URLs in the app
+         configuration.
+
+      3. Open Outline from the ZimaAppStore dashboard.
+
+      4. Sign in with your configured provider to create the first
+         workspace.
+
+      5. Create your first collection and start writing documents.
+
+      6. Invite teammates and configure further settings, like the
+         workspace logo, from the in-app admin panel under Settings.
+  tips:
+  before_install:
+    en_US: |-
+      1. Install Pocket ID first if you want to use Pocket ID for signing in.
+         Pocket ID must be accessible over a secure HTTPS connection before
+         configuring it for Outline. For example:
+         https://id.example.com
+
+         Do not use an HTTP-only Pocket ID URL for your production setup.
+
+      2. Open Pocket ID and complete its initial setup. Create your Pocket ID
+         account and make sure you can sign in successfully before continuing.
+
+      3. In Pocket ID, create an OIDC client for Outline.
+
+         Go to the OIDC Clients section and create a new client.
+
+         Use a name such as:
+         Outline
+
+         Set the redirect/callback URI to:
+         https://outline.example.com/auth/oidc.callback
+
+         Replace outline.example.com with the domain you will actually use
+         to access your Outline installation.
+
+      4. After creating the OIDC client, copy the following values from Pocket ID:
+
+         - Client ID
+         - Client Secret
+
+         Keep the client secret private. Do not publish it or share it
+         publicly.
+
+      5. Make sure the Outline OIDC client in Pocket ID allows your Pocket ID
+         user to access the application.
+
+         If Pocket ID has an Allowed User Groups or access-control option,
+         either allow the appropriate group containing your user or select
+         unrestricted access.
+
+         If your user is not allowed to access the OIDC client, Pocket ID
+         may show:
+         "You are not allowed to access this service."
+
+      6. Open the Outline app configuration in ZimaOS before starting the
+         installation.
+
+      7. In the outline service, configure the OIDC settings.
+
+         For Pocket ID, use:
+
+         OIDC_AUTH_URI:
+         https://id.example.com/authorize
+
+         OIDC_TOKEN_URI:
+         https://id.example.com/api/oidc/token
+
+         OIDC_USERINFO_URI:
+         https://id.example.com/api/oidc/userinfo
+
+         Replace id.example.com with your Pocket ID domain.
+
+      8. Enter the OIDC credentials from Pocket ID:
+
+         OIDC_CLIENT_ID:
+         Your Pocket ID client ID
+
+         OIDC_CLIENT_SECRET:
+         Your Pocket ID client secret
+
+      9. Set the OIDC display name. For example:
+
+         OIDC_DISPLAY_NAME:
+         Pocket ID
+
+      10. Set the OIDC scopes to:
+
+          OIDC_SCOPES:
+          openid profile email groups
+
+          The "groups" scope can be used when Pocket ID group information
+          is needed by the application.
+
+      11. Set OIDC_USERNAME_CLAIM to:
+
+          OIDC_USERNAME_CLAIM:
+          preferred_username
+
+      12. Find URL in the outline service and set it to the public HTTPS
+          address you will use to access Outline.
+
+          For example:
+
+          URL:
+          https://outline.example.com
+
+          If you are using a reverse proxy, do not use the internal Docker
+          address here. URL should be the address users actually open in
+          their browser.
+
+      13. Make sure your Outline domain has a valid HTTPS certificate and
+          that the reverse proxy forwards HTTPS traffic to the Outline
+          container.
+
+          Example:
+
+          https://outline.example.com
+                    ↓
+             Reverse Proxy
+                    ↓
+          http://your-server-ip:8437
+
+      14. In Pocket ID, make sure the OIDC redirect/callback URL exactly
+          matches the Outline URL.
+
+          Example:
+
+          https://outline.example.com/auth/oidc.callback
+
+          A mismatch between these URLs can prevent OIDC login from working.
+
+      15. Find SECRET_KEY and UTILS_SECRET in the outline service. They are
+          pre-filled with random values.
+
+          For a new installation, you can replace them with your own secure
+          random values. You can generate secure random values using:
+          https://randomkeygen.com/
+
+          Keep these values private and do not publish them.
+
+      16. Find POSTGRES_PASSWORD in the postgres service and replace it with
+          your own secure password.
+
+          Then update the password in DATABASE_URL in the outline service
+          so that both passwords match.
+
+          Example:
+
+          POSTGRES_PASSWORD:
+          your-secure-password
+
+          DATABASE_URL:
+          postgres://outline:your-secure-password@postgres:5432/outline
+
+      17. Important: if PostgreSQL has already been initialized, changing
+          POSTGRES_PASSWORD in the ZimaOS configuration does not change the
+          password stored inside the existing PostgreSQL database.
+
+          Only change this value on a new installation, or update the
+          existing PostgreSQL user's password separately.
+
+      18. Start the Outline installation.
+
+      19. Wait approximately 20 to 30 seconds for PostgreSQL, Redis, and
+          Outline to start completely. The first startup may take longer
+          while the database is initialized.
+
+      20. Open Outline using your configured HTTPS address.
+
+          Example:
+
+          https://outline.example.com
+
+      21. Select "Pocket ID" (or the OIDC display name you configured) and
+          sign in using your Pocket ID account.
+
+      22. On the first successful login, Outline will create the initial
+          workspace for you.
+
+      23. If Pocket ID displays:
+          "You are not allowed to access this service."
+
+          Open Pocket ID and check the Outline OIDC client's access settings.
+          Make sure your user is included in an allowed group or that the
+          client is configured for unrestricted access.
+
+      24. If you receive a redirect URI or callback error, check that the
+          callback URL configured in Pocket ID exactly matches:
+
+          https://outline.example.com/auth/oidc.callback
+
+          Replace outline.example.com with your actual Outline domain.
+
+      25. More settings, including workspace branding, members, permissions,
+          and other administration options, are available inside Outline
+          under Settings.
+
+      26. Security recommendation: use HTTPS for both Pocket ID and Outline
+          when they are exposed outside your local network. Do not publish
+          your OIDC client secret, database password, SECRET_KEY, or
+          UTILS_SECRET in public repositories or screenshots.
+  index: /
+  port_map: "8437"
+  scheme: http
+  is_uncontrolled: false
+  version: "1.0.0"
+  update_at: "2026-09-04"
+  release_notes:
+    en_US: |-
+      - Initial version, pinned to docker.getoutline.com/outlinewiki/outline:1.0.0
+  repo: "https://github.com/outline/outline"
+  support: "https://github.com/outline/outline/discussions"
+  docs: "https://docs.getoutline.com"
