@@ -40,7 +40,8 @@ apps were added:
 | GameVault | 8433 |
 | Yuvomi | 8434 |
 | openGym | 8435 |
-| **Next new app starts at** | **8436** |
+| BookOrbit | 8438 |
+| **Next new app starts at** | **8439** |
 
 - Claim the next unused number(s) in sequence and record them in this table
   *before* writing the manifest, so two apps in progress at once can't

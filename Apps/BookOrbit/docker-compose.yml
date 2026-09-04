@@ -1,0 +1,274 @@
+name: bookorbit
+
+services:
+  app:
+    image: ghcr.io/bookorbit/bookorbit:2.6.0
+    container_name: bookorbit-app
+    restart: unless-stopped
+    stop_grace_period: 30s
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=bookorbit
+      - POSTGRES_PASSWORD=74f7f7e4d0c19d4d79c6a09dd61ddff6e5456eff2aef3879
+      - POSTGRES_DB=bookorbit
+      - JWT_SECRET=dbc293a81e835272849617ca0555c488e6167f1e7636b3019bd65f14f277f8c8
+      - SETUP_BOOTSTRAP_TOKEN=ecad874d552886e216e4cff1d06ddd1b
+      - APP_URL=http://IP:8438
+      - PUID=1000
+      - PGID=1000
+      - NODE_MAX_OLD_SPACE_SIZE=2048
+      - LIBRARY_BROWSE_ROOT=/books
+    ports:
+      - target: 3000
+        published: "8438"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/books
+        target: /books
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/app
+        target: /data
+        bind:
+          create_host_path: true
+    depends_on:
+      - postgres
+    networks:
+      - bookorbit_network
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.25"
+          memory: 512M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/BookOrbit/icon.png
+    x-casaos:
+      id: com.hiraappstore.bookorbit
+      envs:
+        - container: POSTGRES_USER
+          description:
+            en_US: Username for the BookOrbit database. Must match POSTGRES_USER in the postgres service.
+        - container: POSTGRES_PASSWORD
+          description:
+            en_US: Pre-filled with a random value. Must match POSTGRES_PASSWORD in the postgres service. Replace it with your own — generate one at randomkeygen.com — before going live.
+        - container: POSTGRES_DB
+          description:
+            en_US: Name of the BookOrbit database. Must match POSTGRES_DB in the postgres service.
+        - container: JWT_SECRET
+          description:
+            en_US: Pre-filled with a random value used to sign login tokens. Replace it with your own — generate one at randomkeygen.com — before going live.
+        - container: SETUP_BOOTSTRAP_TOKEN
+          description:
+            en_US: Pre-filled with a random value. Enter it in the first-run setup wizard to create the admin account. Replace it with your own — generate one at randomkeygen.com — before going live.
+        - container: APP_URL
+          description:
+            en_US: Set this to the web address you will use to open BookOrbit, e.g. http://your-server-ip:8438.
+        - container: LIBRARY_BROWSE_ROOT
+          description:
+            en_US: Starts the library folder picker at /books instead of the container root.
+      ports:
+        - container: "3000"
+          description:
+            en_US: BookOrbit web app and API (published on host as 8438)
+      volumes:
+        - container: /books
+          description:
+            en_US: Your book files - EPUB, MOBI, AZW3, PDF, CBZ/CBR, M4B/MP3.
+        - container: /data
+          description:
+            en_US: App-managed data - covers, cache, Book Dock, and conversion files.
+
+  postgres:
+    image: pgvector/pgvector:pg18
+    container_name: bookorbit-db
+    restart: unless-stopped
+    stop_grace_period: 40s
+    environment:
+      - POSTGRES_USER=bookorbit
+      - POSTGRES_PASSWORD=74f7f7e4d0c19d4d79c6a09dd61ddff6e5456eff2aef3879
+      - POSTGRES_DB=bookorbit
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    networks:
+      - bookorbit_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.10"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/BookOrbit/icon.png
+    x-casaos:
+      id: com.hiraappstore.bookorbit
+      envs:
+        - container: POSTGRES_USER
+          description:
+            en_US: Must match POSTGRES_USER in the app service.
+        - container: POSTGRES_PASSWORD
+          description:
+            en_US: Pre-filled with a random value. Must match POSTGRES_PASSWORD in the app service. Replace it with your own — generate one at randomkeygen.com — before going live.
+        - container: POSTGRES_DB
+          description:
+            en_US: Must match POSTGRES_DB in the app service.
+      volumes:
+        - container: /var/lib/postgresql/data
+          description:
+            en_US: PostgreSQL database files - users, libraries, metadata, progress, and annotations.
+
+networks:
+  bookorbit_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.bookorbit
+  architectures:
+    - amd64
+    - arm64
+  main: app
+  author: HSinghHira
+  category: Media
+  developer: BookOrbit
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/BookOrbit/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/BookOrbit/thumbnail.webp
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/BookOrbit/thumbnail.webp
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/BookOrbit/thumbnail-1.webp
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/BookOrbit/thumbnail-2.webp
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/BookOrbit/thumbnail-3.webp
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/BookOrbit/thumbnail-4.webp
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/BookOrbit/thumbnail-5.webp
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/BookOrbit/thumbnail-6.webp
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/BookOrbit/thumbnail-7.webp
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/BookOrbit/thumbnail-8.webp
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/BookOrbit/thumbnail-9.webp
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/BookOrbit/thumbnail-10.webp
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/BookOrbit/thumbnail-11.webp
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/BookOrbit/thumbnail-12.webp
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/BookOrbit/thumbnail-13.webp
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/BookOrbit/thumbnail-14.webp
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/BookOrbit/thumbnail-15.webp
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/BookOrbit/thumbnail-16.webp
+  title:
+    en_US: BookOrbit
+  tagline:
+    en_US: Your self-hosted library for ebooks, audiobooks, comics, and PDFs.
+  description:
+    en_US: >-
+      BookOrbit is a self-hosted digital library and reading platform for
+      EPUB, MOBI, AZW3, PDF, CBZ/CBR comics, and M4B/MP3 audiobooks - think
+      your own private library with sync built in.
+
+
+      **Features**
+
+      - Built-in web readers for ebooks, PDFs, comics, and audiobooks, with
+        no extra plugins required.
+
+      - Three-way sync (Kobo + KOReader + BookOrbit) for reading progress
+        and annotations.
+
+      - Rich metadata lookup from Google Books, Amazon, Goodreads, Open
+        Library, Audible, ComicVine, and more.
+
+      - Multi-user support with OIDC/SSO (Authentik, Keycloak, Authelia),
+        OPDS catalogs, and Send-to-Kindle delivery.
+
+      - PostgreSQL with pgvector for persistent application data, running
+        as a companion container.
+
+      - Persistent storage for book files and app data under
+        /DATA/AppData/$AppID.
+
+
+      **How to use?**
+
+      1. Open BookOrbit from the ZimaAppStore dashboard.
+
+      2. You'll be redirected to a setup wizard - enter your Setup
+         Bootstrap Token to create the administrator account.
+
+      3. Create your first library and point it at your books folder.
+
+      4. Start reading, or drop files into the Book Dock folder for
+         automatic ingestion.
+
+      5. Add more users and connect OIDC/SSO from Settings if needed.
+
+      6. SMTP, metadata providers, and other integrations can be
+         configured later from the in-app admin panel.
+  tips:
+    before_install:
+      en_US: >-
+        1. Open the app configuration before starting the installation.
+
+
+        2. Find APP_URL in the app service. It says CHANGEME_YOUR_SERVER_URL.
+
+
+        3. Set it to the address you will open BookOrbit at, like
+           http://your-server-ip:8438.
+
+
+        4. Find POSTGRES_PASSWORD, JWT_SECRET, and SETUP_BOOTSTRAP_TOKEN in
+           the app service. They are pre-filled with random values.
+
+
+        5. Replace them with your own values. Generate new ones at
+           randomkeygen.com.
+
+
+        6. POSTGRES_PASSWORD must be the same in the app service and the
+           postgres service.
+
+
+        7. POSTGRES_USER and POSTGRES_DB must also match between the app
+           service and the postgres service.
+
+
+        8. Start the BookOrbit installation.
+
+
+        9. Wait about 20 to 30 seconds so the database can fully start.
+
+
+        10. Open BookOrbit from the Zima OS dashboard.
+
+
+        11. Enter your Setup Bootstrap Token to create the admin account.
+
+
+        12. More settings, like SMTP and metadata providers, are in the
+            in-app admin panel under Settings.
+
+
+        13. Important: changing POSTGRES_PASSWORD later does not change an
+            already-created database password. You would need to reset the
+            database by hand.
+  index: /
+  port_map: "8438"
+  scheme: http
+  is_uncontrolled: false
+  version: "2.6.0"
+  update_at: "2026-09-04"
+  release_notes:
+    en_US: |-
+      - Initial version, pinned to ghcr.io/bookorbit/bookorbit:2.6.0
+  repo: "https://github.com/bookorbit/bookorbit"
+  support: "https://github.com/bookorbit/bookorbit/issues"
+  docs: "https://bookorbit.app/installation.html"
