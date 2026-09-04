@@ -40,6 +40,8 @@ apps were added:
 | GameVault | 8433 |
 | Yuvomi | 8434 |
 | openGym | 8435 |
+| Pocket ID | 8436 |
+| Outline | 8437 |
 | BookOrbit | 8438 |
 | **Next new app starts at** | **8439** |
 
