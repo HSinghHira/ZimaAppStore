@@ -129,7 +129,7 @@ x-casaos:
 
       **How to use?**
 
-      1. Open SearXNG from the ZimaAppStore dashboard.
+      1. Open SearXNG from the Zima OS dashboard.
 
       2. Start searching immediately — no account or setup required.
 
@@ -155,7 +155,7 @@ x-casaos:
         4. The searxng-valkey (cache) container starts first automatically
            via depends_on — no action needed.
 
-        5. Open SearXNG from the ZimaAppStore dashboard and start searching.
+        5. Open SearXNG from the Zima OS dashboard and start searching.
 
         6. Further configuration (engines, ranking, appearance) lives in
            settings.yml under the config volume

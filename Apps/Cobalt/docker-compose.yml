@@ -131,7 +131,7 @@ x-casaos:
 
       **How to use?**
 
-      1. Open cobalt from the ZimaAppStore dashboard — this opens the web UI,
+      1. Open cobalt from the Zima OS dashboard — this opens the web UI,
          not the raw API.
 
       2. Paste a link to the video, audio, or media you want to save into
@@ -169,7 +169,7 @@ x-casaos:
 
         5. Start the cobalt installation.
 
-        6. Open cobalt from the ZimaAppStore dashboard — this opens the web UI
+        6. Open cobalt from the Zima OS dashboard — this opens the web UI
            on port 8418. Paste a link to test that downloads work.
 
         7. Optional: if you need to download from sources that require

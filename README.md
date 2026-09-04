@@ -74,5 +74,5 @@ CasaOS doesn't read `store.json` — instead, it can install a full custom app s
 
 ## Support
 
-Found a bug or want to request an app? Open an issue on the [ZimaAppStore GitHub repository](https://github.com/HSinghHira/ZimaAppStore/issues).
+Found a bug or want to request an app? Open an issue on the [Zima OS GitHub repository](https://github.com/HSinghHira/ZimaAppStore/issues).
 

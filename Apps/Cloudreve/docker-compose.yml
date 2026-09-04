@@ -212,7 +212,7 @@ x-casaos:
 
       **How to use?**
 
-      1. Open Cloudreve from the ZimaAppStore dashboard.
+      1. Open Cloudreve from the Zima OS dashboard.
 
       2. Register an account — the first account created becomes the
          administrator.
@@ -252,7 +252,7 @@ x-casaos:
            (service_healthy) before opening Cloudreve — this is handled
            automatically via depends_on, no action needed.
 
-        7. Open Cloudreve from the ZimaAppStore dashboard.
+        7. Open Cloudreve from the Zima OS dashboard.
 
         8. Register an account — the first account you create automatically
            becomes the administrator, so register your own account first

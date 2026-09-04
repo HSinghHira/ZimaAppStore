@@ -52,7 +52,7 @@ services:
               Optional. Set to your reverse proxy's IP/CIDR if Dispatcharr
               sits behind one, so Network Access, Stats, and rate limits
               see real client IPs. Set to "none" to ignore forwarded
-              headers entirely. Leave unset for a normal ZimaAppStore install.
+              headers entirely. Leave unset for a normal Zima OS install.
       ports:
         - container: "9191"
           description:
@@ -122,7 +122,7 @@ x-casaos:
 
       **How to use?**
 
-      1. Open Dispatcharr from the ZimaAppStore dashboard.
+      1. Open Dispatcharr from the Zima OS dashboard.
 
       2. Complete the initial setup and create your administrator
          account. If you're accessing the setup page from your local
@@ -162,7 +162,7 @@ x-casaos:
 
         4. Start the Dispatcharr installation.
 
-        5. Open Dispatcharr from the ZimaAppStore dashboard once the
+        5. Open Dispatcharr from the Zima OS dashboard once the
            container is running — first boot needs a few extra
            seconds to initialize the bundled database.
 

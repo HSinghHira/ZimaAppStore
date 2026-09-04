@@ -226,7 +226,7 @@ x-casaos:
       2. Fill in the OIDC client ID, secret, and endpoint URLs in the app
          configuration.
 
-      3. Open Outline from the ZimaAppStore dashboard.
+      3. Open Outline from the Zima OS dashboard.
 
       4. Sign in with your configured provider to create the first
          workspace.

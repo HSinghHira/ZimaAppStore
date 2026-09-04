@@ -92,7 +92,7 @@ services:
             en_US: "Must match MINIO_ROOT_PASSWORD on the minio service. Change from the sample value before publishing."
         - container: ENTE_S3_B2_EU_CEN_ENDPOINT
           description:
-            en_US: "Public hostname:port for reaching MinIO's S3 API. Update to your ZimaAppStore IP/domain plus port 8406 if accessing remotely."
+            en_US: "Public hostname:port for reaching MinIO's S3 API. Update to your Zima OS IP/domain plus port 8406 if accessing remotely."
         - container: ENTE_S3_B2_EU_CEN_REGION
           description:
             en_US: "Container Variable: ENTE_S3_B2_EU_CEN_REGION"
@@ -110,7 +110,7 @@ services:
             en_US: "Auto-generated JWT signing secret. Treat as a secret."
         - container: ENTE_APPS_PUBLIC_ALBUMS
           description:
-            en_US: "Public URL for shared album links. Update to your ZimaAppStore IP/domain plus port 8405 if accessing remotely."
+            en_US: "Public URL for shared album links. Update to your Zima OS IP/domain plus port 8405 if accessing remotely."
         - container: ENTE_SMTP_HOST
           description:
             en_US: "Defaults to the bundled Mailpit catcher (view codes at host port 8407, no setup needed). For real email delivery instead, set this to an SMTP provider hostname (e.g. Brevo, Resend, Mailgun, SES, or Gmail) and fill in the SMTP vars below."
@@ -191,7 +191,7 @@ services:
       envs:
         - container: ENTE_API_ORIGIN
           description:
-            en_US: "Public URL the web app uses to reach the API. Update to your ZimaAppStore IP/domain plus port 8403 if accessing remotely."
+            en_US: "Public URL the web app uses to reach the API. Update to your Zima OS IP/domain plus port 8403 if accessing remotely."
       ports:
         - container: "3000"
           description:
@@ -469,7 +469,7 @@ x-casaos:
 
       **How to use?**
 
-      1. Open Ente Photos from the ZimaAppStore dashboard.
+      1. Open Ente Photos from the Zima OS dashboard.
 
       2. Complete the initial setup and create your administrator account.
 

@@ -127,7 +127,7 @@ x-casaos:
 
       **How to use?**
 
-      1. Open Mailpit from the ZimaAppStore dashboard to view the web UI —
+      1. Open Mailpit from the Zima OS dashboard to view the web UI —
          empty until something sends mail.
 
       2. Point any app's SMTP settings at this NAS's IP on port 8412
@@ -157,7 +157,7 @@ x-casaos:
 
         3. Start the Mailpit installation.
 
-        4. Open Mailpit from the ZimaAppStore dashboard to confirm the web UI
+        4. Open Mailpit from the Zima OS dashboard to confirm the web UI
            loads.
 
         5. Point any other app's SMTP host/port settings at this NAS's IP

@@ -87,7 +87,7 @@ x-casaos:
 
       **How to use?**
 
-      1. Open OmniRoute from the ZimaAppStore dashboard.
+      1. Open OmniRoute from the Zima OS dashboard.
 
       2. Log in with the initial admin password you set in
          INITIAL_PASSWORD, then change it immediately from the dashboard.
@@ -113,7 +113,7 @@ x-casaos:
 
         3. Start the OmniRoute installation.
 
-        4. Open OmniRoute from the ZimaAppStore dashboard.
+        4. Open OmniRoute from the Zima OS dashboard.
 
         5. Log in using the password you set in INITIAL_PASSWORD.
 

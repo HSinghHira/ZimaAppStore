@@ -142,7 +142,7 @@ x-casaos:
       **How to use?**
 
 
-      1. Open Homelable from the ZimaAppStore dashboard.
+      1. Open Homelable from the Zima OS dashboard.
 
       2. Log in with the username and password (Default "admin/admin") you set in the
          AUTH_USERNAME / AUTH_PASSWORD_HASH variables before install.
@@ -188,7 +188,7 @@ x-casaos:
         two dollar signs, then restart the homelable-backend container.
 
 
-        7. Open Homelable from the ZimaAppStore dashboard and log in with
+        7. Open Homelable from the Zima OS dashboard and log in with
         AUTH_USERNAME and the password you just hashed.
 
 

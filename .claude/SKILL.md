@@ -1,4 +1,4 @@
-# Adding a new app to Hira's ZimaAppStore App Store
+# Adding a new app to Hira's Zima OS App Store
 
 Checklist distilled from getting OmniRoute, SearXNG, and Ente working. Follow
 this in order for every new app — most of these were real, specific failures
@@ -187,7 +187,7 @@ x-casaos:
 
       **How to use?**
 
-      1. Open <App Name> from the ZimaAppStore dashboard.
+      1. Open <App Name> from the Zima OS dashboard.
 
       2. Complete the initial setup and create your administrator account
          (if applicable).
@@ -225,7 +225,7 @@ x-casaos:
         8. <wait for any migration/setup job to finish before first use,
            if applicable>
 
-        9. Open <App Name> from the ZimaAppStore dashboard.
+        9. Open <App Name> from the Zima OS dashboard.
 
         10. <first-run account/setup step, if applicable>
 
