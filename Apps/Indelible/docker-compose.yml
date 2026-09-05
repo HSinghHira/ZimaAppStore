@@ -1,0 +1,442 @@
+name: indelible
+
+services:
+  indelible:
+    image: ghcr.io/useindelible/ind-api:latest
+    container_name: indelible
+    networks:
+      - indelible-network
+    restart: unless-stopped
+    stop_grace_period: 40s
+    environment:
+      - IND_ENV=development
+      - IND_HOST=0.0.0.0
+      - IND_PORT=8080
+      - DATABASE_URL=postgres://indelible:01c66f00814d2a5c4624f13fb75e4cca@postgres:5432/indelible
+      - S3_ENDPOINT=http://silo:9000
+      - S3_REGION=us-east-1
+      - S3_BUCKET=indelible
+      - S3_ACCESS_KEY=indelible
+      - S3_SECRET_KEY=5d7625868a65eaf86d75dc3f0a959f37
+      - S3_FORCE_PATH_STYLE=true
+      - IND_BASE_URL=http://CHANGEME_YOUR_SERVER_ADDRESS:8439
+      - FRONTEND_URL=http://CHANGEME_YOUR_SERVER_ADDRESS:8439
+      - CORS_ORIGINS=http://CHANGEME_YOUR_SERVER_ADDRESS:8439
+      - JWT_SECRET=765fdb9871fa9de8e024c9ae223bef1fd034c9d51f8121eb62c2b40ee8ae0437
+      - CSRF_SECRET=95aba415eb5a10555b4745b2fe61724b1da573b71d30cc6e0fc2d55ce47d392d
+      - ASSET_COOKIE_SECRET=996e0af7cbf22bc129ca981a6c917da4c7506a17d09b2583c9fbb755ecacef8e
+      - AUTH_CREDENTIAL_KEY=u3FUTAYgLFLyvhGnKpJ7MgFvkdUpR+/HPIIAh0DuV9M=
+      - EGRESS_ALLOW_PRIVATE_TARGETS=true
+    ports:
+      - target: 8080
+        published: "8439"
+        protocol: tcp
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+    depends_on:
+      postgres:
+        condition: service_healthy
+      silo:
+        condition: service_healthy
+      silo-init:
+        condition: service_completed_successfully
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Indelible/icon.png
+    x-casaos:
+      id: com.hiraappstore.indelible
+      envs:
+        - container: DATABASE_URL
+          description:
+            en_US: PostgreSQL connection string. The password segment must match POSTGRES_PASSWORD in the postgres service.
+        - container: S3_SECRET_KEY
+          description:
+            en_US: Object storage password. Must match MINIO_ROOT_PASSWORD in the silo and silo-init services.
+        - container: IND_BASE_URL
+          description:
+            en_US: Public address of this instance, e.g. http://192.168.1.50:8439. Must match FRONTEND_URL and CORS_ORIGINS exactly.
+        - container: FRONTEND_URL
+          description:
+            en_US: Same address as IND_BASE_URL. Must match it exactly.
+        - container: CORS_ORIGINS
+          description:
+            en_US: Same address as IND_BASE_URL. Must match it exactly. Add more addresses, comma separated, if you reach this instance by more than one hostname.
+        - container: JWT_SECRET
+          description:
+            en_US: Pre-filled with a random value. Signs login sessions. Replace it with your own before going live — generate one at randomkeygen.com.
+        - container: CSRF_SECRET
+          description:
+            en_US: Pre-filled with a random value. Signs CSRF tokens. Replace it with your own before going live — generate one at randomkeygen.com.
+        - container: ASSET_COOKIE_SECRET
+          description:
+            en_US: Pre-filled with a random value. Signs cookies used to stream your saved files. Replace it with your own before going live — generate one at randomkeygen.com.
+        - container: AUTH_CREDENTIAL_KEY
+          description:
+            en_US: Pre-filled with a random value. Encrypts saved integration tokens (Notion, etc). Must be identical to AUTH_CREDENTIAL_KEY in the worker service. Replace both with your own before going live — generate one at randomkeygen.com.
+        - container: IND_ENV
+          description:
+            en_US: development runs over plain HTTP for LAN use. Set to production only once this instance is behind HTTPS, since it then requires a secure cookie and refuses to start over plain HTTP.
+      ports:
+        - container: "8080"
+          description:
+            en_US: Indelible web interface and API, published on the host as 8439.
+
+  postgres:
+    image: pgvector/pgvector:pg18
+    container_name: indelible-postgres
+    networks:
+      - indelible-network
+    restart: unless-stopped
+    stop_grace_period: 60s
+    environment:
+      - POSTGRES_USER=indelible
+      - POSTGRES_PASSWORD=01c66f00814d2a5c4624f13fb75e4cca
+      - POSTGRES_DB=indelible
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres
+        target: /var/lib/postgresql
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U indelible -d indelible"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Indelible/icon.png
+    x-casaos:
+      id: com.hiraappstore.indelible
+      envs:
+        - container: POSTGRES_PASSWORD
+          description:
+            en_US: Pre-filled with a random value. Must match the password segment of DATABASE_URL in the indelible and worker services if you change it.
+      volumes:
+        - container: /var/lib/postgresql
+          description:
+            en_US: Indelible's PostgreSQL database, including your library metadata and search index.
+
+  silo:
+    image: docker.io/pgsty/silo:RELEASE.2026-08-06T00-00-00Z
+    container_name: indelible-silo
+    networks:
+      - indelible-network
+    restart: unless-stopped
+    stop_grace_period: 30s
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=indelible
+      - MINIO_ROOT_PASSWORD=5d7625868a65eaf86d75dc3f0a959f37
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/silo
+        target: /data
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD", "silo", "healthcheck", "ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Indelible/icon.png
+    x-casaos:
+      id: com.hiraappstore.indelible
+      envs:
+        - container: MINIO_ROOT_PASSWORD
+          description:
+            en_US: Pre-filled with a random value. Must match S3_SECRET_KEY in the indelible and worker services, and MINIO_ROOT_PASSWORD in silo-init, if you change it.
+      volumes:
+        - container: /data
+          description:
+            en_US: Object storage for every archived page, PDF, EPUB, and uploaded file in your library.
+
+  silo-init:
+    image: docker.io/pgsty/silo:RELEASE.2026-08-06T00-00-00Z
+    container_name: indelible-silo-init
+    networks:
+      - indelible-network
+    restart: "no"
+    stop_grace_period: 10s
+    environment:
+      - MINIO_ROOT_PASSWORD=5d7625868a65eaf86d75dc3f0a959f37
+    entrypoint: >
+      /bin/sh -c "
+      mcli alias set silo http://silo:9000 indelible 5d7625868a65eaf86d75dc3f0a959f37 &&
+      mcli mb --ignore-existing silo/indelible
+      "
+    depends_on:
+      silo:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Indelible/icon.png
+    x-casaos:
+      id: com.hiraappstore.indelible
+      envs:
+        - container: MINIO_ROOT_PASSWORD
+          description:
+            en_US: Pre-filled with a random value. Must match MINIO_ROOT_PASSWORD in the silo service.
+
+  renderer:
+    image: ghcr.io/useindelible/ind-renderer:latest
+    container_name: indelible-renderer
+    networks:
+      - indelible-network
+    restart: unless-stopped
+    stop_grace_period: 40s
+    environment:
+      - RENDERER_HOST=0.0.0.0
+      - RENDERER_PORT=3100
+      - IND_ENV=development
+      - S3_ENDPOINT=http://silo:9000
+      - S3_REGION=us-east-1
+      - S3_BUCKET=indelible
+      - S3_ACCESS_KEY=indelible
+      - S3_SECRET_KEY=5d7625868a65eaf86d75dc3f0a959f37
+      - S3_FORCE_PATH_STYLE=true
+      - EGRESS_ALLOW_PRIVATE_TARGETS=true
+    depends_on:
+      silo:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "1.50"
+          memory: 2048M
+        reservations:
+          cpus: "0.00"
+          memory: 512M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Indelible/icon.png
+    x-casaos:
+      id: com.hiraappstore.indelible
+      envs:
+        - container: S3_SECRET_KEY
+          description:
+            en_US: Object storage password. Must match MINIO_ROOT_PASSWORD in the silo and silo-init services.
+
+  worker:
+    image: ghcr.io/useindelible/ind-worker:latest
+    container_name: indelible-worker
+    networks:
+      - indelible-network
+    restart: unless-stopped
+    stop_grace_period: 40s
+    environment:
+      - IND_ENV=development
+      - DATABASE_URL=postgres://indelible:01c66f00814d2a5c4624f13fb75e4cca@postgres:5432/indelible
+      - RENDERER_URL=http://renderer:3100
+      - S3_ENDPOINT=http://silo:9000
+      - S3_REGION=us-east-1
+      - S3_BUCKET=indelible
+      - S3_ACCESS_KEY=indelible
+      - S3_SECRET_KEY=5d7625868a65eaf86d75dc3f0a959f37
+      - S3_FORCE_PATH_STYLE=true
+      - AUTH_CREDENTIAL_KEY=u3FUTAYgLFLyvhGnKpJ7MgFvkdUpR+/HPIIAh0DuV9M=
+      - EGRESS_ALLOW_PRIVATE_TARGETS=true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      silo:
+        condition: service_healthy
+      renderer:
+        condition: service_started
+      silo-init:
+        condition: service_completed_successfully
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Indelible/icon.png
+    x-casaos:
+      id: com.hiraappstore.indelible
+      envs:
+        - container: DATABASE_URL
+          description:
+            en_US: PostgreSQL connection string. The password segment must match POSTGRES_PASSWORD in the postgres service.
+        - container: S3_SECRET_KEY
+          description:
+            en_US: Object storage password. Must match MINIO_ROOT_PASSWORD in the silo and silo-init services.
+        - container: AUTH_CREDENTIAL_KEY
+          description:
+            en_US: Pre-filled with a random value. Must be identical to AUTH_CREDENTIAL_KEY in the indelible service. Replace both together — generate one at randomkeygen.com.
+
+networks:
+  indelible-network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.indelible
+  architectures:
+    - amd64
+  main: indelible
+  author: HSinghHira
+  category: Productivity
+  developer: useindelible
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Indelible/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Indelible/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Indelible/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Indelible/thumbnail-1.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Indelible/thumbnail-2.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Indelible/thumbnail-3.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Indelible/thumbnail-4.png
+  title:
+    en_US: Indelible
+  tagline:
+    en_US: A self-hosted, permanent home for everything you save to read later.
+  description:
+    en_US: >-
+      Indelible is a self-hosted, open-source knowledge library and
+      read-it-later archiver: think a private Pocket or Readwise that stores
+      everything you save, in full, on your own server, permanently.
+
+
+      **Features**
+
+
+      - Full-content archiving of articles, PDFs, and EPUBs, with a headless
+        Chromium renderer for pages that resist simple scraping
+
+      - A focused reading view with highlights, notes, and reading progress
+        that syncs across web and mobile
+
+      - Full-text and semantic search across your whole library
+
+      - Mila, an optional AI assistant that summarizes and answers questions
+        across your saved content, using your own AI provider key
+
+      - Content can arrive from the browser extension, a personal email-in
+        address, RSS feeds, or direct file uploads
+
+      - Syncs to Obsidian and Notion
+
+      - PostgreSQL with pgvector for the database, and an S3-compatible
+        object store (Silo) for archived files, both persisted under
+        /DATA/AppData/$AppID
+
+
+      **How to use?**
+
+
+      1. Open Indelible from the Zima OS dashboard.
+
+      2. Create your account on the first visit. Signups close automatically
+         the moment that first account exists.
+
+      3. Save something: paste a link, forward an email, install the browser
+         extension, or add an RSS feed.
+
+      4. Open a saved item in the reader to highlight text, take notes, and
+         track reading progress.
+
+      5. Turn on Mila from Settings if you want AI summaries and semantic
+         search; you supply your own OpenAI-compatible API key there, it is
+         not built into this app.
+
+      6. Further setup — OIDC single sign-on, email ingestion, Notion and
+         Obsidian sync — is done with environment variables, documented at
+         useindelible.com.
+  tips:
+    before_install:
+      en_US: >-
+        1. Open this app's settings before you install it.
+
+
+        2. Look at the indelible service. Three settings say
+        CHANGEME_YOUR_SERVER_ADDRESS: IND_BASE_URL, FRONTEND_URL, and
+        CORS_ORIGINS.
+
+
+        3. Change all three to the real address you will use to open this
+        app, like http://192.168.1.50:8439. Use the exact same address in
+        all three.
+
+
+        4. This app already has random secret values filled in for
+        JWT_SECRET, CSRF_SECRET, ASSET_COOKIE_SECRET, and
+        AUTH_CREDENTIAL_KEY.
+
+
+        5. Those are fine for trying the app out, but make your own before
+        you trust it with real data. Generate new ones at randomkeygen.com.
+
+
+        6. AUTH_CREDENTIAL_KEY must be the same in both the indelible
+        service and the worker service. If you change it, change it in
+        both places.
+
+
+        7. The database password is built into DATABASE_URL in the
+        indelible and worker services. It must match POSTGRES_PASSWORD in
+        the postgres service.
+
+
+        8. The storage password is built into S3_SECRET_KEY in the
+        indelible, renderer, and worker services. It must match
+        MINIO_ROOT_PASSWORD in the silo and silo-init services.
+
+
+        9. Start the Indelible installation.
+
+
+        10. Give it a minute. The postgres and silo services need to become
+        healthy before the app can finish starting.
+
+
+        11. Open Indelible from the Zima OS dashboard.
+
+
+        12. Sign up. The first account you create is the only account,
+        unless you turn on AUTH_ALLOW_SIGNUPS later to add more people.
+
+
+        13. This app runs in development mode so it works over plain HTTP
+        on your own network. If you later put it on the internet with a
+        real domain, follow Indelible's own production guide and switch
+        IND_ENV to production first.
+  index: /
+  port_map: "8439"
+  scheme: http
+  is_uncontrolled: false
+  release_notes:
+    en_US: |-
+      - Initial version. Tracks ghcr.io/useindelible/ind-api, ind-worker, and ind-renderer at the :latest tag, since no versioned tag could be confirmed at manifest-authoring time; revisit once upstream's release pinning is confirmed.
+      - Runs with IND_ENV=development by default so the app works over plain HTTP on a LAN IP/hostname without a reverse proxy. Switch to production mode with HTTPS in front before exposing this instance beyond your own network.
+  repo: "https://github.com/useindelible/indelible"
+  support: "https://github.com/useindelible/indelible/issues"
+  docs: "https://useindelible.com/docs/self-hosting/install/"
