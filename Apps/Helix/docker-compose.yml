@@ -1,0 +1,239 @@
+name: helix
+
+services:
+  helix:
+    image: ghcr.io/unifiedkings/helix:latest
+    container_name: helix
+    restart: unless-stopped
+    stop_grace_period: 30s
+    network_mode: bridge
+    environment:
+      - LISTENBRAINZ_TOKEN=
+      - SUBSONIC_BASE_URL=
+      - SUBSONIC_USERNAME=
+      - SUBSONIC_PASSWORD=
+      - HELIX_YTDLP_AUTO_UPDATE=true
+      - HELIX_YTDLP_CHANNEL=stable
+      - HELIX_PREFETCH_AHEAD=3
+      - HELIX_LOBBY_YT_LINK_MAX_ITEMS=100
+      - HELIX_ENABLE_API_DOCS=false
+      - HELIX_ALLOW_NON_ADMIN_IMPORT=false
+      - HELIX_ENABLE_CUSTOM_STATION_TYPES=false
+      - HELIX_CUSTOM_STATION_TYPES_DIR=/data/plugins/stations
+      - HELIX_DB_WATCHDOG_WARN_S=2
+      - HELIX_DB_WATCHDOG_ERROR_S=10
+    ports:
+      - target: 8000
+        published: "8440"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/inbound_yt
+        target: /inbound_yt
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/beets_config
+        target: /data/helix/beets
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/custom_stations
+        target: /data/plugins/stations
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/Media/Music
+        target: /data/music
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Helix/icon.png
+    x-casaos:
+      id: com.hiraappstore.helix
+      envs:
+        - container: LISTENBRAINZ_TOKEN
+          description:
+            en_US: Optional ListenBrainz API token from listenbrainz.org. Improves some station and discovery features. Leave blank if you don't have one.
+        - container: SUBSONIC_BASE_URL
+          description:
+            en_US: Optional address of your existing Navidrome/Subsonic server, e.g. http://192.168.1.10:4533. Can also be set later inside Helix's own Settings page.
+        - container: SUBSONIC_USERNAME
+          description:
+            en_US: Optional Subsonic/Navidrome username. Can also be set later inside Helix's own Settings page.
+        - container: SUBSONIC_PASSWORD
+          description:
+            en_US: Optional Subsonic/Navidrome password. Setting it later inside Helix's own Settings page keeps it out of this file.
+        - container: HELIX_YTDLP_AUTO_UPDATE
+          description:
+            en_US: Checks for a newer yt-dlp at every container start, since YouTube-backed playback breaks easily on an outdated yt-dlp. A failed check does not stop Helix from starting.
+        - container: HELIX_YTDLP_CHANNEL
+          description:
+            en_US: stable uses the latest stable yt-dlp release. nightly allows pre-release builds when a YouTube fix hasn't reached stable yet.
+        - container: HELIX_ENABLE_CUSTOM_STATION_TYPES
+          description:
+            en_US: Loads Python files from the custom_stations folder as station providers. That code runs inside this container, so only turn this on if you wrote or fully trust every file you put there.
+        - container: HELIX_ALLOW_NON_ADMIN_IMPORT
+          description:
+            en_US: Lets non-admin accounts trigger library fulfillment/import. Keep this false unless every account on this instance is trusted.
+        - container: HELIX_ENABLE_API_DOCS
+          description:
+            en_US: Publishes interactive API documentation. Keep this false unless you're developing against the Helix API.
+      ports:
+        - container: "8000"
+          description:
+            en_US: Helix web interface, published on the host as 8440.
+      volumes:
+        - container: /data
+          description:
+            en_US: "Helix's own data: its database, logs, stream cache, and generated station cover art."
+        - container: /inbound_yt
+          description:
+            en_US: Staging area for tracks Helix downloads before they are imported into your library.
+        - container: /data/helix/beets
+          description:
+            en_US: Beets configuration Helix uses when repairing metadata and finalizing library imports.
+        - container: /data/plugins/stations
+          description:
+            en_US: Optional folder for custom Python station-provider plugins. Only used if HELIX_ENABLE_CUSTOM_STATION_TYPES is true.
+        - container: /data/music
+          description:
+            en_US: Your actual music library root — the same folder your Navidrome/Subsonic server reads from. Change the host path to match your setup, or remove this mount if you won't use Helix's fulfillment/import features.
+
+x-casaos:
+  id: com.hiraappstore.helix
+  architectures:
+    - amd64
+  main: helix
+  author: HSinghHira
+  category: Media
+  developer: UnifiedKings
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Helix/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Helix/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Helix/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Helix/thumbnail-1.gif
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Helix/thumbnail-2.gif
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Helix/thumbnail-3.gif
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Helix/thumbnail-4.gif
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Helix/thumbnail-5.gif
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Helix/thumbnail-6.gif
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Helix/thumbnail-7.gif
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Helix/thumbnail-8.gif
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Helix/thumbnail-9.gif
+  title:
+    en_US: Helix
+  tagline:
+    en_US: A self-hosted Pandora/Spotify built on top of your own music library.
+  description:
+    en_US: >-
+      Helix is a self-hosted music player, discovery tool, and shared
+      listening system built around a Subsonic-compatible music library
+      (Navidrome and similar).
+
+
+      **Features**
+
+
+      - Search and play music from your Subsonic-compatible library
+
+      - Generated stations from artists, artist collections, or tags, with
+        autoplay for continuous discovery
+
+      - Shared listening lobbies: join with a 5-letter code, optionally
+        password-protected, with synchronized playback across everyone
+        connected
+
+      - Optional fulfillment — request music that isn't already in your
+        library and have it fetched, metadata-repaired, and imported back
+        into Subsonic
+
+      - Custom station providers through a Python plugin system
+
+      - Works with reduced functionality even without a Subsonic server
+        configured
+
+      - Optional companion projects: HelixBot mirrors a lobby into a
+        Discord voice channel, and Helix for Android gives native mobile
+        playback
+
+
+      **How to use?**
+
+
+      1. Open Helix from the Zima OS dashboard.
+
+      2. Create the admin account on first launch.
+
+      3. If you run Navidrome or another Subsonic-compatible server, add its
+         address, username, and password from Helix's Settings page (or set
+         them as environment variables before installing).
+
+      4. Search your library, start a station, or build a queue.
+
+      5. Start a lobby to listen together with others — share the 5-letter
+         code so they can join.
+
+      6. Turn on fulfillment/import features only once your beets
+         configuration and music library path are set up the way you want.
+  tips:
+    before_install:
+      en_US: >-
+        1. Open this app's settings before you install it.
+
+
+        2. Find the /data/music volume. It points at /DATA/Media/Music by
+        default.
+
+
+        3. Change that path to wherever your actual music library lives —
+        the same folder your Navidrome or Subsonic server already reads
+        from. If you don't use Helix's fulfillment/import features, you can
+        remove this volume instead.
+
+
+        4. If you already run Navidrome or another Subsonic server, fill in
+        SUBSONIC_BASE_URL, SUBSONIC_USERNAME, and SUBSONIC_PASSWORD. You can
+        also leave these blank and set them later from inside Helix.
+
+
+        5. Leave HELIX_ENABLE_CUSTOM_STATION_TYPES set to false unless you
+        specifically plan to add your own Python station plugins — that
+        code runs inside the container with no sandbox.
+
+
+        6. Start the Helix installation.
+
+
+        7. Open Helix from the Zima OS dashboard and create your admin
+        account. This first account becomes the admin account for this
+        instance.
+
+
+        8. Before exposing this instance outside your own network, put it
+        behind HTTPS, per Helix's own security notes.
+  index: /
+  port_map: "8440"
+  scheme: http
+  is_uncontrolled: false
+  release_notes:
+    en_US: |-
+      - Initial version. Tracks ghcr.io/unifiedkings/helix at the :latest tag, since the project does not document a separate versioned tag scheme.
+      - Architecture support listed as amd64 only; arm64 availability for this image could not be confirmed at manifest-authoring time.
+      - The /data/music volume defaults to /DATA/Media/Music — edit it to point at your real library, or remove it if you don't use fulfillment/import.
+  repo: "https://github.com/UnifiedKings/helix"
+  support: "https://github.com/UnifiedKings/helix/issues"
+  docs: "https://github.com/UnifiedKings/helix#readme"

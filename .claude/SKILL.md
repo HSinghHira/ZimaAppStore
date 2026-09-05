@@ -44,7 +44,8 @@ apps were added:
 | Outline                    | 8437                                                                                                      |
 | BookOrbit                  | 8438                                                                                                      |
 | Indelible                  | 8439                                                                                                      |
-| **Next new app starts at** | **8440**                                                                                                  |
+| Helix                      | 8440                                                                                                      |
+| **Next new app starts at** | **8441**                                                                                                  |
 
 - Claim the next unused number(s) in sequence and record them in this table
   _before_ writing the manifest, so two apps in progress at once can't
