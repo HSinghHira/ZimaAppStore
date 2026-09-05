@@ -12,6 +12,8 @@ services:
       - DB_PASSWORD=CHANGEME_DB_PASSWORD
       - DB_DATABASE=gamevault
       - SAVEFILES_ENABLED=true
+    networks:
+      - gamevault-network
     ports:
       - target: 8080
         published: "8433"
@@ -92,6 +94,8 @@ services:
       - POSTGRES_USER=gamevault
       - POSTGRES_PASSWORD=CHANGEME_DB_PASSWORD
       - POSTGRES_DB=gamevault
+    networks:
+      - gamevault-network
     volumes:
       - type: bind
         source: /DATA/AppData/$AppID/database
@@ -124,6 +128,10 @@ services:
         - container: /var/lib/postgresql/data
           description:
             en_US: PostgreSQL database files that store your GameVault library, users, and settings.
+
+networks:
+  gamevault-network:
+    driver: bridge
 
 x-casaos:
   id: com.hiraappstore.gamevault
@@ -228,7 +236,9 @@ x-casaos:
   update_at: "2026-08-22"
   release_notes:
     en_US: |-
-      - Initial version
+      - Fix Database errors
   repo: "https://github.com/Phalcode/gamevault-backend"
   support: "https://github.com/Phalcode/gamevault-backend/issues"
   docs: "https://gamevau.lt/docs/server-docs/setup/docker-compose/"
+  preview_url: "https://games.hira.im"
+  preview_scheme: "https"
