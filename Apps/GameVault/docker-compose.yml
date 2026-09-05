@@ -6,7 +6,6 @@ services:
     container_name: gamevault-backend
     restart: unless-stopped
     stop_grace_period: 40s
-    network_mode: bridge
     environment:
       - DB_HOST=gamevault-db
       - DB_USERNAME=gamevault
@@ -89,7 +88,6 @@ services:
     container_name: gamevault-db
     restart: unless-stopped
     stop_grace_period: 40s
-    network_mode: bridge
     environment:
       - POSTGRES_USER=gamevault
       - POSTGRES_PASSWORD=CHANGEME_DB_PASSWORD
