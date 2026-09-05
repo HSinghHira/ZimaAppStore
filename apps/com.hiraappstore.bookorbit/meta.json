@@ -1,0 +1,52 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Media",
+  "developer": "BookOrbit",
+  "thumbnail": "/apps/com.hiraappstore.bookorbit/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.bookorbit/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.bookorbit/assets/thumbnail-1.webp",
+    "/apps/com.hiraappstore.bookorbit/assets/thumbnail-2.webp",
+    "/apps/com.hiraappstore.bookorbit/assets/thumbnail-3.webp",
+    "/apps/com.hiraappstore.bookorbit/assets/thumbnail-4.webp",
+    "/apps/com.hiraappstore.bookorbit/assets/thumbnail-5.webp",
+    "/apps/com.hiraappstore.bookorbit/assets/thumbnail-6.webp",
+    "/apps/com.hiraappstore.bookorbit/assets/thumbnail-7.webp",
+    "/apps/com.hiraappstore.bookorbit/assets/thumbnail-8.webp",
+    "/apps/com.hiraappstore.bookorbit/assets/thumbnail-9.webp",
+    "/apps/com.hiraappstore.bookorbit/assets/thumbnail-10.webp",
+    "/apps/com.hiraappstore.bookorbit/assets/thumbnail-11.webp",
+    "/apps/com.hiraappstore.bookorbit/assets/thumbnail-12.webp",
+    "/apps/com.hiraappstore.bookorbit/assets/thumbnail-13.webp",
+    "/apps/com.hiraappstore.bookorbit/assets/thumbnail-14.webp",
+    "/apps/com.hiraappstore.bookorbit/assets/thumbnail-15.webp",
+    "/apps/com.hiraappstore.bookorbit/assets/thumbnail-16.webp"
+  ],
+  "tagline": "Your self-hosted library for ebooks, audiobooks, comics, and PDFs.",
+  "description": "BookOrbit is a self-hosted digital library and reading platform for EPUB, MOBI, AZW3, PDF, CBZ/CBR comics, and M4B/MP3 audiobooks - think your own private library with sync built in.\n\n**Features**\n- Built-in web readers for ebooks, PDFs, comics, and audiobooks, with\n  no extra plugins required.\n\n- Three-way sync (Kobo + KOReader + BookOrbit) for reading progress\n  and annotations.\n\n- Rich metadata lookup from Google Books, Amazon, Goodreads, Open\n  Library, Audible, ComicVine, and more.\n\n- Multi-user support with OIDC/SSO (Authentik, Keycloak, Authelia),\n  OPDS catalogs, and Send-to-Kindle delivery.\n\n- PostgreSQL with pgvector for persistent application data, running\n  as a companion container.\n\n- Persistent storage for book files and app data under\n  /DATA/AppData/$AppID.\n\n\n**How to use?**\n1. Open BookOrbit from the Zima OS dashboard.\n2. You'll be redirected to a setup wizard - enter your Setup\n   Bootstrap Token to create the administrator account.\n\n3. Create your first library and point it at your books folder.\n4. Start reading, or drop files into the Book Dock folder for\n   automatic ingestion.\n\n5. Add more users and connect OIDC/SSO from Settings if needed.\n6. SMTP, metadata providers, and other integrations can be\n   configured later from the in-app admin panel.",
+  "tips": {
+    "before_install": "1. Open the app configuration before starting the installation.\n\n2. Find APP_URL in the app service. It says CHANGEME_YOUR_SERVER_URL.\n\n3. Set it to the address you will open BookOrbit at, like\n   http://your-server-ip:8438.\n\n\n4. Find POSTGRES_PASSWORD, JWT_SECRET, and SETUP_BOOTSTRAP_TOKEN in\n   the app service. They are pre-filled with random values.\n\n\n5. Replace them with your own values. Generate new ones at\n   randomkeygen.com.\n\n\n6. POSTGRES_PASSWORD must be the same in the app service and the\n   postgres service.\n\n\n7. POSTGRES_USER and POSTGRES_DB must also match between the app\n   service and the postgres service.\n\n\n8. Start the BookOrbit installation.\n\n9. Wait about 20 to 30 seconds so the database can fully start.\n\n10. Open BookOrbit from the Zima OS dashboard.\n\n11. Enter your Setup Bootstrap Token to create the admin account.\n\n12. More settings, like SMTP and metadata providers, are in the\n    in-app admin panel under Settings.\n\n\n13. Important: changing POSTGRES_PASSWORD later does not change an\n    already-created database password. You would need to reset the\n    database by hand."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-09-04",
+  "repo": "https://github.com/bookorbit/bookorbit",
+  "support": "https://github.com/bookorbit/bookorbit/issues",
+  "docs": "https://bookorbit.app/installation.html",
+  "title": "BookOrbit",
+  "release_note": "- Initial version, pinned to ghcr.io/bookorbit/bookorbit:2.6.0",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.bookorbit",
+  "version": "2.6.0",
+  "categories": [
+    "media"
+  ],
+  "min_memory": 805306368,
+  "min_image_size": {
+    "amd64": 400440690,
+    "arm64": 396831024
+  }
+}

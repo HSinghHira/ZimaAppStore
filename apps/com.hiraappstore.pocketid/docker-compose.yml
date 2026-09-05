@@ -1,0 +1,55 @@
+services:
+  pocket-id:
+    command:
+    container_name: pocket-id
+    deploy:
+      resources:
+        limits:
+          memory: 512MB
+          cpus: "1.00"
+        reservations:
+          memory: 128MB
+          cpus: "0.10"
+      placement: {}
+    entrypoint:
+    environment:
+      APP_URL: https://SECURE-URL_or_IP
+      ENCRYPTION_KEY: re5nBm+ya8Q1Rgsjn6dY+l+2v/KyM4T7je14nYXMqvY=
+      MAXMIND_LICENSE_KEY: ""
+      PGID: "1000"
+      PUID: "1000"
+      TRUST_PROXY: "false"
+    healthcheck:
+      test:
+        - CMD
+        - /app/pocket-id
+        - healthcheck
+      timeout: 5s
+      interval: 1m30s
+      retries: 2
+      start_period: 10s
+    image: ghcr.io/pocket-id/pocket-id:v2.14.0
+    network_mode: bridge
+    ports:
+      - target: 1411
+        published: "8436"
+        protocol: tcp
+    restart: unless-stopped
+    stop_grace_period: 20s
+    volumes:
+      - type: bind
+        source: /DATA/AppData/compose-340f8f8a75992182/data
+        target: /app/data
+        bind:
+          create_host_path: true
+x-casaos:
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.pocketid/assets/icon.png
+  id: com.hiraappstore.pocketid
+  index: /
+  main: pocket-id
+  port_map: "8436"
+  scheme: http
+  title:
+    custom: Pocket ID
+    en_US: Pocket ID
+  version: 2.14.0

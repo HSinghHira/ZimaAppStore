@@ -1,0 +1,36 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Social",
+  "developer": "Continuwuity contributors",
+  "thumbnail": "/apps/com.hiraappstore.continuwuity/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.continuwuity/assets/thumbnail.webp"
+  ],
+  "tagline": "A fast, lightweight, community-maintained Matrix homeserver written in Rust.",
+  "description": "Continuwuity is a community-driven Matrix homeserver written in Rust — think a leaner, actively-maintained Synapse alternative that \"just works\" and runs comfortably on modest hardware.\n**Features**\n- High-performance, memory-safe Rust implementation of the Matrix\n  protocol, built for speed on low-to-medium sized homeservers.\n\n- Fully federates with the wider Matrix network — chat with anyone\n  on any other Matrix server, or keep it private and disable\n  federation entirely.\n\n- Appservice/bridge support for connecting to platforms like Discord\n  and Telegram.\n\n- RocksDB embedded database — no separate database container to run\n  or maintain.\n\n- Persistent storage under /DATA/AppData/$AppID, containing the\n  entire RocksDB state (rooms, messages, media, accounts).\n\n- Admin console and an in-Matrix admin room for day-to-day server\n  management, no separate web dashboard required.\n\n**How to use?**\n1. Before installing, set CONTINUWUITY_SERVER_NAME to your server's\n   real public domain — this cannot be changed later without wiping\n   the database.\n\n2. Point that domain's DNS at this host, and put a TLS-terminating\n   reverse proxy in front of the published port (Matrix federation\n   requires HTTPS).\n\n3. Open Continuwuity from the Zima OS dashboard once it's running.\n4. Check the container logs for a one-time registration token —\n   Continuwuity prints it on first start.\n\n5. Open any Matrix client (Element, Cinny, etc.), point it at your\n   server's domain, and register the first account using that\n   registration token. You'll automatically be invited to the\n   server's admin room.\n\n6. Use the admin room (or the container console via `docker attach`)\n   to manage users, rooms, and federation settings afterward — no\n   rebuild required for most day-to-day admin tasks.",
+  "tips": {
+    "before_install": "1. Choose your Matrix domain (e.g. matrix.example.com) and set\n   CONTINUWUITY_SERVER_NAME to it. This is a one-way choice: it\n   cannot be changed after first start without deleting all data\n   and starting over.\n\n2. Update CONTINUWUITY_WELL_KNOWN to reference the same domain,\n   so federation and client discovery work correctly.\n\n3. Make sure the domain's DNS points at this host, and set up a\n   TLS-terminating reverse proxy (Caddy, Traefik, nginx, etc.) in\n   front of the published port — Matrix federation will not work\n   over plain HTTP.\n\n4. If you're only running this for personal/local use with\n   federation disabled, you can skip the reverse proxy and just\n   reach it directly over HTTP, but other Matrix servers won't be\n   able to talk to yours.\n\n5. Start the app, then check its logs for the one-time\n   registration token printed on first boot.\n\n6. Open Continuwuity from the Zima OS dashboard, then use any\n   Matrix client to register your first account against your\n   domain using that registration token — you'll be auto-invited\n   to the admin room.\n\n7. Ongoing configuration (extra CONTINUWUITY_* environment\n   variables, or a mounted continuwuity.toml if you prefer a\n   config file over env vars) lives in the container definition;\n   most user/room administration happens live from the admin room\n   without touching the container at all.\n\n8. Important: environment variables like CONTINUWUITY_SERVER_NAME\n   only take effect at first start. Changing them after the\n   database has been initialized will not migrate existing data —\n   treat them as locked in once you've registered your first user."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-08-16",
+  "repo": "https://github.com/continuwuity/continuwuity",
+  "support": "https://github.com/continuwuity/continuwuity/issues",
+  "docs": "https://continuwuity.org/introduction.html",
+  "title": "Continuwuity (Matrix)",
+  "release_note": "- Initial version, pinned to upstream v26.7.2.",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.continuwuity",
+  "version": "26.7.2",
+  "categories": [
+    "social"
+  ],
+  "min_memory": 268435456,
+  "min_image_size": {
+    "amd64": 39247388,
+    "arm64": 37386251
+  }
+}

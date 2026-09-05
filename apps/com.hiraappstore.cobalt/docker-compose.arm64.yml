@@ -1,0 +1,60 @@
+name: cobalt
+
+services:
+  cobalt:
+    image: ghcr.io/imputnet/cobalt:11.7.1-a636575@sha256:6215aed30feb01bca9fe894d7fc642d845d3550042c6412cbb894ca095fe5398
+    container_name: cobalt
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    environment:
+      API_URL: CHANGEME_API_URL
+    ports:
+      - target: 9000
+        published: "8417"
+        protocol: tcp
+
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+
+  cobalt-web:
+    image: ghcr.io/spotdemo4/cobalt-web:latest@sha256:9e7c007f8617dea4bb20caaccdce3752347827467f503f4a381f4b5e332e4997
+    container_name: cobalt-web
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    depends_on:
+      - cobalt
+    environment:
+      WEB_DEFAULT_API: CHANGEME_API_URL
+      WEB_HOST: CHANGEME_WEB_HOST
+    ports:
+      - target: 8787
+        published: "8418"
+        protocol: tcp
+
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+
+x-casaos:
+  id: com.hiraappstore.cobalt
+  main: cobalt-web
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.cobalt/assets/icon.png
+  title:
+    en_US: Cobalt
+  index: /
+  port_map: "8418"
+  scheme: http
+  version: "11.7.1"

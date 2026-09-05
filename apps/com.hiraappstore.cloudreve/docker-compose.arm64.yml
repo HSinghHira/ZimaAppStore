@@ -1,0 +1,124 @@
+name: cloudreve
+
+services:
+  cloudreve:
+
+    image: cloudreve/cloudreve:4.16.0@sha256:29be36473f7cba9f858e112a630948b3e5b16c911614a89d76d68f20d7210dc5
+    container_name: cloudreve
+    restart: unless-stopped
+    stop_grace_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - CR_CONF_Database.Type=postgres
+      - CR_CONF_Database.Host=postgres
+      - CR_CONF_Database.Port=5432
+      - CR_CONF_Database.User=cloudreve
+
+      - CR_CONF_Database.Password=CHANGEME_DB_PASSWORD
+      - CR_CONF_Database.Name=cloudreve
+      - CR_CONF_Redis.Server=redis:6379
+    ports:
+      - target: 5212
+        published: "8409"
+        protocol: tcp
+
+      - target: 6888
+        published: "8410"
+        protocol: tcp
+      - target: 6888
+        published: "8410"
+        protocol: udp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /cloudreve/data
+        bind:
+          create_host_path: true
+    networks:
+      - cloudreve_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+  postgres:
+
+    image: postgres:17@sha256:413da4542e091471785b7f18f1a2258df134bc6506ab4e1e53725aa8bcfdb650
+    container_name: cloudreve-postgres
+    restart: unless-stopped
+
+    stop_grace_period: 60s
+    environment:
+      - POSTGRES_USER=cloudreve
+      - POSTGRES_DB=cloudreve
+
+      - POSTGRES_PASSWORD=CHANGEME_DB_PASSWORD
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cloudreve -d cloudreve"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    networks:
+      - cloudreve_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+  redis:
+    image: redis:7-alpine@sha256:f8d15882ba108587477ce13c00ab0551933a84138427b7cc9abadfbe45ffd973
+    container_name: cloudreve-redis
+    restart: unless-stopped
+    stop_grace_period: 40s
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/redis
+        target: /data
+        bind:
+          create_host_path: true
+    networks:
+      - cloudreve_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 128M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+networks:
+  cloudreve_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.cloudreve
+  main: cloudreve
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.cloudreve/assets/icon.png
+  title:
+    en_US: Cloudreve
+  index: /
+  port_map: "8409"
+  scheme: http
+  version: "4.16.0"

@@ -1,0 +1,40 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Productivity",
+  "developer": "DuarteSantos8",
+  "thumbnail": "/apps/com.hiraappstore.opengym/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.opengym/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.opengym/assets/thumbnail-1.webp",
+    "/apps/com.hiraappstore.opengym/assets/thumbnail-2.webp",
+    "/apps/com.hiraappstore.opengym/assets/thumbnail-3.webp",
+    "/apps/com.hiraappstore.opengym/assets/thumbnail-4.webp",
+    "/apps/com.hiraappstore.opengym/assets/thumbnail-5.webp"
+  ],
+  "tagline": "Self-hosted gym and body-weight tracker with passkey login",
+  "description": "openGym is a self-hosted gym and body-weight tracker: plan routines, log workouts (supersets and cardio included), and track your weight and progress over time, all stored on your own server.\n\n**Features**\n\n- Weekly routine planner and guided workout logging, with supersets,\n  drop-sets, rest-pause and planned warm-ups.\n\n- Body-weight tracking with a goal line and progress charts, plus\n  estimated 1RM and other stats.\n\n- Passkey (WebAuthn) sign-in — no passwords to manage, with optional\n  invite-only signup and an admin dashboard.\n\n- Push notifications for workout-day reminders, generated on first\n  run with no setup required.\n\n- Everything is stored as plain files under /DATA/AppData/$AppID — no\n  separate database container to run or back up.\n\n- An exercise-media step downloads the exercise photo and GIF library\n  (~140 MB) once on first start and shares it with the web service.\n\n\n**How to use?**\n\n1. Open openGym from the Zima OS dashboard.\n2. On first visit, tap \"Create profile\" and register a passkey for\n   your account.\n\n3. Build your first weekly routine, then start a guided workout from\n   it and log your sets as you go.\n\n4. Add a body-weight entry and set a goal line under the Weight tab\n   to start tracking progress.\n\n5. Optional: turn on the admin dashboard, invite-only signup, or the\n   AI Coach later from Settings — none of these need the container\n   rebuilt.",
+  "tips": {
+    "before_install": "1. This app needs two matching values before it will let anyone log\n   in: RP_ID and ORIGIN, both in the api service.\n\n\n2. If you are only testing this on the same computer, leave RP_ID as\n   localhost and set ORIGIN to http://localhost:8435.\n\n\n3. If you want to open this app from your phone or from the\n   internet, you need a real domain name with HTTPS in front of it\n   first.\n\n\n4. In that case, set RP_ID to just the domain, like gym.example.com.\n\n5. Set ORIGIN to the full address, like https://gym.example.com.\n\n6. RP_ID and ORIGIN must point at the exact same address, or sign-in\n   will fail.\n\n\n7. Start the openGym installation.\n\n8. The first time it starts, a helper step downloads about 140 MB of\n   exercise pictures and videos. This can take a few minutes — let\n   it finish before opening the app.\n\n\n9. Open openGym from the Zima OS dashboard.\n\n10. Tap \"Create profile\" and register a passkey to sign in. There is\n    no username or password to remember.\n\n\n11. Everything you do is saved under the app's data folder. Back\n    that folder up regularly — it holds your whole workout history.\n\n\n12. Important: if you ever move this app to a new address, every\n    passkey stops working and everyone has to sign in fresh. Try to\n    pick your final address before inviting other people."
+  },
+  "is_uncontrolled": false,
+  "repo": "https://gitlab.com/DuarteSantos8/opengym",
+  "support": "https://gitlab.com/DuarteSantos8/opengym/-/issues",
+  "docs": "https://gitlab.com/DuarteSantos8/opengym/-/blob/main/docs/SELF_HOSTING.md",
+  "title": "openGym",
+  "release_note": "- Initial version\n\n- api and web are pinned to the :latest tag rather than a specific\n  version. openGym ships releases very frequently (several a day at\n  times), and a pinned version tag from one day was already gone\n  from the GitLab registry the next, breaking the pull. Upstream's\n  own docker-compose.yml pulls :latest too, so this follows that.\n\n- The media service also uses the floating alpine/git:latest tag,\n  since it is a generic one-time download helper, not an openGym\n  release, and alpine/git does not publish version tags worth\n  pinning against.",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.opengym",
+  "version": "",
+  "categories": [
+    "productivity"
+  ],
+  "min_memory": 268435456,
+  "min_image_size": {
+    "amd64": 119917617,
+    "arm64": 119490766
+  }
+}

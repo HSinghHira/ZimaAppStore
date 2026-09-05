@@ -1,0 +1,42 @@
+{
+  "architectures": [
+    "amd64"
+  ],
+  "author": "HSinghHira",
+  "category": "Media",
+  "developer": "UnifiedKings",
+  "thumbnail": "/apps/com.hiraappstore.helix/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.helix/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.helix/assets/thumbnail-1.gif",
+    "/apps/com.hiraappstore.helix/assets/thumbnail-2.gif",
+    "/apps/com.hiraappstore.helix/assets/thumbnail-3.gif",
+    "/apps/com.hiraappstore.helix/assets/thumbnail-4.gif",
+    "/apps/com.hiraappstore.helix/assets/thumbnail-5.gif",
+    "/apps/com.hiraappstore.helix/assets/thumbnail-6.gif",
+    "/apps/com.hiraappstore.helix/assets/thumbnail-7.gif",
+    "/apps/com.hiraappstore.helix/assets/thumbnail-8.gif",
+    "/apps/com.hiraappstore.helix/assets/thumbnail-9.gif"
+  ],
+  "tagline": "A self-hosted Pandora/Spotify built on top of your own music library.",
+  "description": "Helix is a self-hosted music player, discovery tool, and shared listening system built around a Subsonic-compatible music library (Navidrome and similar).\n\n**Features**\n\n- Search and play music from your Subsonic-compatible library\n- Generated stations from artists, artist collections, or tags, with\n  autoplay for continuous discovery\n\n- Shared listening lobbies: join with a 5-letter code, optionally\n  password-protected, with synchronized playback across everyone\n  connected\n\n- Optional fulfillment — request music that isn't already in your\n  library and have it fetched, metadata-repaired, and imported back\n  into Subsonic\n\n- Custom station providers through a Python plugin system\n- Works with reduced functionality even without a Subsonic server\n  configured\n\n- Optional companion projects: HelixBot mirrors a lobby into a\n  Discord voice channel, and Helix for Android gives native mobile\n  playback\n\n\n**How to use?**\n\n1. Open Helix from the Zima OS dashboard.\n2. Create the admin account on first launch.\n3. If you run Navidrome or another Subsonic-compatible server, add its\n   address, username, and password from Helix's Settings page (or set\n   them as environment variables before installing).\n\n4. Search your library, start a station, or build a queue.\n5. Start a lobby to listen together with others — share the 5-letter\n   code so they can join.\n\n6. Turn on fulfillment/import features only once your beets\n   configuration and music library path are set up the way you want.",
+  "tips": {
+    "before_install": "1. Open this app's settings before you install it.\n\n2. Find the /data/music volume. It points at /DATA/Media/Music by default.\n\n3. Change that path to wherever your actual music library lives — the same folder your Navidrome or Subsonic server already reads from. If you don't use Helix's fulfillment/import features, you can remove this volume instead.\n\n4. If you already run Navidrome or another Subsonic server, fill in SUBSONIC_BASE_URL, SUBSONIC_USERNAME, and SUBSONIC_PASSWORD. You can also leave these blank and set them later from inside Helix.\n\n5. Leave HELIX_ENABLE_CUSTOM_STATION_TYPES set to false unless you specifically plan to add your own Python station plugins — that code runs inside the container with no sandbox.\n\n6. Start the Helix installation.\n\n7. Open Helix from the Zima OS dashboard and create your admin account. This first account becomes the admin account for this instance.\n\n8. Before exposing this instance outside your own network, put it behind HTTPS, per Helix's own security notes."
+  },
+  "is_uncontrolled": false,
+  "repo": "https://github.com/UnifiedKings/helix",
+  "support": "https://github.com/UnifiedKings/helix/issues",
+  "docs": "https://github.com/UnifiedKings/helix#readme",
+  "title": "Helix",
+  "release_note": "- Initial version. Tracks ghcr.io/unifiedkings/helix at the :latest tag, since the project does not document a separate versioned tag scheme.\n- Architecture support listed as amd64 only; arm64 availability for this image could not be confirmed at manifest-authoring time.\n- The /data/music volume defaults to /DATA/Media/Music — edit it to point at your real library, or remove it if you don't use fulfillment/import.",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.helix",
+  "version": "",
+  "categories": [
+    "media"
+  ],
+  "min_memory": 268435456,
+  "min_image_size": {
+    "amd64": 363299679
+  }
+}

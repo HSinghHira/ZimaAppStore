@@ -1,0 +1,38 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Networking",
+  "developer": "searxng",
+  "thumbnail": "/apps/com.hiraappstore.searxng/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.searxng/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.searxng/assets/screenshot-2.webp"
+  ],
+  "tagline": "Private, self-hosted metasearch engine",
+  "description": "SearXNG aggregates results from many search engines without tracking you — think a private, self-hosted alternative to Google or DuckDuckGo that you fully control.\n**Features**\n- Aggregates results from dozens of search engines with no tracking,\n  profiling, or ads.\n\n- Fully configurable via settings.yml — enable/disable engines, tune\n  ranking, change appearance.\n\n- Valkey-backed request cache for faster repeat searches, bundled and\n  pre-wired.\n\n- Persistent config and cache storage under /DATA/AppData/$AppID.\n**How to use?**\n1. Open SearXNG from the Zima OS dashboard.\n2. Start searching immediately — no account or setup required.\n3. To customize engines, ranking, or appearance, edit settings.yml\n   under the config volume, then restart the container to apply\n   changes.\n\n4. If you're putting this behind a reverse proxy or custom domain,\n   update SEARXNG_BASE_URL to match first, or some pages may generate\n   broken links.",
+  "tips": {
+    "before_install": "1. No credentials or placeholder values to fill in — this app has\n   no secrets and works immediately after install.\n\n2. If you plan to access this behind a reverse proxy or custom\n   domain, decide on that URL now and set SEARXNG_BASE_URL on the\n   searxng service to match before first use.\n\n3. Start the SearXNG installation.\n4. The searxng-valkey (cache) container starts first automatically\n   via depends_on — no action needed.\n\n5. Open SearXNG from the Zima OS dashboard and start searching.\n6. Further configuration (engines, ranking, appearance) lives in\n   settings.yml under the config volume\n   (/DATA/AppData/$AppID/config) — edit it and restart the\n   container to apply changes."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-08-10",
+  "website": "https://searxng.org",
+  "repo": "https://github.com/searxng/searxng",
+  "support": "https://github.com/searxng/searxng/issues",
+  "docs": "https://docs.searxng.org",
+  "title": "SearXNG",
+  "release_note": "SearXNG ships as a rolling release with no per-version changelog — each Docker tag is a snapshot of the latest commit. Check the repo's commit history for what changed since your last update.",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.searxng",
+  "version": "2026.8.10-0a118066d",
+  "categories": [
+    "networking"
+  ],
+  "min_memory": 201326592,
+  "min_image_size": {
+    "amd64": 118285276,
+    "arm64": 116927262
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Media",
+  "developer": "Phalcode",
+  "tagline": "Your self-hosted, DRM-free Steam alternative.",
+  "description": "GameVault is a self-hosted gaming platform that lets you and your friends enjoy DRM-free games stored on your own file server in an organized, Steam-like library.\n\n**Features**\n\n- Automatic library indexing that scans your games folder and detects\n  titles, versions, and file formats\n\n- Rich metadata, cover art, and screenshots pulled in from IGDB\n- Multi-user support with roles, online status, and per-user download\n  stats\n\n- Optional save file syncing so players can pick up where they left\n  off on any device\n\n- PostgreSQL database for persistent application data, with\n  configuration, media, and save files stored under\n  /DATA/AppData/$AppID\n\n\n**How to use?**\n\n1. Open GameVault from the Zima OS dashboard.\n2. Register the first account and sign in. The first registered user\n   is automatically made an admin.\n\n3. Copy some DRM-free game archives into the files volume so\n   GameVault can index them.\n\n4. Open the Library to browse indexed games, add cover art, and\n   invite other users.\n\n5. Turn on IGDB metadata, save file syncing, or other options later\n   through environment variables or a config.yaml file in the config\n   volume, without rebuilding the container.",
+  "tips": {
+    "before_install": "1. Open the app configuration before starting the installation.\n\n2. Find DB_PASSWORD in the gamevault-backend service and\n   POSTGRES_PASSWORD in the gamevault-db service. Both say\n   CHANGEME_DB_PASSWORD.\n\n\n3. Replace both with the same password you make up. They must\n   match exactly.\n\n\n4. Start the GameVault installation.\n\n5. Wait about a minute for the database to start and GameVault to\n   finish its first-time setup.\n\n\n6. Open GameVault from the Zima OS dashboard.\n\n7. Register your first user account. This account becomes the\n   admin automatically.\n\n\n8. Put your DRM-free games into the files folder so GameVault can\n   find them.\n\n\n9. More settings live in a config.yaml file in the config folder,\n   or in the app's admin panel."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-08-22",
+  "repo": "https://github.com/Phalcode/gamevault-backend",
+  "support": "https://github.com/Phalcode/gamevault-backend/issues",
+  "docs": "https://gamevau.lt/docs/server-docs/setup/docker-compose/",
+  "preview_url": "https://games.hira.im",
+  "preview_scheme": "https",
+  "title": "GameVault",
+  "release_note": "- Fix Database errors",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.gamevault",
+  "version": "16.3.0",
+  "categories": [
+    "media"
+  ],
+  "min_memory": 402653184,
+  "min_image_size": {
+    "amd64": 403252927,
+    "arm64": 395066955
+  }
+}

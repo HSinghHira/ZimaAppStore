@@ -1,0 +1,39 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Media",
+  "developer": "Dispatcharr",
+  "thumbnail": "/apps/com.hiraappstore.dispatcharr/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.dispatcharr/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.dispatcharr/assets/thumbnail-1.webp",
+    "/apps/com.hiraappstore.dispatcharr/assets/thumbnail-2.webp",
+    "/apps/com.hiraappstore.dispatcharr/assets/thumbnail-3.webp"
+  ],
+  "tagline": "Your ultimate IPTV & stream management companion",
+  "description": "Dispatcharr is an open-source powerhouse for managing IPTV streams, EPG data, and VOD content — think of it as the *arr family's IPTV cousin, built for streamers who want reliability and flexibility.\n**Features**\n- Consolidate multiple IPTV/M3U and Xtream Codes sources into a\n  single, organized interface\n\n- Stream proxy with real-time client management and automatic\n  failover between backup sources\n\n- HDHomeRun tuner emulation so Plex, Emby, and Jellyfin discover\n  Dispatcharr as a live TV source\n\n- EPG matching and generation, with XMLTV, M3U, Xtream Codes,\n  and HDHomeRun output formats\n\n- FFmpeg-based output profiles to transcode and standardize\n  streams per client (e.g. AC3 for media servers, AAC for\n  browsers)\n\n- Video on Demand support with IMDB/TMDB metadata\n- Multi-user accounts with granular permissions and\n  network-based access restrictions\n\n- Plugin system for custom automations and integrations\n- Runs in All-in-One (AIO) mode: PostgreSQL and Redis are\n  bundled inside the container, with persistent storage under\n  /DATA/AppData/$AppID\n\n**How to use?**\n1. Open Dispatcharr from the Zima OS dashboard.\n2. Complete the initial setup and create your administrator\n   account. If you're accessing the setup page from your local\n   network this works out of the box.\n\n3. Add your IPTV sources under Settings → M3U & EPG Manager\n   (M3U playlist and/or Xtream Codes accounts, plus EPG\n   sources).\n\n4. Create channels from your imported streams and match them to\n   EPG data, either automatically or manually.\n\n5. Grab the generated M3U and XMLTV EPG URLs (or add Dispatcharr\n   as an HDHomeRun tuner) in Plex, Emby, Jellyfin, or any other\n   compatible client.\n\n6. Further configuration — stream profiles, output profiles,\n   users/permissions, DVR, and plugins — is all done afterward\n   from the in-app Settings pages, without needing to rebuild\n   the container.",
+  "tips": {
+    "before_install": "1. This app runs in All-in-One (AIO) mode: PostgreSQL and\n   Redis run inside the same container, so there's nothing\n   external to provision first.\n\n2. There are no required CHANGEME_* placeholders for a normal\n   install — the default environment variables work\n   out-of-the-box on a local network.\n\n3. Optional: if you'll only ever reach Dispatcharr from your\n   home network, leave DISPATCHARR_SETUP_ALLOWED_IP and\n   DISPATCHARR_TRUSTED_PROXIES commented out in the compose\n   file. Only fill in DISPATCHARR_SETUP_ALLOWED_IP if you need\n   to finish first-run setup from a public IP.\n\n4. Start the Dispatcharr installation.\n5. Open Dispatcharr from the Zima OS dashboard once the\n   container is running — first boot needs a few extra\n   seconds to initialize the bundled database.\n\n6. Complete the on-screen setup to create your administrator\n   account.\n\n7. Add your M3U/Xtream Codes and EPG sources, then build out\n   channels — see the in-app Settings pages and the official\n   docs (https://dispatcharr.github.io/Dispatcharr-Docs/) for\n   everything else.\n\n8. Important: DISPATCHARR_SETUP_ALLOWED_IP only governs the\n   one-time first-run admin setup. If you miss the window,\n   create an admin manually instead of editing this variable\n   after the fact — the container's built-in note points to\n   `python manage.py createsuperuser` inside the running\n   container."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-08-15",
+  "repo": "https://github.com/Dispatcharr/Dispatcharr",
+  "support": "https://github.com/Dispatcharr/Dispatcharr/issues",
+  "docs": "https://dispatcharr.github.io/Dispatcharr-Docs/",
+  "title": "Dispatcharr",
+  "release_note": "- Initial version, pinned to Dispatcharr 0.28.1 (AIO mode)",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.dispatcharr",
+  "version": "0.28.1",
+  "categories": [
+    "media"
+  ],
+  "min_memory": 1073741824,
+  "min_image_size": {
+    "amd64": 955937571,
+    "arm64": 812564276
+  }
+}

@@ -1,0 +1,90 @@
+name: bookorbit
+
+services:
+  app:
+    image: ghcr.io/bookorbit/bookorbit:2.6.0@sha256:a2e1f5e59f9b1aec58116ced886d547f16af5d1da911c8e5b920d23b9826a96a
+    container_name: bookorbit-app
+    restart: unless-stopped
+    stop_grace_period: 30s
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=bookorbit
+      - POSTGRES_PASSWORD=74f7f7e4d0c19d4d79c6a09dd61ddff6e5456eff2aef3879
+      - POSTGRES_DB=bookorbit
+      - JWT_SECRET=dbc293a81e835272849617ca0555c488e6167f1e7636b3019bd65f14f277f8c8
+      - SETUP_BOOTSTRAP_TOKEN=ecad874d552886e216e4cff1d06ddd1b
+      - APP_URL=http://IP:8438
+      - PUID=1000
+      - PGID=1000
+      - NODE_MAX_OLD_SPACE_SIZE=2048
+      - LIBRARY_BROWSE_ROOT=/books
+    ports:
+      - target: 3000
+        published: "8438"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/books
+        target: /books
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/app
+        target: /data
+        bind:
+          create_host_path: true
+    depends_on:
+      - postgres
+    networks:
+      - bookorbit_network
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.25"
+          memory: 512M
+  postgres:
+    image: pgvector/pgvector:pg18@sha256:1d50c689b0a6511b9ea0a15615281c81a59fd04a08eb35057ec8646fb3a2118a
+    container_name: bookorbit-db
+    restart: unless-stopped
+    stop_grace_period: 40s
+    environment:
+      - POSTGRES_USER=bookorbit
+      - POSTGRES_PASSWORD=74f7f7e4d0c19d4d79c6a09dd61ddff6e5456eff2aef3879
+      - POSTGRES_DB=bookorbit
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    networks:
+      - bookorbit_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.10"
+          memory: 256M
+networks:
+  bookorbit_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.bookorbit
+  main: app
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.bookorbit/assets/icon.png
+  title:
+    en_US: BookOrbit
+  index: /
+  port_map: "8438"
+  scheme: http
+  version: "2.6.0"

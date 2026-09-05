@@ -1,0 +1,40 @@
+{
+  "architectures": [
+    "amd64"
+  ],
+  "author": "HSinghHira",
+  "category": "Social",
+  "developer": "stoatchat",
+  "thumbnail": "/apps/com.hiraappstore.stoatchat/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.stoatchat/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.stoatchat/assets/thumbnail-1.webp",
+    "/apps/com.hiraappstore.stoatchat/assets/thumbnail-2.webp",
+    "/apps/com.hiraappstore.stoatchat/assets/thumbnail-3.webp",
+    "/apps/com.hiraappstore.stoatchat/assets/thumbnail-4.webp",
+    "/apps/com.hiraappstore.stoatchat/assets/thumbnail-5.webp",
+    "/apps/com.hiraappstore.stoatchat/assets/thumbnail-6.webp"
+  ],
+  "tagline": "A modern self-hosted chat platform, Discord-style.",
+  "description": "Stoat Chat is an open-source, self-hosted communication platform for communities, friends, and teams.\n\n**Features**\n\n- Includes MongoDB, KeyDB, RabbitMQ, MinIO, Caddy, LiveKit, and all\n  required Stoat services\n\n- Real-time servers, channels, direct messages, file uploads, and\n  media\n\n- Voice communication through LiveKit\n- Only the web interface and LiveKit's voice ports are published;\n  everything else stays internal\n\n- All application data is stored under /DATA/AppData/stoatchat\n\n**Before you install**\n\nThis app needs three secrets generated once, before the first install — see the install notes for the exact one-line commands to generate them.\n\n**How to use?**\n\n1. Generate the secrets described in the install notes and paste\n   them into the matching fields below.\n\n2. Press Install.\n3. Open Stoat Chat from the ZimaOS or CasaOS dashboard.\n4. Create your account — this becomes an ordinary user account,\n   Stoat has no separate admin login.\n\n5. Create your first server and start chatting.",
+  "tips": {
+    "before_install": "1. This app needs three secrets generated once, on any machine\n   with Docker or OpenSSL, before you install.\n\n\n2. Run: openssl rand -hex 16 — this is your LiveKit key.\n\n3. Run: openssl rand -hex 32 — this is your LiveKit secret.\n\n4. Run this to get a VAPID keypair (paste the whole thing as one\n   command): docker run --rm node:20-alpine node -e \"const c=require('crypto');const{publicKey,privateKey}=c.generateKeyPairSync('ec',{namedCurve:'prime256v1'});const p=publicKey.export({format:'jwk'});const s=privateKey.export({format:'jwk'});const r=Buffer.concat([Buffer.from([4]),Buffer.from(p.x,'base64url'),Buffer.from(p.y,'base64url')]);console.log('PUBLIC:',r.toString('base64url'));console.log('PRIVATE:',s.d);\"\n\n\n5. You now have 4 values: a LiveKit key, a LiveKit secret, a VAPID\n   public key, and a VAPID private key.\n\n\n6. Fill in LIVEKIT_KEYS on the livekit service using the format\n   key: secret, with your generated LiveKit key and secret.\n\n\n7. Fill in the matching LiveKit key/secret fields on the api and\n   voice-ingress services — they must match LIVEKIT_KEYS exactly.\n\n\n8. Fill in the VAPID public/private key fields on the api\n   service, and the same two values again on the pushd service.\n\n\n9. This copy is pre-filled with a working test keypair and\n   LiveKit key/secret so you can install immediately — generate\n   your own with the commands above before any real use.\n\n\n10. Open Stoat Chat from the dashboard on port 8422.\n\n11. The first account you make is a normal user account, not an\n    admin account. Stoat has no separate admin login."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-08-22",
+  "repo": "https://github.com/stoatchat/self-hosted",
+  "support": "https://github.com/stoatchat/self-hosted/issues",
+  "docs": "https://github.com/stoatchat/self-hosted",
+  "title": "Stoat Chat",
+  "release_note": "- Removed the init container and every dynamically-created bind\n  mount for Revolt.toml, livekit.yml, and Caddyfile — CasaOS creates\n  every service's bind mounts up front, not strictly in depends_on\n  order, so those paths kept getting auto-vivified as empty\n  directories before the init container ever ran\n- Revolt.toml, livekit.yml, and Caddyfile are now Compose configs:\n  (static inline content), which Compose materializes directly with\n  no host file and no race condition\n- VAPID keys and the LiveKit key/secret are now plain environment\n  values, generated once by the person installing (this test copy\n  ships with a working sample set — replace before real use)\n- Added [api.security.captcha] with hCaptcha's official public test\n  keypair, which always verifies successfully — the web client\n  ships with this same test sitekey baked in by default, and\n  without a matching secret configured server-side, every signup\n  failed with CaptchaFailed",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.stoatchat",
+  "version": "0.13.8",
+  "categories": [
+    "social"
+  ],
+  "min_memory": 4362076160,
+  "min_image_size": {
+    "amd64": 996004268
+  }
+}

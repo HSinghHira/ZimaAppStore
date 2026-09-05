@@ -1,0 +1,538 @@
+{
+  "version": 2,
+  "updated_at": "2026-09-05T10:16:19Z",
+  "app_count": 26,
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "apps": [
+    {
+      "id": "com.hiraappstore.affine",
+      "title": "AFFiNE",
+      "tagline": "A local-first knowledge base that merges docs, whiteboards, and databases",
+      "category": "Productivity",
+      "categories": [
+        "productivity"
+      ],
+      "author": "HSinghHira",
+      "developer": "Toeverything",
+      "architectures": [
+        "amd64",
+        "arm64"
+      ],
+      "icon": "/apps/com.hiraappstore.affine/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.affine/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.affine/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.affine/meta.json",
+      "content_hash": "969b560c"
+    },
+    {
+      "id": "com.hiraappstore.bookorbit",
+      "title": "BookOrbit",
+      "tagline": "Your self-hosted library for ebooks, audiobooks, comics, and PDFs.",
+      "category": "Media",
+      "categories": [
+        "media"
+      ],
+      "author": "HSinghHira",
+      "developer": "BookOrbit",
+      "architectures": [
+        "amd64",
+        "arm64"
+      ],
+      "icon": "/apps/com.hiraappstore.bookorbit/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.bookorbit/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.bookorbit/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.bookorbit/meta.json",
+      "content_hash": "61285d0a",
+      "version": "2.6.0"
+    },
+    {
+      "id": "com.hiraappstore.cloudreve",
+      "title": "Cloudreve",
+      "tagline": "Self-hosted file management and cloud storage",
+      "category": "Productivity",
+      "categories": [
+        "productivity"
+      ],
+      "author": "HSinghHira",
+      "developer": "cloudreve",
+      "architectures": [
+        "amd64",
+        "arm64"
+      ],
+      "icon": "/apps/com.hiraappstore.cloudreve/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.cloudreve/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.cloudreve/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.cloudreve/meta.json",
+      "content_hash": "955fb0c2",
+      "version": "4.16.0"
+    },
+    {
+      "id": "com.hiraappstore.cobalt",
+      "title": "Cobalt",
+      "tagline": "Save video, audio, and media from the web — no ads, no trackers, no nonsense.",
+      "category": "Media",
+      "categories": [
+        "media"
+      ],
+      "author": "HSinghHira",
+      "developer": "imputnet",
+      "architectures": [
+        "amd64",
+        "arm64"
+      ],
+      "icon": "/apps/com.hiraappstore.cobalt/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.cobalt/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.cobalt/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.cobalt/meta.json",
+      "content_hash": "93a4c89d",
+      "version": "11.7.1"
+    },
+    {
+      "id": "com.hiraappstore.continuwuity",
+      "title": "Continuwuity (Matrix)",
+      "tagline": "A fast, lightweight, community-maintained Matrix homeserver written in Rust.",
+      "category": "Social",
+      "categories": [
+        "social"
+      ],
+      "author": "HSinghHira",
+      "developer": "Continuwuity contributors",
+      "architectures": [
+        "amd64",
+        "arm64"
+      ],
+      "icon": "/apps/com.hiraappstore.continuwuity/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.continuwuity/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.continuwuity/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.continuwuity/meta.json",
+      "content_hash": "933b9e6a",
+      "version": "26.7.2"
+    },
+    {
+      "id": "com.hiraappstore.degoog",
+      "title": "deGoog",
+      "tagline": "A self-hosted, plugin-driven search engine aggregator.",
+      "category": "Networking",
+      "categories": [
+        "networking"
+      ],
+      "author": "HSinghHira",
+      "developer": "degoog-org",
+      "architectures": [
+        "amd64",
+        "arm64"
+      ],
+      "icon": "/apps/com.hiraappstore.degoog/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.degoog/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.degoog/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.degoog/meta.json",
+      "content_hash": "7430016f"
+    },
+    {
+      "id": "com.hiraappstore.dispatcharr",
+      "title": "Dispatcharr",
+      "tagline": "Your ultimate IPTV & stream management companion",
+      "category": "Media",
+      "categories": [
+        "media"
+      ],
+      "author": "HSinghHira",
+      "developer": "Dispatcharr",
+      "architectures": [
+        "amd64",
+        "arm64"
+      ],
+      "icon": "/apps/com.hiraappstore.dispatcharr/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.dispatcharr/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.dispatcharr/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.dispatcharr/meta.json",
+      "content_hash": "72d17431",
+      "version": "0.28.1"
+    },
+    {
+      "id": "com.hiraappstore.ente",
+      "title": "Ente Photos",
+      "tagline": "End-to-end encrypted photo storage",
+      "category": "Media",
+      "categories": [
+        "media"
+      ],
+      "author": "HSinghHira",
+      "developer": "ente-io",
+      "architectures": [
+        "amd64",
+        "arm64"
+      ],
+      "icon": "/apps/com.hiraappstore.ente/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.ente/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.ente/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.ente/meta.json",
+      "content_hash": "c0cfe2dd"
+    },
+    {
+      "id": "com.hiraappstore.gamevault",
+      "title": "GameVault",
+      "tagline": "Your self-hosted, DRM-free Steam alternative.",
+      "category": "Media",
+      "categories": [
+        "media"
+      ],
+      "author": "HSinghHira",
+      "developer": "Phalcode",
+      "architectures": [
+        "amd64",
+        "arm64"
+      ],
+      "icon": "/apps/com.hiraappstore.gamevault/assets/icon.png",
+      "thumbnail": "",
+      "compose_url": "/apps/com.hiraappstore.gamevault/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.gamevault/meta.json",
+      "content_hash": "0a72ba1b",
+      "version": "16.3.0"
+    },
+    {
+      "id": "com.hiraappstore.helix",
+      "title": "Helix",
+      "tagline": "A self-hosted Pandora/Spotify built on top of your own music library.",
+      "category": "Media",
+      "categories": [
+        "media"
+      ],
+      "author": "HSinghHira",
+      "developer": "UnifiedKings",
+      "architectures": [
+        "amd64"
+      ],
+      "icon": "/apps/com.hiraappstore.helix/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.helix/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.helix/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.helix/meta.json",
+      "content_hash": "8536b9bd"
+    },
+    {
+      "id": "com.hiraappstore.homelable",
+      "title": "Homelable",
+      "tagline": "Draw and monitor your whole homelab as a live, interactive diagram",
+      "category": "Networking",
+      "categories": [
+        "networking"
+      ],
+      "author": "HSinghHira",
+      "developer": "Pouzor (Remy Pouzor)",
+      "architectures": [
+        "amd64",
+        "arm64"
+      ],
+      "icon": "/apps/com.hiraappstore.homelable/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.homelable/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.homelable/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.homelable/meta.json",
+      "content_hash": "67c9e763"
+    },
+    {
+      "id": "com.hiraappstore.indelible",
+      "title": "Indelible",
+      "tagline": "A self-hosted, permanent home for everything you save to read later.",
+      "category": "Productivity",
+      "categories": [
+        "productivity"
+      ],
+      "author": "HSinghHira",
+      "developer": "useindelible",
+      "architectures": [
+        "amd64"
+      ],
+      "icon": "/apps/com.hiraappstore.indelible/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.indelible/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.indelible/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.indelible/meta.json",
+      "content_hash": "39395038"
+    },
+    {
+      "id": "com.hiraappstore.mailpit",
+      "title": "Mailpit",
+      "tagline": "SMTP testing tool and email catcher for developers",
+      "category": "Networking",
+      "categories": [
+        "networking"
+      ],
+      "author": "HSinghHira",
+      "developer": "axllent",
+      "architectures": [
+        "amd64",
+        "arm64"
+      ],
+      "icon": "/apps/com.hiraappstore.mailpit/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.mailpit/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.mailpit/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.mailpit/meta.json",
+      "content_hash": "3cc08494",
+      "version": "1.30.7"
+    },
+    {
+      "id": "com.hiraappstore.nodecast-tv",
+      "title": "Nodecast TV",
+      "tagline": "Stream Live TV, Movies, and Series from your Xtream Codes or M3U provider, right in your browser.",
+      "category": "Media",
+      "categories": [
+        "media"
+      ],
+      "author": "HSinghHira",
+      "developer": "technomancer702",
+      "architectures": [
+        "amd64",
+        "arm64"
+      ],
+      "icon": "/apps/com.hiraappstore.nodecast-tv/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.nodecast-tv/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.nodecast-tv/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.nodecast-tv/meta.json",
+      "content_hash": "f64623e9"
+    },
+    {
+      "id": "com.hiraappstore.omniroute",
+      "title": "OmniRoute",
+      "tagline": "Self-hosted AI gateway for 290+ providers",
+      "category": "AI",
+      "categories": [
+        "ai"
+      ],
+      "author": "HSinghHira",
+      "developer": "diegosouzapw",
+      "architectures": [
+        "amd64",
+        "arm64"
+      ],
+      "icon": "/apps/com.hiraappstore.omniroute/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.omniroute/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.omniroute/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.omniroute/meta.json",
+      "content_hash": "e834011d"
+    },
+    {
+      "id": "com.hiraappstore.opengym",
+      "title": "openGym",
+      "tagline": "Self-hosted gym and body-weight tracker with passkey login",
+      "category": "Productivity",
+      "categories": [
+        "productivity"
+      ],
+      "author": "HSinghHira",
+      "developer": "DuarteSantos8",
+      "architectures": [
+        "amd64",
+        "arm64"
+      ],
+      "icon": "/apps/com.hiraappstore.opengym/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.opengym/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.opengym/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.opengym/meta.json",
+      "content_hash": "0c8032af"
+    },
+    {
+      "id": "com.hiraappstore.outline",
+      "title": "Outline",
+      "tagline": "The fastest wiki and knowledge base for growing teams, self-hosted.",
+      "category": "Productivity",
+      "categories": [
+        "productivity"
+      ],
+      "author": "HSinghHira",
+      "developer": "Outline",
+      "architectures": [
+        "amd64",
+        "arm64"
+      ],
+      "icon": "/apps/com.hiraappstore.outline/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.outline/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.outline/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.outline/meta.json",
+      "content_hash": "d49fc282",
+      "version": "1.0.0"
+    },
+    {
+      "id": "com.hiraappstore.pocketid",
+      "title": "Pocket ID",
+      "tagline": "A simple, passkey-only OIDC and OAuth 2.0 provider for your self-hosted apps.",
+      "category": "Networking",
+      "categories": [
+        "networking"
+      ],
+      "author": "HSinghHira",
+      "developer": "Pocket ID",
+      "architectures": [
+        "amd64",
+        "arm64"
+      ],
+      "icon": "/apps/com.hiraappstore.pocketid/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.pocketid/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.pocketid/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.pocketid/meta.json",
+      "content_hash": "1eb40a03",
+      "version": "2.14.0"
+    },
+    {
+      "id": "com.hiraappstore.searxng",
+      "title": "SearXNG",
+      "tagline": "Private, self-hosted metasearch engine",
+      "category": "Networking",
+      "categories": [
+        "networking"
+      ],
+      "author": "HSinghHira",
+      "developer": "searxng",
+      "architectures": [
+        "amd64",
+        "arm64"
+      ],
+      "icon": "/apps/com.hiraappstore.searxng/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.searxng/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.searxng/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.searxng/meta.json",
+      "content_hash": "8794979d",
+      "version": "2026.8.10-0a118066d"
+    },
+    {
+      "id": "com.hiraappstore.spiderfoot",
+      "title": "SpiderFoot",
+      "tagline": "Automated OSINT reconnaissance for any domain, IP, or identity",
+      "category": "Networking",
+      "categories": [
+        "networking"
+      ],
+      "author": "HSinghHira",
+      "developer": "Steve Micallef (smicallef)",
+      "architectures": [
+        "amd64"
+      ],
+      "icon": "/apps/com.hiraappstore.spiderfoot/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.spiderfoot/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.spiderfoot/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.spiderfoot/meta.json",
+      "content_hash": "e9a684b1"
+    },
+    {
+      "id": "com.hiraappstore.stoatchat",
+      "title": "Stoat Chat",
+      "tagline": "A modern self-hosted chat platform, Discord-style.",
+      "category": "Social",
+      "categories": [
+        "social"
+      ],
+      "author": "HSinghHira",
+      "developer": "stoatchat",
+      "architectures": [
+        "amd64"
+      ],
+      "icon": "/apps/com.hiraappstore.stoatchat/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.stoatchat/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.stoatchat/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.stoatchat/meta.json",
+      "content_hash": "985a9369",
+      "version": "0.13.8"
+    },
+    {
+      "id": "com.hiraappstore.tianji",
+      "title": "Tianji",
+      "tagline": "Website analytics, uptime monitoring, and server status in one insight hub.",
+      "category": "Developer",
+      "categories": [
+        "developer"
+      ],
+      "author": "HSinghHira",
+      "developer": "msgbyte",
+      "architectures": [
+        "amd64",
+        "arm64"
+      ],
+      "icon": "/apps/com.hiraappstore.tianji/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.tianji/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.tianji/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.tianji/meta.json",
+      "content_hash": "d4bc5656",
+      "version": "1.31.19"
+    },
+    {
+      "id": "com.hiraappstore.vert",
+      "title": "VERT",
+      "tagline": "Convert files locally in your browser using WebAssembly — no uploads, no cloud",
+      "category": "Productivity",
+      "categories": [
+        "productivity"
+      ],
+      "author": "HSinghHira",
+      "developer": "VERT-sh",
+      "architectures": [
+        "amd64",
+        "arm64"
+      ],
+      "icon": "/apps/com.hiraappstore.vert/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.vert/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.vert/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.vert/meta.json",
+      "content_hash": "5fc2b507"
+    },
+    {
+      "id": "com.hiraappstore.watchyourlan",
+      "title": "WatchYourLAN",
+      "tagline": "A lightweight scanner that watches every device on your network",
+      "category": "Networking",
+      "categories": [
+        "networking"
+      ],
+      "author": "HSinghHira",
+      "developer": "aceberg",
+      "architectures": [
+        "amd64",
+        "arm64"
+      ],
+      "icon": "/apps/com.hiraappstore.watchyourlan/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.watchyourlan/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.watchyourlan/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.watchyourlan/meta.json",
+      "content_hash": "0ee5efd6",
+      "version": "2.1.4"
+    },
+    {
+      "id": "com.hiraappstore.webcheck",
+      "title": "Web-Check",
+      "tagline": "All-in-one OSINT tool for analysing any website",
+      "category": "Networking",
+      "categories": [
+        "networking"
+      ],
+      "author": "HSinghHira",
+      "developer": "Lissy93",
+      "architectures": [
+        "amd64",
+        "arm64"
+      ],
+      "icon": "/apps/com.hiraappstore.webcheck/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.webcheck/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.webcheck/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.webcheck/meta.json",
+      "content_hash": "c57a09c4"
+    },
+    {
+      "id": "com.hiraappstore.yuvomi",
+      "title": "Yuvomi",
+      "tagline": "One private home for tasks, calendar, budget, meals, and everything else that runs a household",
+      "category": "Home",
+      "categories": [
+        "home"
+      ],
+      "author": "HSinghHira",
+      "developer": "ulsklyc",
+      "architectures": [
+        "amd64",
+        "arm64"
+      ],
+      "icon": "/apps/com.hiraappstore.yuvomi/assets/icon.png",
+      "thumbnail": "/apps/com.hiraappstore.yuvomi/assets/thumbnail.webp",
+      "compose_url": "/apps/com.hiraappstore.yuvomi/docker-compose.yml",
+      "meta_url": "/apps/com.hiraappstore.yuvomi/meta.json",
+      "content_hash": "2f60d139",
+      "version": "2.63.0"
+    }
+  ]
+}

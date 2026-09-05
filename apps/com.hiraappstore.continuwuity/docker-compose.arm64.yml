@@ -1,0 +1,47 @@
+name: continuwuity
+
+services:
+  continuwuity:
+
+    image: forgejo.ellis.link/continuwuation/continuwuity:v26.7.2@sha256:cb2d796085b1cbf7ef94a8ae329cabb6aad3dcf7cfbfe5fef31c5354298a8ac2
+    container_name: continuwuity
+    restart: unless-stopped
+    stop_grace_period: 60s
+    network_mode: bridge
+    command: /sbin/conduwuit
+    environment:
+
+      - CONTINUWUITY_SERVER_NAME=CHANGEME_matrix.example.com
+      - CONTINUWUITY_DATABASE_PATH=/var/lib/continuwuity
+      - CONTINUWUITY_ADDRESS=0.0.0.0
+      - CONTINUWUITY_PORT=8008
+
+      - CONTINUWUITY_WELL_KNOWN={client=https://CHANGEME_matrix.example.com,server=CHANGEME_matrix.example.com:443}
+    ports:
+      - target: 8008
+        published: "8414"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /var/lib/continuwuity
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+x-casaos:
+  id: com.hiraappstore.continuwuity
+  main: continuwuity
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.continuwuity/assets/icon.png
+  title:
+    en_US: Continuwuity (Matrix)
+  index: /
+  port_map: "8414"
+  scheme: http
+  version: "26.7.2"

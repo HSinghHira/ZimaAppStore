@@ -1,0 +1,40 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Networking",
+  "developer": "Pocket ID",
+  "thumbnail": "/apps/com.hiraappstore.pocketid/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.pocketid/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.pocketid/assets/thumbnail-1.webp",
+    "/apps/com.hiraappstore.pocketid/assets/thumbnail-2.webp",
+    "/apps/com.hiraappstore.pocketid/assets/thumbnail-3.webp"
+  ],
+  "description": "Pocket ID is a simple, OpenID Connect Certified OIDC and OAuth 2.0 provider built entirely around passkeys - no passwords, no accounts to leak, just sign in with a passkey or a hardware key like a YubiKey.\n**Features**\n- Passkey-only authentication - no passwords exist anywhere in the\n  system.\n\n- OpenID Connect Certified and OAuth 2.0 compliant, so it works with\n  most apps that support \"Login with OIDC\".\n\n- Simple admin UI for managing users, groups, and OIDC clients,\n  without the complexity of Keycloak or ORY Hydra.\n\n- LDAP sync and SCIM provisioning for pulling in users from an\n  existing directory.\n\n- SQLite by default, with no separate database container needed.\n  Persistent storage under /DATA/AppData/compose-340f8f8a75992182.\n\n\n**How to use?**\n1. Open Pocket ID from the Zima OS dashboard.\n2. Go to /setup and create the first administrator account with a\n   passkey.\n\n3. Add your other users, or connect LDAP if you already have a\n   directory.\n\n4. Create an OIDC client for each self-hosted app you want to add\n   single sign-on to.\n\n5. Point that app's OIDC settings at your Pocket ID issuer URL, and\n   copy over the client ID and secret.\n\n6. Further settings, like custom branding and email, live in the\n   in-app admin panel under Settings.",
+  "docs": "https://pocket-id.org/docs/introduction",
+  "hostname": "",
+  "is_uncontrolled": false,
+  "repo": "https://github.com/pocket-id/pocket-id",
+  "support": "https://github.com/pocket-id/pocket-id/issues",
+  "tagline": "A simple, passkey-only OIDC and OAuth 2.0 provider for your self-hosted apps.",
+  "tips": {
+    "before_install": "1. Open the app configuration before starting the installation.\n\n2. Find APP_URL. It says CHANGEME_YOUR_SERVER_URL.\n\n3. Set it to the exact address you will open Pocket ID at, like\n   https://your-server-ip:8436. Must be Secure IP/URL.\n\n\n4. Do not change APP_URL later. Passkeys are locked to this exact\n   address, and changing it can break sign in.\n\n\n5. Find ENCRYPTION_KEY. It is pre-filled with a random value.\n\n6. Replace it with your own. Generate one at https://randomkeygen.com.\n\n7. Start the Pocket ID installation.\n\n8. Open Pocket ID from the Zima OS dashboard.\n\n9. Go to the /setup page and create your admin account with a\n   passkey.\n\n10. More settings, like LDAP sync and email, are in the in-app\n    admin panel under Settings.\n\n11. Important: changing ENCRYPTION_KEY after setup makes existing\n    encrypted data unreadable. Only change it right after a fresh\n    install, before adding real users."
+  },
+  "update_at": "2026-09-04T00:00:00",
+  "title": "Pocket ID",
+  "release_note": "- Initial version, pinned to ghcr.io/pocket-id/pocket-id:v2.14.0",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.pocketid",
+  "version": "2.14.0",
+  "categories": [
+    "networking"
+  ],
+  "min_memory": 134217728,
+  "min_image_size": {
+    "amd64": 32243193,
+    "arm64": 30210272
+  }
+}

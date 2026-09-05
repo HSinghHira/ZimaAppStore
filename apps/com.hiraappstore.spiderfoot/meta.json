@@ -1,0 +1,35 @@
+{
+  "architectures": [
+    "amd64"
+  ],
+  "author": "HSinghHira",
+  "category": "Networking",
+  "developer": "Steve Micallef (smicallef)",
+  "thumbnail": "/apps/com.hiraappstore.spiderfoot/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.spiderfoot/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.spiderfoot/assets/thumbnail-1.webp"
+  ],
+  "tagline": "Automated OSINT reconnaissance for any domain, IP, or identity",
+  "description": "SpiderFoot automates open-source intelligence (OSINT) gathering, querying over 200 data sources to map out everything public about a target — think a one-click recon report generator for your own attack surface or any domain you're investigating.\n\n**Features**\n\n- 200+ modules covering DNS, WHOIS, breach databases, threat feeds,\n  social media, dark web mentions, and more\n\n- Event-driven engine where modules feed each other for deeper,\n  automatic correlation\n\n- Built-in correlation engine with pre-defined rules to surface\n  risks automatically\n\n- Web UI and CLI, with CSV/JSON/GEXF export for scan results\n- Persistent storage under /DATA/AppData/$AppID, so scans and\n  settings survive container restarts\n\n\n**How to use?**\n\n1. Open SpiderFoot from the Zima OS dashboard.\n2. Click \"New Scan\", give it a name, and enter your target (a\n   domain, IP, email, or name).\n\n3. Pick which modules or a scan preset (e.g. \"Passive\", \"All\") to\n   run, then start the scan.\n\n4. Watch results populate live, or come back once it finishes.\n5. Use the built-in correlation view to see flagged risks, and\n   export results as CSV, JSON, or GEXF when you're done.\n\n6. Optional third-party API keys (Shodan, HaveIBeenPwned, etc.) can\n   be added anytime under Settings to unlock extra modules — the\n   app works fully without them.",
+  "tips": {
+    "before_install": "1. SpiderFoot has no login screen by default. Anyone who can reach port 8430 can use it.\n\n2. If this box is reachable outside your home network, put it behind a reverse proxy with authentication first.\n\n3. Start the SpiderFoot installation.\n\n4. Open SpiderFoot from the Zima OS dashboard once it's running.\n\n5. Click \"New Scan\" to start your first OSINT scan.\n\n6. Add optional API keys later under Settings > API Keys to unlock extra modules. You do not need any keys to start scanning.\n\n7. All your scans and settings are saved in the app's data folder, so they survive restarts and updates."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-08-22",
+  "repo": "https://github.com/smicallef/spiderfoot",
+  "support": "https://github.com/smicallef/spiderfoot/issues",
+  "docs": "https://www.spiderfoot.net/documentation/",
+  "title": "SpiderFoot",
+  "release_note": "- Initial version, using joshuapfritz/spiderfoot:v4.0 since upstream\n  SpiderFoot does not publish its own Docker Hub or GHCR image.",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.spiderfoot",
+  "version": "4.0",
+  "categories": [
+    "networking"
+  ],
+  "min_memory": 268435456,
+  "min_image_size": {
+    "amd64": 233594208
+  }
+}

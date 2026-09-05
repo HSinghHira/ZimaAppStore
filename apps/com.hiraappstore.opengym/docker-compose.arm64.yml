@@ -1,0 +1,112 @@
+name: opengym
+
+services:
+  media:
+    image: alpine/git:latest@sha256:922e413cfcd642ee87eda2da02462d86544ce3d2d0a0e43da1f3b83aabcb5730
+    container_name: opengym-media
+    restart: "no"
+    networks:
+      - opengym_network
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        if [ -z "$$(ls -A /out/img 2>/dev/null)" ]; then
+          git clone --depth 1 https://github.com/hasaneyldrm/exercises-dataset /tmp/ds
+          cp /tmp/ds/images/*.jpg /out/img/ && cp /tmp/ds/videos/*.gif /out/gif/
+        fi
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/media/img
+        target: /out/img
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/media/gif
+        target: /out/gif
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+  api:
+    image: registry.gitlab.com/duartesantos8/opengym/api:latest@sha256:61e8e3c9a91a94deede47aaab45a8ac48cc14fbd83c9b669abe1f8df0a628125
+    container_name: opengym-api
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - opengym_network
+    environment:
+      - PORT=3000
+      - DATA_DIR=/data
+      - RP_ID=CHANGEME_RP_ID
+      - ORIGIN=CHANGEME_ORIGIN
+      - RP_NAME=openGym
+      - SESSION_DAYS=90
+      - COACH_DISABLED=1
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+  web:
+    image: registry.gitlab.com/duartesantos8/opengym/web:latest@sha256:bc6b9158f504d4fc7fb4060030a048a0ec758b5bc0dc3374703477540e9feecf
+    container_name: opengym-web
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - opengym_network
+    depends_on:
+      - media
+      - api
+    ports:
+      - target: 80
+        published: "8435"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/media/img
+        target: /usr/share/nginx/html/img
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/media/gif
+        target: /usr/share/nginx/html/gif
+        read_only: true
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+networks:
+  opengym_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.opengym
+  main: web
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.opengym/assets/icon.png
+  title:
+    en_US: openGym
+  index: /
+  port_map: "8435"
+  scheme: http

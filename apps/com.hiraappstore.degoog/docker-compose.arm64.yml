@@ -1,0 +1,46 @@
+name: degoog
+
+services:
+  degoog:
+
+    image: ghcr.io/degoog-org/degoog:latest@sha256:c2fdbe406368a165e0496e628302c09b47c008486ced6cb8df146ee04e59d935
+    container_name: degoog
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    environment:
+
+      - DEGOOG_SETTINGS_PASSWORDS=CHANGEME_SETTINGS_PASSWORD
+
+      - DEGOOG_PUBLIC_INSTANCE=false
+
+      - PUID=1000
+      - PGID=1000
+      - TZ=CHANGEME_TIMEZONE
+    ports:
+      - target: 4444
+        published: "8416"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /app/data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+x-casaos:
+  id: com.hiraappstore.degoog
+  main: degoog
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.degoog/assets/icon.png
+  title:
+    en_US: deGoog
+  index: /
+  port_map: "8416"
+  scheme: http

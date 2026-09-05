@@ -1,0 +1,38 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Media",
+  "developer": "ente-io",
+  "thumbnail": "/apps/com.hiraappstore.ente/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.ente/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.ente/assets/screenshot-2.webp",
+    "/apps/com.hiraappstore.ente/assets/screenshot-3.webp",
+    "/apps/com.hiraappstore.ente/assets/screenshot-4.webp"
+  ],
+  "tagline": "End-to-end encrypted photo storage",
+  "description": "Ente is a self-hosted, end-to-end encrypted platform to store, share, and rediscover your photos and videos across all your devices.\n**Features**\n- End-to-end encryption for every photo and video you upload.\n- Web app for your library plus a separate public-albums app for\n  sharing.\n\n- PostgreSQL for application data and MinIO (S3-compatible) for object\n  storage, both bundled and pre-wired.\n\n- Bundled Mailpit catcher for sign-up verification codes — no SMTP\n  setup required to get started, with the option to switch to a real\n  provider later.\n\n- Per-account storage cap automatically raised well beyond the\n  10 GiB free-tier default (configurable or removable).\n\n- Persistent storage under /DATA/AppData/$AppID for both Postgres and\n  MinIO data.\n\n**How to use?**\n1. Open Ente Photos from the Zima OS dashboard.\n2. Complete the initial setup and create your administrator account.\n3. Sign up for an account in the web app.\n4. Retrieve your verification code from the bundled Mailpit catcher at\n   http://<IP>:8407 (or your real inbox if you've configured\n   SMTP).\n\n5. Start uploading photos and videos, and set up a public album to\n   share with others.\n\n6. SMTP delivery, the storage cap, and S3 endpoint hostnames can all be\n   changed later via the service environment variables — no rebuild\n   required, just a container restart.",
+  "tips": {
+    "before_install": "1. **Server Endpoint:** http://<IP>:8403\n2. **Mail Server:** http://<IP>:8407 (no login required unless\n   you set MP_UI_AUTH)\n\n2. This app ships with working sample passwords and keys so it\n   starts instantly — change-me-* values on the museum, postgres,\n   and minio services (ENTE_DB_PASSWORD / POSTGRES_PASSWORD,\n   ENTE_S3_B2_EU_CEN_SECRET / MINIO_ROOT_PASSWORD) plus\n   ENTE_KEY_ENCRYPTION, ENTE_KEY_HASH, and ENTE_JWT_SECRET on\n   museum — before storing real photos.\n\n4. ENTE_DB_PASSWORD must match POSTGRES_PASSWORD exactly, and\n   ENTE_S3_B2_EU_CEN_SECRET must match MINIO_ROOT_PASSWORD exactly —\n   update both sides of each pair together.\n\n5. **Important:** changing ENTE_DB_PASSWORD or MINIO_ROOT_PASSWORD\n    later without also updating the already-initialized\n    Postgres/MinIO credentials will lock museum out — a manual\n    credential update inside that container (or a fresh volume) is\n    required."
+  },
+  "is_uncontrolled": false,
+  "website": "https://ente.io",
+  "repo": "https://github.com/ente/ente",
+  "support": "https://github.com/ente/ente/issues",
+  "docs": "https://ente.com/help/self-hosting/",
+  "title": "Ente Photos",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.ente",
+  "version": "",
+  "categories": [
+    "media"
+  ],
+  "min_memory": 838860800,
+  "min_image_size": {
+    "amd64": 377342772,
+    "arm64": 365962297
+  }
+}
