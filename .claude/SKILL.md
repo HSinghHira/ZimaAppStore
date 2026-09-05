@@ -17,36 +17,37 @@ must be ≤ 65535.**
 We use a `84xx` block, one 2-digit sub-range per app, assigned in the order
 apps were added:
 
-| App | Ports used |
-|---|---|
-| OmniRoute | 8401 |
-| SearXNG | 8402 |
-| Ente | 8403 (API), 8404 (Photos web), 8405 (public albums), 8406 (MinIO S3), 8407 (Mailpit) |
-| *(support services)* | Postfix relay — internal only, no published port |
-| AFFiNE | 8408 |
-| Cloudreve | 8409 (web UI/API), 8410 (Aria2 remote-download port, tcp+udp) |
-| Mailpit | 8411 (web UI), 8412 (SMTP) |
-| NodeCast TV | 8413 |
-| Continuwuity (Matrix) | 8414 |
-| Dispatcharr | 8415 |
-| deGoogle | 8416 |
-| Web-Check | 8419 |
-| VERT | 8420 |
-| WatchYourLAN | 8421 (web UI, on host network — not a published Docker port) |
-| Stoat Chat | 8422 (web UI), 8423 (LiveKit voice, tcp), 8424-8429 (LiveKit voice, udp x6) |
-| SpiderFoot | 8430 |
-| Homelable | 8431 (frontend web UI). Backend has no published port — reached only over the internal homelable_network. |
-| Tianji | 8432 |
-| GameVault | 8433 |
-| Yuvomi | 8434 |
-| openGym | 8435 |
-| Pocket ID | 8436 |
-| Outline | 8437 |
-| BookOrbit | 8438 |
-| **Next new app starts at** | **8439** |
+| App                        | Ports used                                                                                                |
+| -------------------------- | --------------------------------------------------------------------------------------------------------- |
+| OmniRoute                  | 8401                                                                                                      |
+| SearXNG                    | 8402                                                                                                      |
+| Ente                       | 8403 (API), 8404 (Photos web), 8405 (public albums), 8406 (MinIO S3), 8407 (Mailpit)                      |
+| _(support services)_       | Postfix relay — internal only, no published port                                                          |
+| AFFiNE                     | 8408                                                                                                      |
+| Cloudreve                  | 8409 (web UI/API), 8410 (Aria2 remote-download port, tcp+udp)                                             |
+| Mailpit                    | 8411 (web UI), 8412 (SMTP)                                                                                |
+| NodeCast TV                | 8413                                                                                                      |
+| Continuwuity (Matrix)      | 8414                                                                                                      |
+| Dispatcharr                | 8415                                                                                                      |
+| deGoogle                   | 8416                                                                                                      |
+| Web-Check                  | 8419                                                                                                      |
+| VERT                       | 8420                                                                                                      |
+| WatchYourLAN               | 8421 (web UI, on host network — not a published Docker port)                                              |
+| Stoat Chat                 | 8422 (web UI), 8423 (LiveKit voice, tcp), 8424-8429 (LiveKit voice, udp x6)                               |
+| SpiderFoot                 | 8430                                                                                                      |
+| Homelable                  | 8431 (frontend web UI). Backend has no published port — reached only over the internal homelable_network. |
+| Tianji                     | 8432                                                                                                      |
+| GameVault                  | 8433                                                                                                      |
+| Yuvomi                     | 8434                                                                                                      |
+| openGym                    | 8435                                                                                                      |
+| Pocket ID                  | 8436                                                                                                      |
+| Outline                    | 8437                                                                                                      |
+| BookOrbit                  | 8438                                                                                                      |
+| Indelible                  | 8439                                                                                                      |
+| **Next new app starts at** | **8440**                                                                                                  |
 
 - Claim the next unused number(s) in sequence and record them in this table
-  *before* writing the manifest, so two apps in progress at once can't
+  _before_ writing the manifest, so two apps in progress at once can't
   collide.
 - Multi-container apps (like Ente) get a contiguous mini-block — easier to
   scan `docker ps` and know which app a port belongs to.
@@ -59,7 +60,7 @@ apps were added:
   published port at all — just put them on the shared internal network.
 - If you ever renumber a port, grep the whole app's services for
   `localhost:<old-port>` — any service reaching another over its
-  *published* host port (not the internal Docker network) needs that
+  _published_ host port (not the internal Docker network) needs that
   reference updated too.
 
 ## 1. `docker-compose.yml` structure
@@ -87,23 +88,27 @@ For every service (not just the "main" one):
 ```yaml
 services:
   <servicename>:
-    image: <org>/<repo>:<tag>   # avoid :latest if upstream publishes real
-                                 # tags; if they only publish floating tags
-                                 # (latest/main/next), say so in
-                                 # x-casaos.release_notes instead of a
-                                 # comment here — see 1e and 1g.
+    image:
+      <org>/<repo>:<tag> # avoid :latest if upstream publishes real
+      # tags; if they only publish floating tags
+      # (latest/main/next), say so in
+      # x-casaos.release_notes instead of a
+      # comment here — see 1e and 1g.
     container_name: <servicename>
     restart: unless-stopped
-    stop_grace_period: 40s       # give apps time to shut down cleanly;
-                                  # adjust up for DBs/anything with WAL
-    network_mode: bridge         # unless the app needs to share a network
-                                  # namespace with a sibling service
+    stop_grace_period:
+      40s # give apps time to shut down cleanly;
+      # adjust up for DBs/anything with WAL
+    network_mode:
+      bridge # unless the app needs to share a network
+      # namespace with a sibling service
     environment:
-      - SOME_VAR=CHANGEME        # see section 4 — never real secrets
-    ports:                       # omit entirely for internal-only services
+      - SOME_VAR=CHANGEME # see section 4 — never real secrets
+    ports: # omit entirely for internal-only services
       - target: <container-port>
-        published: "<host-port>" # from the ledger in section 0, 4-digit
-                                  # 84xx only
+        published:
+          "<host-port>" # from the ledger in section 0, 4-digit
+          # 84xx only
         protocol: tcp
     volumes:
       - type: bind
@@ -122,7 +127,7 @@ services:
     labels:
       icon: <self-hosted icon URL — section 3>
     x-casaos:
-      id: com.hiraappstore.<appname>   # mirror the top-level id here too
+      id: com.hiraappstore.<appname> # mirror the top-level id here too
       envs:
         - container: SOME_VAR
           description:
@@ -145,14 +150,15 @@ contiguous block.
 
 ```yaml
 x-casaos:
-  id: com.hiraappstore.<appname>      # REQUIRED, reverse-domain, unique.
-                                       # Build action hard-fails without
-                                       # it: "ERROR App 'X' is missing
-                                       # required x-casaos.id"
+  id:
+    com.hiraappstore.<appname> # REQUIRED, reverse-domain, unique.
+    # Build action hard-fails without
+    # it: "ERROR App 'X' is missing
+    # required x-casaos.id"
   architectures:
     - amd64
     - arm64
-  main: <servicename>                 # which service owns port_map/Open
+  main: <servicename> # which service owns port_map/Open
   author: HSinghHira
   category: <must exist in category-list.json — check before using>
   developer: <upstream author/org>
@@ -237,18 +243,19 @@ x-casaos:
             password; a manual reset is required.">
   index: /
   port_map: "<host-port-of-main-service>"
-  scheme: http                        # or https if the app terminates TLS
+  scheme: http # or https if the app terminates TLS
   is_uncontrolled: false
-  version: "<upstream version, e.g. 1.0>"   # see note below
-  update_at: "<YYYY-MM-DD>"                 # date this manifest was last
-                                             # updated/verified against
-                                             # that version
+  version: "<upstream version, e.g. 1.0>" # see note below
+  update_at:
+    "<YYYY-MM-DD>" # date this manifest was last
+    # updated/verified against
+    # that version
   release_notes:
     en_US: |-
       - <what changed in this manifest update, one bullet per change>
   repo: "https://github.com/<org>/<repo>"
   support: "https://github.com/<org>/<repo>/issues"
-  docs: "https://github.com/<org>/<repo>/tree/main/docs"  # or wherever
+  docs: "https://github.com/<org>/<repo>/tree/main/docs" # or wherever
 ```
 
 Standard fields to always fill in: `architectures`, `main` (which service
@@ -259,6 +266,7 @@ is the "primary" one for port_map/open-button purposes), `author`,
 **`description` and `tips.before_install` style:** write these as
 markdown inside the `en_US:` block scalar (`>-` or `|-`), not as flat
 prose:
+
 - `description` opens with a short pitch paragraph, then a `**Features**`
   section as a `-` bullet list (fold in persistence/infra notes as their
   own bullets — DB engine, cache, where data lives), then a
@@ -288,11 +296,12 @@ prose:
   without blank lines the bullets/numbers run together into one line.
 
 **`version` / `update_at` / `release_notes`:**
+
 - Include these whenever upstream publishes real, pinnable version tags
   (or you've chosen to pin to a specific tag/digest yourself). `version`
   matches the pinned tag, `update_at` is the date this manifest was last
   verified against that version (`YYYY-MM-DD`), and `release_notes.en_US`
-  is a short bullet list of what changed in *this manifest*, not
+  is a short bullet list of what changed in _this manifest_, not
   upstream's own changelog (e.g. "Initial version", "Bumped to v1.2,
   added REDIS_URL var").
 - **Omit all three** if upstream only publishes floating tags
@@ -305,7 +314,7 @@ prose:
 
 - Data lives under `/DATA/AppData/$AppID` on the host, bind-mounted with
   `create_host_path: true`.
-- Prefer environment-variable configuration over mounting a config *file*
+- Prefer environment-variable configuration over mounting a config _file_
   wherever the upstream image supports it. If a file doesn't already exist
   on the host, Docker silently creates an empty **directory** there
   instead, breaking the container in a confusing way that doesn't look
@@ -319,7 +328,7 @@ prose:
 
 - Prefer a pinned version tag over `:latest` if upstream publishes one.
 - If upstream only publishes floating tags, say so in `x-casaos.release_notes`
-  (per 1g — no comments) so future maintainers know *why* there's no
+  (per 1g — no comments) so future maintainers know _why_ there's no
   version tracking, instead of assuming it was an oversight.
 
 ### 1f. Resource limits
@@ -389,6 +398,7 @@ a sentence to the matching `x-casaos` description field instead."
   Pattern: `@main` pins the branch (swap only if you deliberately want a
   different ref), then `Apps/<AppName>/<file>` matches the path you
   committed the image to exactly — case-sensitive.
+
 - Never point at the upstream project's own repo/CDN for these — if they
   move, rename, or delete the file, the store listing breaks silently.
 - No `<your-username>/<your-repo-name>` placeholders left in anything
@@ -420,12 +430,12 @@ a sentence to the matching `x-casaos` description field instead."
 repo — ever.** This store is public, so:
 
 - Any credential that just identifies something (SMTP login/username, an
-  account email, an API *username*) ships as a `CHANGEME_*` placeholder in
+  account email, an API _username_) ships as a `CHANGEME_*` placeholder in
   `environment:`, with a matching `x-casaos.envs[].description` explaining
   what to put there and why.
 - Any credential that's a **cryptographic secret** — `SECRET_KEY`,
   `JWT_SECRET`, session/cookie signing keys, encryption keys, bcrypt/argon2
-  password hashes, API *keys* (not usernames), and similar — must **not**
+  password hashes, API _keys_ (not usernames), and similar — must **not**
   ship as `CHANGEME_*`. Generate a real random value for it instead
   (e.g. `openssl rand -hex 32`, or a UUID/base64 token of the length
   upstream expects) and put that generated value in `environment:`. A
@@ -442,7 +452,7 @@ repo — ever.** This store is public, so:
     [randomkeygen.com](https://randomkeygen.com/)
   - bcrypt password hashes specifically: [bcrypt-generator.com](https://bcrypt-generator.com/)
   - Example description: `"Pre-filled with a random value. Replace it with
-    your own — generate one at randomkeygen.com — before going live."`
+your own — generate one at randomkeygen.com — before going live."`
 - If the app needs an external service to function fully (e.g. real email
   sending), prefer bundling a **generic, self-contained relay/service**
   (see Ente's `postfix` service) over hardcoding one provider's config.
@@ -476,7 +486,7 @@ to forget, and there's no build error if you skip it.
 ```
 
 - **Icon path** — if `<AppName>` contains a space, URL-encode it as `%20`
-  in *both* the `<img src=...>` attribute and the thumbnail path (see
+  in _both_ the `<img src=...>` attribute and the thumbnail path (see
   NodeCast TV). Raw spaces break the image on some renderers because the
   space is read as the end of the `src`/URL.
 - **`tag` badges** — same two badges every row: the image repo (`blue`)
@@ -492,7 +502,7 @@ to forget, and there's no build error if you skip it.
     multi-word badge labels (shields.io renders `_` as a space); use
     `%2F` for a literal `/` in a label like `web/API`.
   - A port that needs a non-numeric qualifier (Cloudreve's Aria2 port is
-    `tcp+udp`) gets that noted as plain italic text *next to* the badge,
+    `tcp+udp`) gets that noted as plain italic text _next to_ the badge,
     not crammed into the badge label — special characters in badge label
     segments need their own URL-escaping and render inconsistently.
   - These badges link to nothing (`()`) since there's no useful target for
@@ -517,7 +527,7 @@ to forget, and there's no build error if you skip it.
 - If you renumber a port in the ledger (section 0), update the matching
   badge in the README row in the same change.
 - If an app gains or loses a published port (e.g. a new sidecar service),
-  update both the ledger *and* the README badges together.
+  update both the ledger _and_ the README badges together.
 
 ## 8. Before pushing
 
@@ -534,7 +544,7 @@ to forget, and there's no build error if you skip it.
    each service's `x-casaos:` block).
 7. If `version`/`update_at`/`release_notes` are present, confirm `version`
    matches the actually-pinned image tag and `release_notes` reflects
-   *this* change (not just copy-pasted from the last app).
+   _this_ change (not just copy-pasted from the last app).
 8. Confirm `README.md` has a matching row (icon, tags, port badge(s),
    description, thumbnail) for every app added or changed, per section 7.
 9. Confirm `docker-compose.yml` has no explanatory `#` comments anywhere
