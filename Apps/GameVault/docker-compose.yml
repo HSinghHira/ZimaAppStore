@@ -240,5 +240,3 @@ x-casaos:
   repo: "https://github.com/Phalcode/gamevault-backend"
   support: "https://github.com/Phalcode/gamevault-backend/issues"
   docs: "https://gamevau.lt/docs/server-docs/setup/docker-compose/"
-  preview_url: "https://games.hira.im"
-  preview_scheme: "https"

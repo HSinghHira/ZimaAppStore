@@ -1,0 +1,192 @@
+name: zimabrain-ce
+
+services:
+  zimabrain-ce:
+    image: gelbuilding/zimabrain-ce:1.6.0-beta
+    container_name: zimabrain-ce
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    privileged: true
+    pid: host
+    environment:
+      - ZIMABRAIN_PASSWORD=CHANGEME_SET_A_LOGIN_PASSWORD
+      - ZIMABRAIN_SECRET_KEY=337b21196b9ba99d4ff435c3d4a87749b2361f41621050975644040234883c89
+      - TZ=UTC
+    ports:
+      - target: 8601
+        published: "8441"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/docs
+        target: /app/docs
+        bind:
+          create_host_path: true
+        read_only: true
+      - type: bind
+        source: /proc
+        target: /host/proc
+        read_only: true
+      - type: bind
+        source: /sys
+        target: /host/sys
+        read_only: true
+      - type: bind
+        source: /etc/hostname
+        target: /host/etc/hostname
+        read_only: true
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8601/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/ZimaBrainCE/icon.png
+      title: ZimaBrain CE
+      description: Local ZimaOS diagnostic assistant
+      index: /
+      scheme: http
+      port_map: "8441"
+    x-casaos:
+      id: com.hiraappstore.zimabrainCE
+      envs:
+        - container: ZIMABRAIN_PASSWORD
+          description:
+            en_US: The login password for the ZimaBrain CE web UI. Make up your own password here.
+        - container: ZIMABRAIN_SECRET_KEY
+          description:
+            en_US: Pre-filled with a random value used to sign web sessions. Replace it with your own — generate one at randomkeygen.com — before going live.
+        - container: TZ
+          description:
+            en_US: Timezone used for timestamps in reports and logs, e.g. Etc/UTC or America/New_York.
+      ports:
+        - container: "8601"
+          description:
+            en_US: ZimaBrain CE web UI (published on host as 8441)
+      volumes:
+        - container: /data
+          description:
+            en_US: Persistent ZimaBrain CE data, generated reports, and history
+        - container: /app/docs
+          description:
+            en_US: Read-only docs folder ZimaBrain CE reads for manual and playbook knowledge
+
+x-casaos:
+  id: com.hiraappstore.zimabrainCE
+  architectures:
+    - amd64
+    - arm64
+  main: zimabrain-ce
+  author: HSinghHira
+  category: AI
+  developer: gelbuilding
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/ZimaBrainCE/icon.png
+  # thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/ZimaBrainCE/thumbnail.png
+  # screenshot_link:
+  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/ZimaBrainCE/thumbnail.png
+  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/ZimaBrainCE/thumbnail-1.png
+  title:
+    en_US: ZimaBrain CE
+  tagline:
+    en_US: Local, verifier-first diagnostic assistant for ZimaOS
+  description:
+    en_US: >-
+      ZimaBrain CE is a local diagnostic assistant that reads real evidence
+      from your ZimaOS box — disks, containers, mounts, and network state —
+      before it ever tells you what's wrong or what to run next.
+
+
+      **Features**
+
+
+      - Verifier-first engine: checks real system evidence before answering,
+        instead of guessing
+
+      - Layered diagnostics covering Docker daemon state, container health,
+        bind mounts, disk health and inventory, filesystem usage, network
+        exposure, SMB shares, and permissions/ownership
+
+      - Built-in knowledge of official ZimaOS manuals, verified app install
+        guides, and a third-party app store index
+
+      - Safe-command guidance that avoids destructive fixes unless the
+        evidence clearly supports them
+
+      - Persistent storage for generated reports and diagnostic history under
+        /DATA/AppData/$AppID
+
+
+      **How to use?**
+
+
+      1. Open ZimaBrain CE from the Zima OS dashboard.
+
+      2. Log in with the password you set in ZIMABRAIN_PASSWORD.
+
+      3. Look at the top badge and layer map to confirm the app started
+         correctly.
+
+      4. Ask ZimaBrain CE a question about your system, or pick a
+         diagnostic layer (disks, containers, network, and so on) to run.
+
+      5. Review the evidence-based answer and any suggested safe commands
+         before running anything yourself.
+
+      6. Revisit past reports and trend history any time from the app's
+         dashboard.
+  tips:
+    before_install:
+      en_US: >-
+        1. ZimaBrain CE needs deep access to your ZimaOS box to work. It
+           uses a privileged container, the host's process list, and a
+           read-only connection to Docker so it can check real evidence.
+
+
+        2. Only install this on a machine you trust, and keep it on your
+           private LAN.
+
+        3. Start the ZimaBrain CE installation.
+
+
+        4. Wait about 20 seconds for the health check to pass before you
+           open the app.
+
+        5. Open ZimaBrain CE from the Zima OS dashboard.
+
+        6. You can change the timezone later using the TZ setting. Reports
+            and data live in /DATA/AppData/$AppID on your ZimaOS box.
+  index: /
+  port_map: "8441"
+  scheme: http
+  is_uncontrolled: false
+  version: "1.6.0-beta"
+  update_at: "2026-09-06"
+  release_notes:
+    en_US: |-
+      - Initial listing of ZimaBrain CE
+      - Image is pinned to the 1.6.0-beta tag; upstream has not yet published a stable, non-beta tag
+      - Published on host port 8441 per the store's port ledger; the app's own default port 8601 is kept as the container-internal port
+  repo: "https://github.com/Jacko88888/zimabrain-ce"
+  support: "https://github.com/Jacko88888/zimabrain-ce/issues"
+  docs: "https://github.com/Jacko88888/zimabrain-ce/tree/main/docs"

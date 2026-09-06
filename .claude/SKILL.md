@@ -45,7 +45,8 @@ apps were added:
 | BookOrbit                  | 8438                                                                                                      |
 | Indelible                  | 8439                                                                                                      |
 | Helix                      | 8440                                                                                                      |
-| **Next new app starts at** | **8441**                                                                                                  |
+| ZimaBrain CE               | 8441                                                                                                      |
+| **Next new app starts at** | **8442**                                                                                                  |
 
 - Claim the next unused number(s) in sequence and record them in this table
   _before_ writing the manifest, so two apps in progress at once can't
