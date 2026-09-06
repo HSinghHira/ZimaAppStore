@@ -49,7 +49,8 @@ apps were added:
 | OmniCloud                  | 8442                                                                                                      |
 | Claude Code Container      | 8443                                                                                                      |
 | Docmost                    | 8444                                                                                                      |
-| **Next new app starts at** | **8445**                                                                                                  |
+| DocuSeal                   | 8445                                                                                                      |
+| **Next new app starts at** | **8446**                                                                                                  |
 
 - Claim the next unused number(s) in sequence and record them in this table
   _before_ writing the manifest, so two apps in progress at once can't

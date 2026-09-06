@@ -1,0 +1,165 @@
+name: docuseal
+
+services:
+  docuseal:
+    image: docuseal/docuseal:latest
+    container_name: docuseal
+    restart: unless-stopped
+    stop_grace_period: 30s
+    network_mode: bridge
+    environment:
+      - SECRET_KEY_BASE=d7ae66adbc0192fbb63dbbc9ef1d58a3bb88f5cc4535052895fc4e43094b0c25
+    ports:
+      - target: 3000
+        published: "8445"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/docuseal/data
+        target: /data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.10"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/DocuSeal/icon.png
+    x-casaos:
+      id: com.hiraappstore.docuseal
+      envs:
+        - container: SECRET_KEY_BASE
+          description:
+            en_US: Pre-filled with a random value. This encrypts sessions
+              and stored credentials. Replace it with your own (64
+              alphanumeric characters, no symbols) — generate one at
+              randomkeygen.com — before going live. Changing it after
+              first run will invalidate existing sessions.
+      ports:
+        - container: "3000"
+          description:
+            en_US: DocuSeal web UI, published on host as 8445.
+      volumes:
+        - container: /data
+          description:
+            en_US: DocuSeal's SQLite database, uploaded documents, and
+              generated PDFs. This one folder holds everything — back it
+              up like you would any database.
+
+x-casaos:
+  id: com.hiraappstore.docuseal
+  architectures:
+    - amd64
+    - arm64
+  main: docuseal
+  author: HSinghHira
+  category: Productivity
+  developer: DocuSeal
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/DocuSeal/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/DocuSeal/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/DocuSeal/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/DocuSeal/thumbnail-1.png
+  title:
+    en_US: DocuSeal
+  tagline:
+    en_US: Open-source DocuSign alternative — create, fill, and sign PDF documents online.
+  description:
+    en_US: >-
+      DocuSeal is an open-source platform for filling and signing digital
+      documents. Build a fillable PDF form once, then send it out for one or
+      more people to sign from any device.
+
+
+      **Features**
+
+
+      - Drag-and-drop PDF form builder with 12+ field types (signature,
+        date, file, checkbox, and more)
+
+      - Multiple submitters per document, with automated email
+        notifications
+
+      - Automatic PDF eSignature and signature verification
+
+      - Ships with its own built-in SQLite database — no separate database
+        container to manage
+
+      - Persistent storage for the database and every uploaded/signed
+        document under /DATA/AppData/docuseal
+
+      - Multi-architecture image (amd64 and arm64)
+
+
+      **How to use?**
+
+
+      1. Open DocuSeal from the Zima OS dashboard.
+
+      2. Create your administrator account on the first-run screen.
+
+      3. Open Settings inside the app to connect an SMTP server if you want
+         DocuSeal to send signing invitations by email — this isn't
+         required to use the app locally.
+
+      4. Upload a PDF to create your first template, then place the fields
+         you need on it.
+
+      5. Send the template to a submitter, or share the signing link
+         directly.
+
+      6. Everything else — users, templates, and integrations — is managed
+         from the in-app Settings panel, no file editing needed.
+  tips:
+    before_install:
+      en_US: >-
+        1. Open the app's environment settings before you start the
+           install.
+
+
+        2. Find SECRET_KEY_BASE. It already has a random value filled in.
+
+
+        3. Replace it with your own — generate one at randomkeygen.com —
+           before going live. It should only contain letters and numbers.
+
+
+        4. Start the DocuSeal installation.
+
+
+        5. Open DocuSeal from the Zima OS dashboard.
+
+
+        6. Create your admin account on the first screen you see.
+
+
+        7. If you want DocuSeal to send email invitations, add your SMTP
+           details from inside the app under Settings — you don't need to
+           touch the container for this.
+
+
+        8. Your documents and database are stored in the data folder shown
+           in the app's storage settings. Back that up like any other
+           important folder.
+
+
+        9. Important: this app uses its own built-in SQLite database by
+           default. If you'd rather use an external Postgres or MySQL
+           database, add a DATABASE_URL variable — but that only takes
+           effect on a fresh install, not on data already saved to SQLite.
+  index: /
+  port_map: "8445"
+  scheme: http
+  is_uncontrolled: false
+  release_notes:
+    en_US: |-
+      - Initial version. Upstream only publishes a floating docuseal/docuseal:latest tag with no versioned Docker tags to pin against, so version and update_at are omitted here — they'll be added once upstream starts tagging releases.
+      - SECRET_KEY_BASE ships with a freshly generated random value rather than a CHANGEME placeholder, since it's a cryptographic secret.
+      - Runs with the built-in SQLite database (the app's own default) rather than a bundled Postgres container, to match upstream's simplest supported setup. Set DATABASE_URL yourself before first run if you'd rather use Postgres or MySQL.
+  repo: "https://github.com/docusealco/docuseal"
+  support: "https://github.com/docusealco/docuseal/issues"
+  docs: "https://www.docuseal.com/docs"
