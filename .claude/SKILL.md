@@ -47,7 +47,8 @@ apps were added:
 | Helix                      | 8440                                                                                                      |
 | ZimaBrain CE               | 8441                                                                                                      |
 | OmniCloud                  | 8442                                                                                                      |
-| **Next new app starts at** | **8443**                                                                                                  |
+| Claude Code Container      | 8443                                                                                                      |
+| **Next new app starts at** | **8444**                                                                                                  |
 
 - Claim the next unused number(s) in sequence and record them in this table
   _before_ writing the manifest, so two apps in progress at once can't
