@@ -102,10 +102,12 @@ x-casaos:
   category: AI
   developer: gelbuilding
   icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/ZimaBrainCE/icon.png
-  # thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/ZimaBrainCE/thumbnail.png
-  # screenshot_link:
-  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/ZimaBrainCE/thumbnail.png
-  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/ZimaBrainCE/thumbnail-1.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/ZimaBrainCE/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/ZimaBrainCE/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/ZimaBrainCE/thumbnail-1.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/ZimaBrainCE/thumbnail-2.png
+    
   title:
     en_US: ZimaBrain CE
   tagline:
