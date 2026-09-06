@@ -1,6 +1,6 @@
-# ZimaOS / CasaOS Community App Store
+# ZimaOS / CasaOS / Homeio - Third Party Community App Store
 
-A Community app store for [ZimaOS](https://www.zimaspace.com/ZimaOS) and [CasaOS](https://casaos.io/), maintained by [HSinghHira](https://github.com/HSinghHira).
+A Community app store for [ZimaOS](https://www.zimaspace.com/ZimaOS), [CasaOS](https://casaos.io/) and [Homeio](https://homeio.app/), maintained by [HSinghHira](https://github.com/HSinghHira).
 
 ---
 
@@ -37,6 +37,25 @@ CasaOS doesn't read `store.json` — instead, it can install a full custom app s
    ```
 
 5. Confirm **Add**.
+
+> 💡 `latest.zip` always points to the most recent build — no need to update the link when new apps are added.
+
+---
+
+## 🟠 Homeio
+
+1. Open the **Homeio** dashboard.
+2. Click on **App Store**.
+3. Click **+ Install** button.
+4. Go to **Manage Sources**.
+5. Paste in below Store URL:
+
+   ```
+   https://ZimaOS.HSinghHira.me/latest.zip
+   ```
+
+6. Enter desired name like "Hira's App Store".
+7. Click **Add Source** button.
 
 > 💡 `latest.zip` always points to the most recent build — no need to update the link when new apps are added.
 
