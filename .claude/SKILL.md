@@ -50,7 +50,8 @@ apps were added:
 | Claude Code Container      | 8443                                                                                                      |
 | Docmost                    | 8444                                                                                                      |
 | DocuSeal                   | 8445                                                                                                      |
-| **Next new app starts at** | **8446**                                                                                                  |
+| Documenso                  | 8446                                                                                                      |
+| **Next new app starts at** | **8447**                                                                                                  |
 
 - Claim the next unused number(s) in sequence and record them in this table
   _before_ writing the manifest, so two apps in progress at once can't
