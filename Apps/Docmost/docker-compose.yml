@@ -1,0 +1,286 @@
+name: docmost
+
+services:
+  docmost-db:
+    image: postgres:16.13-alpine
+    container_name: docmost-db
+    restart: unless-stopped
+    stop_grace_period: 60s
+    network_mode: bridge
+    environment:
+      - POSTGRES_DB=docmost
+      - POSTGRES_USER=docmost
+      - POSTGRES_PASSWORD=061a18c45f8ee5848136ed4bd365a9df31469a60
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U docmost -d docmost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      - type: bind
+        source: /DATA/AppData/docmost/pgdata
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 512M
+        reservations:
+          cpus: "0.10"
+          memory: 256M
+    x-casaos:
+      id: com.hiraappstore.docmost
+      envs:
+        - container: POSTGRES_PASSWORD
+          description:
+            en_US: Pre-filled with a random value. Must match POSTGRES_PASSWORD
+              used inside DATABASE_URL in the docmost service. Replace both
+              together if you change it — generate a new one at
+              randomkeygen.com.
+      volumes:
+        - container: /var/lib/postgresql/data
+          description:
+            en_US: Docmost's Postgres database — all workspaces, pages, and
+              accounts.
+
+  docmost-redis:
+    image: redis:7.2.13-alpine
+    container_name: docmost-redis
+    restart: unless-stopped
+    stop_grace_period: 30s
+    network_mode: bridge
+    volumes:
+      - type: bind
+        source: /DATA/AppData/docmost/redis
+        target: /data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+        reservations:
+          cpus: "0.05"
+          memory: 128M
+    x-casaos:
+      id: com.hiraappstore.docmost
+      volumes:
+        - container: /data
+          description:
+            en_US: Redis data for Docmost's background jobs and caching.
+
+  docmost:
+    image: docmost/docmost:0.70.3
+    container_name: docmost
+    restart: unless-stopped
+    stop_grace_period: 30s
+    network_mode: bridge
+    depends_on:
+      docmost-db:
+        condition: service_healthy
+      docmost-redis:
+        condition: service_started
+    environment:
+      - APP_URL=http://localhost:8444
+      - APP_SECRET=fcdd696d2ffb6e6e69f1c1f3ec0c836744b287418ca7cd1490c83e447109504c
+      - PORT=3000
+      - DATABASE_URL=postgresql://docmost:061a18c45f8ee5848136ed4bd365a9df31469a60@docmost-db:5432/docmost?schema=public
+      - REDIS_URL=redis://docmost-redis:6379
+      - MAIL_DRIVER=smtp
+      - MAIL_FROM_ADDRESS=CHANGEME_MAIL_FROM_ADDRESS
+      - MAIL_FROM_NAME=Docmost
+      - SMTP_HOST=CHANGEME_SMTP_HOST
+      - SMTP_PORT=587
+      - SMTP_USERNAME=CHANGEME_SMTP_USERNAME
+      - SMTP_PASSWORD=CHANGEME_SMTP_PASSWORD
+    ports:
+      - target: 3000
+        published: "8444"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/docmost/storage
+        target: /app/data/storage
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.20"
+          memory: 512M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Docmost/icon.png
+    x-casaos:
+      id: com.hiraappstore.docmost
+      envs:
+        - container: APP_URL
+          description:
+            en_US: The web address you'll use to reach Docmost, including
+              http:// or https://, e.g. http://192.168.1.50:8444. Used to
+              build links in emails, so set it to the address you'll
+              actually visit.
+        - container: APP_SECRET
+          description:
+            en_US: Pre-filled with a random value. Replace it with your own
+              (32+ characters) — generate one at randomkeygen.com — before
+              going live. Changing it after first run will invalidate
+              existing login sessions.
+        - container: DATABASE_URL
+          description:
+            en_US: Pre-filled to match POSTGRES_PASSWORD in the docmost-db
+              service. If you change that password, update the password in
+              this URL to match.
+        - container: MAIL_FROM_ADDRESS
+          description:
+            en_US: The "from" address on emails Docmost sends, e.g.
+              no-reply@yourdomain.com. Needed for invite and
+              password-reset emails to work.
+        - container: SMTP_HOST
+          description:
+            en_US: Your SMTP server's hostname, e.g. smtp.gmail.com. Bring
+              your own mail provider — Docmost sends invite and
+              password-reset emails through it.
+        - container: SMTP_USERNAME
+          description:
+            en_US: The login username for your SMTP server.
+        - container: SMTP_PASSWORD
+          description:
+            en_US: The login password or app-password for your SMTP server.
+      ports:
+        - container: "3000"
+          description:
+            en_US: Docmost web UI, published on host as 8444.
+      volumes:
+        - container: /app/data/storage
+          description:
+            en_US: Uploaded files and attachments.
+
+networks:
+  default:
+    name: docmost-network
+
+x-casaos:
+  id: com.hiraappstore.docmost
+  architectures:
+    - amd64
+    - arm64
+  main: docmost
+  author: HSinghHira
+  category: Productivity
+  developer: Docmost
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Docmost/icon.png
+  # thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Docmost/thumbnail.png
+  # screenshot_link:
+  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Docmost/thumbnail.png
+  title:
+    en_US: Docmost
+  tagline:
+    en_US: Open-source collaborative wiki and documentation, self-hosted.
+  description:
+    en_US: >-
+      Docmost is an open-source, self-hosted alternative to Notion and
+      Confluence — real-time collaborative docs and a team wiki in one app.
+
+
+      **Features**
+
+
+      - Real-time collaborative editing with a rich block-based editor
+
+      - Team wiki with nested pages, spaces, and permissions
+
+      - Postgres for persistent application data, Redis for caching and
+        background jobs
+
+      - Persistent storage for the database, cache, and uploaded files
+        under /DATA/AppData/docmost
+
+      - Multi-architecture image (amd64 and arm64)
+
+
+      **How to use?**
+
+
+      1. Open Docmost from the Zima OS dashboard.
+
+      2. Create your administrator account and workspace on the first-run
+         screen.
+
+      3. Invite teammates from the workspace settings — this needs
+         SMTP_HOST, SMTP_USERNAME, and SMTP_PASSWORD to be set to a real
+         mail provider first.
+
+      4. Start creating spaces and pages.
+
+      5. Further settings — workspace name, members, and integrations —
+         live in the in-app admin panel under Settings.
+  tips:
+    before_install:
+      en_US: >-
+        1. Open the app's environment settings before you start the
+           install.
+
+
+        2. Set APP_URL to the address you will open Docmost at, like
+           http://your-zima-ip:8444.
+
+
+        3. Find APP_SECRET. It already has a random value filled in.
+
+
+        4. Replace APP_SECRET with your own 32-character value — generate
+           one at randomkeygen.com — before going live.
+
+
+        5. Find POSTGRES_PASSWORD in the docmost-db service. It also has a
+           random value filled in. You can leave it as is.
+
+
+        6. If you change POSTGRES_PASSWORD, you must also update the
+           matching password inside DATABASE_URL in the docmost service —
+           they have to be the same.
+
+
+        7. Set MAIL_FROM_ADDRESS, SMTP_HOST, SMTP_USERNAME, and
+           SMTP_PASSWORD to your own email provider's details. Docmost
+           needs these to send invite and password-reset emails.
+
+
+        8. Start the Docmost installation.
+
+
+        9. Wait for docmost-db to finish starting before opening the app —
+           the docmost service waits for it automatically.
+
+
+        10. Open Docmost from the Zima OS dashboard.
+
+
+        11. Create your admin account and workspace on the first screen
+            you see.
+
+
+        12. Later settings — members, spaces, integrations — are all in
+            the in-app Settings panel. No file editing needed.
+  index: /
+  port_map: "8444"
+  scheme: http
+  is_uncontrolled: false
+  version: "0.70.3"
+  update_at: "2026-09-06"
+  release_notes:
+    en_US: |-
+      - Initial version, pinned to docmost/docmost:0.70.3, postgres:16.13-alpine, and redis:7.2.13-alpine.
+      - APP_SECRET and POSTGRES_PASSWORD ship with freshly generated random values rather than CHANGEME placeholders, since both are cryptographic/auth secrets.
+      - Email (MAIL_FROM_ADDRESS, SMTP_HOST, SMTP_USERNAME, SMTP_PASSWORD) ships with CHANGEME placeholders. No bundled mail relay — bring your own SMTP provider.
+  repo: "https://github.com/docmost/docmost"
+  support: "https://github.com/docmost/docmost/issues"
+  docs: "https://docmost.com/docs"
