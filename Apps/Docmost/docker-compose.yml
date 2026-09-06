@@ -6,7 +6,6 @@ services:
     container_name: docmost-db
     restart: unless-stopped
     stop_grace_period: 60s
-    network_mode: bridge
     environment:
       - POSTGRES_DB=docmost
       - POSTGRES_USER=docmost
@@ -52,7 +51,6 @@ services:
     container_name: docmost-redis
     restart: unless-stopped
     stop_grace_period: 30s
-    network_mode: bridge
     volumes:
       - type: bind
         source: /DATA/AppData/docmost/redis
@@ -79,14 +77,13 @@ services:
     container_name: docmost
     restart: unless-stopped
     stop_grace_period: 30s
-    network_mode: bridge
     depends_on:
       docmost-db:
         condition: service_healthy
       docmost-redis:
         condition: service_started
     environment:
-      - APP_URL=http://localhost:8444
+      - APP_URL=CHANGEME_APP_URL
       - APP_SECRET=fcdd696d2ffb6e6e69f1c1f3ec0c836744b287418ca7cd1490c83e447109504c
       - PORT=3000
       - DATABASE_URL=postgresql://docmost:061a18c45f8ee5848136ed4bd365a9df31469a60@docmost-db:5432/docmost?schema=public
@@ -177,9 +174,12 @@ x-casaos:
   category: Productivity
   developer: Docmost
   icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Docmost/icon.png
-  # thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Docmost/thumbnail.png
-  # screenshot_link:
-  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Docmost/thumbnail.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Docmost/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Docmost/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Docmost/thumbnail-1.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Docmost/thumbnail-2.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Docmost/thumbnail-3.png
   title:
     en_US: Docmost
   tagline:
