@@ -17,7 +17,7 @@ services:
       - NEXTAUTH_SECRET=DwN9439C3sIE5xsxD1PrL8I9w9ptnDFCcW2riF8Qtv8=
       - NEXT_PRIVATE_ENCRYPTION_KEY=64MTHTfNU3k/ezJpNcTA+/oy4PJfRrnfXpaKz/cPyvY=
       - NEXT_PRIVATE_ENCRYPTION_SECONDARY_KEY=GHNkJzEuoOtDwbhL2QHAjhU4K9w9o9Ggs7YOVEUGRs4=
-      - NEXT_PUBLIC_WEBAPP_URL=http://localhost:8446
+      - NEXT_PUBLIC_WEBAPP_URL=https://SECURE-URL
       - NEXT_PRIVATE_INTERNAL_WEBAPP_URL=http://localhost:3000
       - NEXT_PRIVATE_DATABASE_URL=postgresql://documenso:2ac7833ce01076c3da8ea747fa8c8100@database:5432/documenso
       - NEXT_PRIVATE_DIRECT_DATABASE_URL=postgresql://documenso:2ac7833ce01076c3da8ea747fa8c8100@database:5432/documenso
@@ -37,6 +37,7 @@ services:
       - NEXT_PRIVATE_OIDC_CLIENT_ID=
       - NEXT_PRIVATE_OIDC_CLIENT_SECRET=
       - NEXT_PRIVATE_OIDC_PROVIDER_LABEL=OIDC
+      - NEXT_PUBLIC_DISABLE_SIGNUP=false
     networks:
       - documenso_network
     ports:
