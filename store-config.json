@@ -1,8 +1,8 @@
 {
   "version": 2,
   "store_id": "com.hiraappstore.ZimaOS",
-  "name": "Hira's App Store for ZimaOS",
-  "description": "Kinda Personal Project",
+  "name": "Hira's App Store",
+  "description": "Some Useful Apps For ZimaOS/CasaOS/Homeio",
   "maintainer": "HSinghHira",
   "url": "https://github.com/HSinghHira/ZimaAppStore"
 }
