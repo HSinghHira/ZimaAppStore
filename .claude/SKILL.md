@@ -17,6 +17,8 @@ must be ≤ 65535.**
 We use a `84xx` block, one 2-digit sub-range per app, assigned in the order
 apps were added:
 
+Here is the cleaned-up and properly formatted Markdown table for your application port mappings:
+
 | App                        | Ports used                                                                                                |
 | -------------------------- | --------------------------------------------------------------------------------------------------------- |
 | OmniRoute                  | 8401                                                                                                      |
@@ -51,7 +53,8 @@ apps were added:
 | Docmost                    | 8444                                                                                                      |
 | DocuSeal                   | 8445                                                                                                      |
 | Documenso                  | 8446                                                                                                      |
-| **Next new app starts at** | **8447**                                                                                                  |
+| SkySend                    | 8447                                                                                                      |
+| **Next new app starts at** | **8448**                                                                                                  |
 
 - Claim the next unused number(s) in sequence and record them in this table
   _before_ writing the manifest, so two apps in progress at once can't
@@ -489,7 +492,7 @@ to forget, and there's no build error if you skip it.
 ### 7a. Row format
 
 ```markdown
-| <h2><img src=Apps/<AppName>/icon.png width=21 height=21> <App Name></h2> [![tag](https://img.shields.io/badge/<org>/<repo>-latest-blue?style=plastic)](https://github.com/<org>/<repo>) [![tag](https://img.shields.io/badge/visit-project-green?style=plastic)](<upstream homepage or repo URL>) [![<port label>](https://img.shields.io/badge/<port label>-<port>-9cf?style=plastic)]() <br /> <1–2 sentence description matching the manifest's opening pitch>. | ![thumbnail](Apps/<AppName>/thumbnail.png) |
+| <h2><img src=Apps/<AppName>/icon.png width=21 height=21> <App Name></h2> [![tag](https://img.shields.io/badge/<org>/<repo>-latest-blue?style=plastic)](https://github.com/<org>/<repo>) [![tag](https://img.shields.io/badge/visit-project-green?style=plastic)](<upstream homepage or repo URL>) [![<port label>](https://img.shields.io/badge/<port label>-<port>-9cf?style=plastic)]() <br /> <1–2 sentence description matching the manifest's opening pitch>. | <img src="Apps/ZimaBrainCE/thumbnail.png" width="1200" alt="thumbnail"> |
 ```
 
 - **Icon path** — if `<AppName>` contains a space, URL-encode it as `%20`
