@@ -44,7 +44,7 @@ CasaOS doesn’t read `store.json` — instead, it can install a full custom app
 
 ---
 
-## 🟠 Homeio
+## 🟣 Homeio
 
 1.  Open the **Homeio** dashboard.
 
