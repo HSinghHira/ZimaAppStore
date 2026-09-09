@@ -1,3 +1,4 @@
+name: pocket-id
 services:
   pocket-id:
     command: null
@@ -5,20 +6,24 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512MB
+          memory: 512M
           cpus: "1.00"
         reservations:
-          memory: 128MB
+          memory: 128M
           cpus: "0.10"
       placement: {}
     entrypoint: null
     environment:
-      APP_URL: https://SECURE-URL_or_IP
+      APP_URL: CHANGEME_YOUR_SERVER_URL
       ENCRYPTION_KEY: re5nBm+ya8Q1Rgsjn6dY+l+2v/KyM4T7je14nYXMqvY=
+      TRUST_PROXY: "false"
       MAXMIND_LICENSE_KEY: ""
       PGID: "1000"
       PUID: "1000"
-      TRUST_PROXY: "false"
+      UI_CONFIG_DISABLED: "true"
+      ALLOW_USER_SIGNUPS: disabled
+      ANALYTICS_DISABLED: "false"
+      VERSION_CHECK_DISABLED: "false"
     healthcheck:
       test:
         - CMD
@@ -28,7 +33,7 @@ services:
       interval: 1m30s
       retries: 2
       start_period: 10s
-    image: ghcr.io/pocket-id/pocket-id:v2.14.0
+    image: ghcr.io/pocket-id/pocket-id:latest
     labels:
       icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/PocketID/icon.png
     network_mode: bridge
@@ -40,10 +45,62 @@ services:
     stop_grace_period: 20s
     volumes:
       - type: bind
-        source: /DATA/AppData/compose-340f8f8a75992182/data
+        source: /DATA/AppData/pocket-id
         target: /app/data
         bind:
           create_host_path: true
+    x-casaos:
+      id: com.hiraappstore.pocketid
+      envs:
+        - container: APP_URL
+          description:
+            en_US: The exact address you will open Pocket ID at, like https://your-server-ip:8436.
+              Passkeys are locked to this address — do not change it after setup.
+        - container: ENCRYPTION_KEY
+          description:
+            en_US: Pre-filled with a random value. Replace it with your own — generate
+              one at randomkeygen.com — before going live. Only change this right
+              after a fresh install; changing it later makes existing encrypted
+              data unreadable.
+        - container: TRUST_PROXY
+          description:
+            en_US: Set to true, or to a comma-separated list of proxy IPs/CIDR ranges,
+              if Pocket ID sits behind a reverse proxy. Leave as false otherwise.
+        - container: MAXMIND_LICENSE_KEY
+          description:
+            en_US: Optional. A free MaxMind GeoLite2 license key used to show real
+              locations in the audit log instead of "unknown".
+        - container: PUID
+          description:
+            en_US: The user ID that should own the files under /app/data on the host.
+        - container: PGID
+          description:
+            en_US: The group ID that should own the files under /app/data on the host.
+        - container: UI_CONFIG_DISABLED
+          description:
+            en_US: Must be true for ALLOW_USER_SIGNUPS and other UI-configurable
+              settings below to be controlled by environment variables instead of
+              the in-app Settings page.
+        - container: ALLOW_USER_SIGNUPS
+          description:
+            en_US: Controls self-service signup. Valid values are disabled, withToken,
+              or open. Only takes effect when UI_CONFIG_DISABLED is true.
+        - container: ANALYTICS_DISABLED
+          description:
+            en_US: Set to true to stop the daily anonymous heartbeat Pocket ID sends
+              to count running instances.
+        - container: VERSION_CHECK_DISABLED
+          description:
+            en_US: Set to true to stop Pocket ID from checking GitHub for newer
+              versions.
+      ports:
+        - container: "1411"
+          description:
+            en_US: Pocket ID web UI and API (published on host as 8436)
+      volumes:
+        - container: /app/data
+          description:
+            en_US: Database, uploaded files, and signing keys
 x-casaos:
   architectures:
     - amd64
@@ -64,7 +121,9 @@ x-casaos:
       provider built entirely around passkeys - no passwords, no accounts to
       leak, just sign in with a passkey or a hardware key like a YubiKey.
 
+
       **Features**
+
 
       - Passkey-only authentication - no passwords exist anywhere in the
         system.
@@ -75,11 +134,11 @@ x-casaos:
       - Simple admin UI for managing users, groups, and OIDC clients,
         without the complexity of Keycloak or ORY Hydra.
 
-      - LDAP sync and SCIM provisioning for pulling in users from an
-        existing directory.
+      - Optional self-service user signups, LDAP sync, and SCIM
+        provisioning for pulling in users from an existing directory.
 
       - SQLite by default, with no separate database container needed.
-        Persistent storage under /DATA/AppData/compose-340f8f8a75992182.
+        Persistent storage under /DATA/AppData/pocket-id.
 
 
       **How to use?**
@@ -98,8 +157,10 @@ x-casaos:
       5. Point that app's OIDC settings at your Pocket ID issuer URL, and
          copy over the client ID and secret.
 
-      6. Further settings, like custom branding and email, live in the
-         in-app admin panel under Settings.
+      6. Further settings, like custom branding, email, and self-service
+         signups, live in the in-app admin panel under Settings, or can be
+         locked to the environment variables below by setting
+         UI_CONFIG_DISABLED to true.
   docs: https://pocket-id.org/docs/introduction
   hostname: ""
   id: com.hiraappstore.pocketid
@@ -108,10 +169,20 @@ x-casaos:
   main: pocket-id
   port_map: "8436"
   release_notes:
-    en_US: "- Initial version, pinned to ghcr.io/pocket-id/pocket-id:v2.14.0"
+    en_US: |-
+      - Added the missing top-level `name` field so Pocket ID's data now
+        stores under /DATA/AppData/pocket-id instead of an
+        auto-generated compose-<hash> folder.
+
+      - Added UI_CONFIG_DISABLED, ALLOW_USER_SIGNUPS, ANALYTICS_DISABLED,
+        and VERSION_CHECK_DISABLED environment variables.
+
+      - Switched APP_URL's placeholder to the standard CHANGEME_* format.
+
+      - Added the per-service x-casaos envs/ports/volumes metadata.
   repo: https://github.com/pocket-id/pocket-id
   scheme: http
-  store_app_id: compose-340f8f8a75992182
+  store_app_id: pocket-id
   support: https://github.com/pocket-id/pocket-id/issues
   tagline:
     en_US: A simple, passkey-only OIDC and OAuth 2.0 provider for your self-hosted
@@ -121,35 +192,37 @@ x-casaos:
       en_US: |-
         1. Open the app configuration before starting the installation.
 
-        2. Find APP_URL. It says CHANGEME_YOUR_SERVER_URL.
+        2. Find APP_URL in the pocket-id service. It says
+           CHANGEME_YOUR_SERVER_URL.
 
         3. Set it to the exact address you will open Pocket ID at, like
-           https://your-server-ip:8436. Must be Secure IP/URL.
-
+           https://your-server-ip:8436. Must be a secure IP/URL.
 
         4. Do not change APP_URL later. Passkeys are locked to this exact
            address, and changing it can break sign in.
 
-
         5. Find ENCRYPTION_KEY. It is pre-filled with a random value.
 
-        6. Replace it with your own. Generate one at https://randomkeygen.com.
+        6. Replace it with your own. Generate one at randomkeygen.com.
 
-        7. Start the Pocket ID installation.
+        7. Only change ENCRYPTION_KEY right after this fresh install,
+           before adding real users.
 
-        8. Open Pocket ID from the Zima OS dashboard.
+        8. Want open or invite-only signups instead of admin-only? Set
+           ALLOW_USER_SIGNUPS to open or withToken, and make sure
+           UI_CONFIG_DISABLED stays set to true.
 
-        9. Go to the /setup page and create your admin account with a
-           passkey.
+        9. Start the Pocket ID installation.
 
-        10. More settings, like LDAP sync and email, are in the in-app
+        10. Open Pocket ID from the Zima OS dashboard.
+
+        11. Go to the /setup page and create your admin account with a
+            passkey.
+
+        12. More settings, like LDAP sync and email, are in the in-app
             admin panel under Settings.
-
-        11. Important: changing ENCRYPTION_KEY after setup makes existing
-            encrypted data unreadable. Only change it right after a fresh
-            install, before adding real users.
   title:
     custom: Pocket ID
     en_US: Pocket ID
-  update_at: 2026-09-04T00:00:00Z
+  update_at: 2026-09-09T00:00:00Z
   version: 2.14.0
