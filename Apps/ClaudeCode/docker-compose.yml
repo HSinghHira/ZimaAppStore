@@ -2,7 +2,7 @@ name: ClaudeCode
 
 services:
   ClaudeCode:
-    image: ghcr.io/worph/claude-code-container:1.0.26
+    image: ghcr.io/worph/claude-code-container:latest
     container_name: ClaudeCode
     restart: unless-stopped
     stop_grace_period: 30s

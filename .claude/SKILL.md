@@ -56,8 +56,9 @@ Here is the cleaned-up and properly formatted Markdown table for your applicatio
 | SkySend                    | 8447                                                                                                      |
 | Coder                      | 8448                                                                                                      |
 | VS Code                    | 8449                                                                                                      |
+| VS Codium                  | 8450
 
-Next new app starts at: **8450**
+Next new app starts at: **8451**
 
 - Claim the next unused number(s) in sequence and record them in this table
   _before_ writing the manifest, so two apps in progress at once can't

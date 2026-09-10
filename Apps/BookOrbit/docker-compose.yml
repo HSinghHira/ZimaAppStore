@@ -2,7 +2,7 @@ name: bookorbit
 
 services:
   app:
-    image: ghcr.io/bookorbit/bookorbit:2.6.0
+    image: ghcr.io/bookorbit/bookorbit:latest
     container_name: bookorbit-app
     restart: unless-stopped
     stop_grace_period: 30s

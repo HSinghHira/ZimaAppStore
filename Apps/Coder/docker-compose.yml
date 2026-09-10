@@ -2,7 +2,7 @@ name: coder
 
 services:
   coder:
-    image: ghcr.io/coder/coder:2.35.6
+    image: ghcr.io/coder/coder:latest
     container_name: coder
     restart: unless-stopped
     stop_grace_period: 40s

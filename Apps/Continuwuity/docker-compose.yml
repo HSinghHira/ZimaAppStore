@@ -3,7 +3,7 @@ name: continuwuity
 services:
   continuwuity:
 
-    image: forgejo.ellis.link/continuwuation/continuwuity:v26.7.2
+    image: forgejo.ellis.link/continuwuation/continuwuity:latest
     container_name: continuwuity
     restart: unless-stopped
     stop_grace_period: 60s

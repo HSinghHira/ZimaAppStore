@@ -3,7 +3,7 @@ name: dispatcharr
 services:
   dispatcharr:
 
-    image: ghcr.io/dispatcharr/dispatcharr:0.28.1
+    image: ghcr.io/dispatcharr/dispatcharr:latest
     container_name: dispatcharr
     restart: unless-stopped
 

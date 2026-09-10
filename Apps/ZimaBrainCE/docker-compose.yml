@@ -2,7 +2,7 @@ name: zimabrain-ce
 
 services:
   zimabrain-ce:
-    image: gelbuilding/zimabrain-ce:1.6.0-beta
+    image: gelbuilding/zimabrain-ce:latest
     container_name: zimabrain-ce
     restart: unless-stopped
     stop_grace_period: 40s

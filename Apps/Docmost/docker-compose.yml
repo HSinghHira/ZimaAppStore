@@ -73,7 +73,7 @@ services:
             en_US: Redis data for Docmost's background jobs and caching.
 
   docmost:
-    image: docmost/docmost:0.70.3
+    image: docmost/docmost:latest
     container_name: docmost
     restart: unless-stopped
     stop_grace_period: 30s

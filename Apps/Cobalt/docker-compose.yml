@@ -2,7 +2,7 @@ name: cobalt
 
 services:
   cobalt:
-    image: ghcr.io/imputnet/cobalt:11.7.1-a636575
+    image: ghcr.io/imputnet/cobalt:latest
     container_name: cobalt
     restart: unless-stopped
     stop_grace_period: 40s

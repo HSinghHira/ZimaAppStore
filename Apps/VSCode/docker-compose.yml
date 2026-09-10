@@ -78,9 +78,9 @@ x-casaos:
   category: Developer
   developer: linuxserver.io
   icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/VSCode/icon.png
-  # thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/VSCode/thumbnail.png
-  # screenshot_link:
-  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/VSCode/thumbnail.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/VSCode/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/VSCode/thumbnail.png
   title:
     en_US: VS Code
   tagline:
