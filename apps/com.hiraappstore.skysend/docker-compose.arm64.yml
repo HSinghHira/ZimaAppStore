@@ -1,0 +1,109 @@
+name: skysend
+
+services:
+  skysend:
+    image: skyfay/skysend:v2.11.3@sha256:a95791f444b44f21530c0254fbc4e5d53a20c816770ac521fa8d9ef1f61ab248
+    container_name: skysend
+    restart: unless-stopped
+    stop_grace_period: 15s
+    network_mode: bridge
+    environment:
+      - BASE_URL=CHANGEME_BASE_URL
+      - PORT=
+      - HOST=
+      - DATA_DIR=
+      - UPLOADS_DIR=
+      - BRANDING_DIR=
+      - TRUST_PROXY=
+      - CORS_ORIGINS=
+      - FILE_MAX_SIZE=
+      - FILE_MAX_FILES_PER_UPLOAD=
+      - FILE_EXPIRE_OPTIONS_SEC=
+      - FILE_DEFAULT_EXPIRE_SEC=
+      - FILE_DOWNLOAD_OPTIONS=
+      - FILE_DEFAULT_DOWNLOAD=
+      - FILE_UPLOAD_QUOTA_BYTES=
+      - FILE_UPLOAD_QUOTA_WINDOW=
+      - FILE_UPLOAD_CONCURRENT_CHUNKS=
+      - FILE_UPLOAD_SPEED_LIMIT=
+      - FILE_UPLOAD_WS=
+      - FILE_UPLOAD_WS_MAX_BUFFER=
+      - NOTE_MAX_SIZE=
+      - NOTE_EXPIRE_OPTIONS_SEC=
+      - NOTE_DEFAULT_EXPIRE_SEC=
+      - NOTE_VIEW_OPTIONS=
+      - NOTE_DEFAULT_VIEWS=
+      - ENABLED_SERVICES=
+      - CLEANUP_INTERVAL=
+      - RATE_LIMIT_WINDOW=
+      - RATE_LIMIT_MAX=
+      - PASSWORD_MAX_ATTEMPTS=
+      - PASSWORD_LOCKOUT_MS=
+      - STORAGE_BACKEND=
+      - S3_BUCKET=
+      - S3_REGION=
+      - S3_ENDPOINT=
+      - S3_ACCESS_KEY=
+      - S3_SECRET_KEY=
+      - S3_FORCE_PATH_STYLE=
+      - S3_PRESIGNED_EXPIRY=
+      - S3_PART_SIZE=
+      - S3_CONCURRENCY=
+      - CUSTOM_TITLE=
+      - CUSTOM_COLOR=
+      - CUSTOM_LOGO=
+      - CUSTOM_PRIVACY=
+      - CUSTOM_LEGAL=
+      - CUSTOM_LINK_URL=
+      - CUSTOM_LINK_NAME=
+      - CUSTOM_REPORT_URL=
+      - DEFAULT_THEME=
+      - DEFAULT_TAB=
+      - FORCE_FILE_PASSWORD=
+      - FORCE_NOTE_PASSWORD=
+      - OIDC_PROVIDER=
+      - OIDC_ISSUER=
+      - OIDC_CLIENT_ID=
+      - OIDC_CLIENT_SECRET=
+      - OIDC_SESSION_SECRET=
+      - OIDC_PROTECT_FILES=
+      - OIDC_PROTECT_NOTES=
+      - OIDC_REDIRECT_URI=
+      - OIDC_SCOPES=
+      - OIDC_SESSION_DURATION=
+      - PUID=
+      - PGID=
+      - SKIP_CHOWN=
+    ports:
+      - target: 3000
+        published: "8447"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/uploads
+        target: /uploads
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+x-casaos:
+  id: com.hiraappstore.skysend
+  main: skysend
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.skysend/assets/icon.png
+  title:
+    en_US: SkySend
+  index: /
+  port_map: "8447"
+  scheme: http
+  version: "2.11.3"

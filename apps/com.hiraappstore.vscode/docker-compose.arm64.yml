@@ -1,0 +1,48 @@
+name: vscode
+
+services:
+  vscode:
+    image: lscr.io/linuxserver/vscode:latest@sha256:c4b850c5effb2e4281083fa7db57e3b2cf92f8a4b4210bf2034607bcc2fac5e8
+    container_name: vscode
+    restart: unless-stopped
+    stop_grace_period: 30s
+    network_mode: bridge
+    cap_add:
+      - IPC_LOCK
+    shm_size: "1gb"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=CHANGEME_USERNAME
+      - PASSWORD=CHANGEME_PASSWORD
+    ports:
+      - target: 3000
+        published: "8449"
+        protocol: tcp
+      - target: 3001
+        published: "8450"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /config
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 4096M
+        reservations:
+          cpus: "0.00"
+          memory: 512M
+x-casaos:
+  id: com.hiraappstore.vscode
+  main: vscode
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.vscode/assets/icon.png
+  title:
+    en_US: VS Code
+  index: /
+  port_map: "8450"
+  scheme: https

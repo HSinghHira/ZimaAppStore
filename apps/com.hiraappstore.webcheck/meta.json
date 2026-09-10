@@ -1,0 +1,38 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Networking",
+  "developer": "Lissy93",
+  "thumbnail": "/apps/com.hiraappstore.webcheck/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.webcheck/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.webcheck/assets/screenshot-1.webp",
+    "/apps/com.hiraappstore.webcheck/assets/screenshot-2.webp",
+    "/apps/com.hiraappstore.webcheck/assets/screenshot-3.webp",
+    "/apps/com.hiraappstore.webcheck/assets/screenshot-4.webp"
+  ],
+  "tagline": "All-in-one OSINT tool for analysing any website",
+  "description": "Web-Check is a self-hosted OSINT tool that runs dozens of checks against any domain — DNS, SSL, headers, hosting, tech stack, and more — and lays it all out in one clean report.\n\n**Features**\n\n- Dozens of checks in one report: DNS records, SSL/TLS details,\n  security headers, WHOIS, hosting/server info, tech stack,\n  blacklist status, and more\n\n- No database or persistent storage — every scan runs fresh, so\n  there's nothing to back up\n\n- Optional third-party API keys (Google, Shodan, WhoAPI, and others)\n  can be added later to unlock a few extra checks, but the app works\n  fully out of the box without any of them\n\n- Clean, shareable report for any domain you enter\n\n**How to use?**\n1. Open Web-Check from the Zima OS dashboard.\n2. Type in the domain or URL you want to check.\n3. Run the scan and browse the report sections as they load.\n4. To unlock the optional extra checks later, add the relevant API\n   key as an environment variable on the container and restart it —\n   see the project's GitHub README for the full list of supported\n   keys.",
+  "tips": {
+    "before_install": "1. No setup is needed before installing. Web-Check works right out\n   of the box.\n\n2. Start the Web-Check installation.\n3. Open Web-Check from the Zima OS dashboard.\n4. Type a website address into the search box to run your first\n   check.\n\n5. If you want extra checks later (like Shodan or Google lookups),\n   add the matching API key as an environment variable on the\n   container, then restart it."
+  },
+  "is_uncontrolled": false,
+  "repo": "https://github.com/lissy93/web-check",
+  "support": "https://github.com/lissy93/web-check/issues",
+  "title": "Web-Check",
+  "release_note": "- Initial version.\n- Uses the `latest` tag rather than the pinned `1.0.0` tag: `1.0.0`\n  on Docker Hub is nearly two years old and predates many merged\n  fixes/features, so `latest` is the more current and reliable\n  choice for this app.",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.webcheck",
+  "version": "",
+  "categories": [
+    "networking"
+  ],
+  "min_memory": 268435456,
+  "min_image_size": {
+    "amd64": 521838666,
+    "arm64": 524350268
+  }
+}

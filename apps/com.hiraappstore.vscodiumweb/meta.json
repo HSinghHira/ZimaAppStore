@@ -1,0 +1,35 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Developer",
+  "developer": "linuxserver.io",
+  "thumbnail": "/apps/com.hiraappstore.vscodiumweb/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.vscodiumweb/assets/thumbnail.webp"
+  ],
+  "tagline": "The open-source VS Code editor, ready to use in your browser, no desktop streaming needed.",
+  "description": "VSCodium Web runs the browser-native remote host component of VSCodium, the community-driven, freely-licensed build of Microsoft's VS Code editor. Unlike the full desktop version, this loads straight into a lightweight web page — no remote desktop session in the way.\n\n**Features**\n\n- The real VSCodium editor UI, running natively in your browser\n- Built-in terminal with optional sudo access\n- Drop an SSH key into .ssh for git and GitHub access\n- Optional token-based access control for the web UI\n- Persistent config, extensions, and projects under\n  /DATA/AppData/$AppID\n\n\n**How to use?**\n\n1. Open VSCodium from the Zima OS dashboard.\n2. If a connection token is set, add ?tkn=<your token> to the end of\n   the URL to get in, example: http://[IP_ADDRESS]?tkn=<your-token>\n\n3. Open a terminal from the top menu to run git config or install\n   extra tools.\n\n4. Drop an SSH key into the .ssh folder inside your config directory\n   to use git over SSH.\n\n5. Install VSCodium extensions and start editing your projects.\n6. Change the connection token, sudo password, or CLI arguments\n   later by editing the vscodium-web service's environment\n   variables.",
+  "tips": {
+    "before_install": "1. Open the app settings before you start the install.\n\n2. Find PUID and PGID in the vscodium-web service.\n\n3. Set them to match a real user and group ID on this ZimaOS box.\n\n4. Find CONNECTION_TOKEN in the vscodium-web service. It is\n   pre-filled with a random value.\n\n\n5. Replace it with your own token, or make up a new random one at\n   randomkeygen.com, before you rely on this app for anything\n   sensitive.\n\n\n6. Find SUDO_PASSWORD in the vscodium-web service. It is a\n   placeholder.\n\n\n7. Change it to a password you make up if you want sudo access in\n   the built-in terminal. Leave it as is if you do not want sudo\n   access.\n\n\n8. Set TZ to your local timezone.\n\n9. Start the VSCodium Web installation.\n\n10. Open VSCodium Web from the Zima OS dashboard.\n\n11. If you set a connection token, add ?tkn=<your token> to the\n    end of the URL the first time you connect.\n\n\n12. More settings, like extra CLI flags, live in the\n    vscodium-web service's environment variables."
+  },
+  "is_uncontrolled": false,
+  "repo": "https://github.com/linuxserver/docker-vscodium-web",
+  "support": "https://github.com/linuxserver/docker-vscodium-web/issues",
+  "docs": "https://docs.linuxserver.io/images/docker-vscodium-web/",
+  "title": "VSCodium",
+  "release_note": "- Initial version. linuxserver/vscodium-web only publishes a floating latest tag (plus arch tags like amd64-<version>), so version and update_at are left out here.",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.vscodiumweb",
+  "version": "",
+  "categories": [
+    "developer"
+  ],
+  "min_memory": 268435456,
+  "min_image_size": {
+    "amd64": 212186425,
+    "arm64": 210216800
+  }
+}

@@ -1,0 +1,84 @@
+name: coder
+
+services:
+  coder:
+    image: ghcr.io/coder/coder:latest@sha256:c812a35e1e00ac8d07dbf8edbd4c96d01655c24a1aefd8a7994f7b6a7df977ef
+    container_name: coder
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - coder_network
+    environment:
+      - CODER_HTTP_ADDRESS=0.0.0.0:7080
+      - CODER_ACCESS_URL=CHANGEME_ACCESS_URL
+      - CODER_PG_CONNECTION_URL=postgresql://coder:46db004c9e0f15314524b47e3010c9100bac1205c8155db8@postgres:5432/coder?sslmode=disable
+      - CODER_OIDC_ISSUER_URL=
+      - CODER_OIDC_CLIENT_ID=
+      - CODER_OIDC_CLIENT_SECRET=
+      - CODER_OIDC_SIGN_IN_TEXT=Sign in with Pocket ID
+      - CODER_DISABLE_PASSWORD_AUTH=false
+    ports:
+      - target: 7080
+        published: "8448"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /home/coder
+        bind:
+          create_host_path: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 4096M
+        reservations:
+          cpus: "0.25"
+          memory: 512M
+  postgres:
+    image: postgres:17@sha256:413da4542e091471785b7f18f1a2258df134bc6506ab4e1e53725aa8bcfdb650
+    container_name: coder-postgres
+    restart: unless-stopped
+    stop_grace_period: 60s
+    networks:
+      - coder_network
+    environment:
+      - POSTGRES_USER=coder
+      - POSTGRES_PASSWORD=46db004c9e0f15314524b47e3010c9100bac1205c8155db8
+      - POSTGRES_DB=coder
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U coder -d coder"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.10"
+          memory: 256M
+networks:
+  coder_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.coder
+  main: coder
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.coder/assets/icon.png
+  title:
+    en_US: Coder
+  index: /
+  port_map: "8448"
+  scheme: http
+  version: "2.35.6"

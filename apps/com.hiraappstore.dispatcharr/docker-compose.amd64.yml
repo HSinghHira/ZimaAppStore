@@ -1,0 +1,46 @@
+name: dispatcharr
+
+services:
+  dispatcharr:
+
+    image: ghcr.io/dispatcharr/dispatcharr:latest@sha256:0ba8e97c2a711f3df757f65d21e9fc36f871ff3198f59b68e5987fa7e529d8a6
+    container_name: dispatcharr
+    restart: unless-stopped
+
+    stop_grace_period: 60s
+    network_mode: bridge
+    environment:
+
+      - DISPATCHARR_ENV=aio
+      - REDIS_HOST=localhost
+      - CELERY_BROKER_URL=redis://localhost:6379/0
+      - DISPATCHARR_LOG_LEVEL=info
+
+    ports:
+      - target: 9191
+        published: "8415"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "4"
+          memory: 4096M
+        reservations:
+          cpus: "0.50"
+          memory: 1024M
+x-casaos:
+  id: com.hiraappstore.dispatcharr
+  main: dispatcharr
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.dispatcharr/assets/icon.png
+  title:
+    en_US: Dispatcharr
+  index: /
+  port_map: "8415"
+  scheme: http
+  version: "0.28.1"

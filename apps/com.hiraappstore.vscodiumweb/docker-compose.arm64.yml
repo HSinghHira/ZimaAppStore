@@ -1,0 +1,43 @@
+name: vscodium-web
+
+services:
+  vscodium-web:
+    image: lscr.io/linuxserver/vscodium-web:latest@sha256:796e3b65a30e198be1ec783f16c3d3821d7446c4f5a79a10c92c3dd766f8ff0c
+    container_name: vscodium-web
+    restart: unless-stopped
+    stop_grace_period: 20s
+    network_mode: bridge
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CONNECTION_TOKEN=7e134abfbd9cd7662938d2d98e0a057104429a40c45a9c10034d31512a107f12
+      - SUDO_PASSWORD=CHANGEME
+      - CODE_ARGS=
+    ports:
+      - target: 8000
+        published: "8451"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /config
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+x-casaos:
+  id: com.hiraappstore.vscodiumweb
+  main: vscodium-web
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.vscodiumweb/assets/icon.png
+  title:
+    en_US: VSCodium
+  index: /
+  port_map: "8451"
+  scheme: http

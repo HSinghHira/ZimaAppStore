@@ -1,0 +1,37 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Networking",
+  "developer": "axllent",
+  "thumbnail": "/apps/com.hiraappstore.mailpit/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.mailpit/assets/thumbnail.webp"
+  ],
+  "tagline": "SMTP testing tool and email catcher for developers",
+  "description": "Mailpit is a small, fast, zero-dependency SMTP testing tool — it catches every email your apps and scripts send, so nothing ever reaches a real inbox, and gives you a web UI to inspect them.\n**Features**\n- Acts as an SMTP server for any app, script, or self-hosted service\n  on your network — point their SMTP settings at Mailpit instead of\n  a real provider.\n\n- Modern web UI to search, read, and inspect captured emails:\n  formatted HTML, raw source, headers, and MIME attachments with\n  image thumbnails.\n\n- HTML checker and link checker to test email-client compatibility\n  and catch broken links/images before sending for real.\n\n- REST API for automated integration testing.\n- Optional web UI authentication for shared or exposed setups.\n- Persistent SQLite storage under /DATA/AppData/$AppID, so captured\n  mail survives container restarts.\n\n**How to use?**\n1. Open Mailpit from the Zima OS dashboard to view the web UI —\n   empty until something sends mail.\n\n2. Point any app's SMTP settings at this NAS's IP on port 8412\n   (host) — no username/password required by default.\n\n3. Send a test email from that app; it'll show up in Mailpit's web\n   UI instead of a real inbox.\n\n4. Use the search bar, HTML checker, and link checker to inspect\n   and validate captured messages.\n\n5. If multiple people share this NAS, or the web UI port is\n   reachable beyond your LAN, set MP_UI_AUTH to require a login —\n   no rebuild needed, just a container restart.",
+  "tips": {
+    "before_install": "1. No credentials are required by default — this app works\n   immediately after install with an open web UI and open SMTP\n   relay for local use.\n\n2. If this NAS is shared by mutually-untrusting users, or if\n   you'll expose the web UI (port 8411) beyond your LAN, decide on\n   a MP_UI_AUTH value now and uncomment/set it before first use —\n   otherwise anyone who can reach the port can read every\n   captured email.\n\n3. Start the Mailpit installation.\n4. Open Mailpit from the Zima OS dashboard to confirm the web UI\n   loads.\n\n5. Point any other app's SMTP host/port settings at this NAS's IP\n   and port 8412 to start capturing its mail.\n\n6. Captured messages persist under /DATA/AppData/$AppID/data — no\n   further setup needed, but back up this path if you want to\n   keep message history across reinstalls.\n\n7. MP_MAX_MESSAGES and MP_UI_AUTH can both be changed later by\n   editing the environment variables and restarting the\n   container — no rebuild required."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-08-14",
+  "website": "https://mailpit.axllent.org",
+  "repo": "https://github.com/axllent/mailpit",
+  "support": "https://github.com/axllent/mailpit/issues",
+  "docs": "https://mailpit.axllent.org/docs/",
+  "title": "Mailpit",
+  "release_note": "- Initial version",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.mailpit",
+  "version": "1.30.7",
+  "categories": [
+    "networking"
+  ],
+  "min_memory": 67108864,
+  "min_image_size": {
+    "amd64": 14364367,
+    "arm64": 14005226
+  }
+}

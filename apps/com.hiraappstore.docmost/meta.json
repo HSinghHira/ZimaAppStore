@@ -1,0 +1,39 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Productivity",
+  "developer": "Docmost",
+  "thumbnail": "/apps/com.hiraappstore.docmost/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.docmost/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.docmost/assets/thumbnail-1.webp",
+    "/apps/com.hiraappstore.docmost/assets/thumbnail-2.webp",
+    "/apps/com.hiraappstore.docmost/assets/thumbnail-3.webp"
+  ],
+  "tagline": "Open-source collaborative wiki and documentation, self-hosted.",
+  "description": "Docmost is an open-source, self-hosted alternative to Notion and Confluence — real-time collaborative docs and a team wiki in one app.\n\n**Features**\n\n- Real-time collaborative editing with a rich block-based editor\n- Team wiki with nested pages, spaces, and permissions\n- Postgres for persistent application data, Redis for caching and\n  background jobs\n\n- Persistent storage for the database, cache, and uploaded files\n  under /DATA/AppData/docmost\n\n- Multi-architecture image (amd64 and arm64)\n\n**How to use?**\n\n1. Open Docmost from the Zima OS dashboard.\n2. Create your administrator account and workspace on the first-run\n   screen.\n\n3. Invite teammates from the workspace settings — this needs\n   SMTP_HOST, SMTP_USERNAME, and SMTP_PASSWORD to be set to a real\n   mail provider first.\n\n4. Start creating spaces and pages.\n5. Further settings — workspace name, members, and integrations —\n   live in the in-app admin panel under Settings.",
+  "tips": {
+    "before_install": "1. Open the app's environment settings before you start the\n   install.\n\n\n2. Set APP_URL to the address you will open Docmost at, like\n   http://your-zima-ip:8444.\n\n\n3. Find APP_SECRET. It already has a random value filled in.\n\n4. Replace APP_SECRET with your own 32-character value — generate\n   one at randomkeygen.com — before going live.\n\n\n5. Find POSTGRES_PASSWORD in the docmost-db service. It also has a\n   random value filled in. You can leave it as is.\n\n\n6. If you change POSTGRES_PASSWORD, you must also update the\n   matching password inside DATABASE_URL in the docmost service —\n   they have to be the same.\n\n\n7. Set MAIL_FROM_ADDRESS, SMTP_HOST, SMTP_USERNAME, and\n   SMTP_PASSWORD to your own email provider's details. Docmost\n   needs these to send invite and password-reset emails.\n\n\n8. Start the Docmost installation.\n\n9. Wait for docmost-db to finish starting before opening the app —\n   the docmost service waits for it automatically.\n\n\n10. Open Docmost from the Zima OS dashboard.\n\n11. Create your admin account and workspace on the first screen\n    you see.\n\n\n12. Later settings — members, spaces, integrations — are all in\n    the in-app Settings panel. No file editing needed."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-09-06",
+  "repo": "https://github.com/docmost/docmost",
+  "support": "https://github.com/docmost/docmost/issues",
+  "docs": "https://docmost.com/docs",
+  "title": "Docmost",
+  "release_note": "- Initial version, pinned to docmost/docmost:0.70.3, postgres:16.13-alpine, and redis:7.2.13-alpine.\n- APP_SECRET and POSTGRES_PASSWORD ship with freshly generated random values rather than CHANGEME placeholders, since both are cryptographic/auth secrets.\n- Email (MAIL_FROM_ADDRESS, SMTP_HOST, SMTP_USERNAME, SMTP_PASSWORD) ships with CHANGEME placeholders. No bundled mail relay — bring your own SMTP provider.",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.docmost",
+  "version": "0.70.3",
+  "categories": [
+    "productivity"
+  ],
+  "min_memory": 939524096,
+  "min_image_size": {
+    "amd64": 346327642,
+    "arm64": 345249673
+  }
+}

@@ -1,0 +1,52 @@
+name: ClaudeCode
+
+services:
+  ClaudeCode:
+    image: ghcr.io/worph/claude-code-container:latest
+    container_name: ClaudeCode
+    restart: unless-stopped
+    stop_grace_period: 30s
+    network_mode: bridge
+    environment:
+      - ANTHROPIC_API_KEY=CHANGEME_ANTHROPIC_API_KEY
+      - AUTH_PASSWORD=ce35cd716f0376b5c7dfdd0f928e3633baaa68b8618b44f4
+      - MCP_ENABLED=false
+      - CLAUDE_SESSION_TTL=1800
+    ports:
+      - target: 8080
+        published: "8443"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/ClaudeCode/workspace
+        target: /home/claude/workspace
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/ClaudeCode/config
+        target: /home/claude/.claude
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/ClaudeCode/config/.claude.json
+        target: /home/claude/.claude.json
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.25"
+          memory: 512M
+x-casaos:
+  id: com.hiraappstore.claudecode
+  main: claudecode
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.claudecode/assets/icon.png
+  title:
+    en_US: Claude Code
+  index: /
+  port_map: "8443"
+  scheme: http
+  version: "1.0.26"

@@ -1,0 +1,38 @@
+name: docuseal
+
+services:
+  docuseal:
+    image: docuseal/docuseal:latest@sha256:6055a682b7b5f21891e11c45afbd5ba1c9906194bf92f0defa6c138d83b9740f
+    container_name: docuseal
+    restart: unless-stopped
+    stop_grace_period: 30s
+    network_mode: bridge
+    environment:
+      - SECRET_KEY_BASE=d7ae66adbc0192fbb63dbbc9ef1d58a3bb88f5cc4535052895fc4e43094b0c25
+    ports:
+      - target: 3000
+        published: "8445"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/docuseal/data
+        target: /data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.10"
+          memory: 256M
+x-casaos:
+  id: com.hiraappstore.docuseal
+  main: docuseal
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.docuseal/assets/icon.png
+  title:
+    en_US: DocuSeal
+  index: /
+  port_map: "8445"
+  scheme: http

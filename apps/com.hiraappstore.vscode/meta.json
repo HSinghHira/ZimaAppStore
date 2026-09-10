@@ -1,0 +1,35 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Developer",
+  "developer": "linuxserver.io",
+  "thumbnail": "/apps/com.hiraappstore.vscode/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.vscode/assets/thumbnail.webp"
+  ],
+  "tagline": "The full Visual Studio Code desktop app, streamed straight to your browser.",
+  "description": "VS Code gives you the real, full Visual Studio Code desktop application running inside a remote desktop session that streams to your browser — think your everyday code editor, but with nothing to install locally.\n\n**Features**\n\n- The genuine Visual Studio Code desktop app, not a limited web\n  port\n\n- Runs inside a full Selkies-powered remote desktop, so you get a\n  real terminal, git tooling, and the ability to install any\n  extension\n\n- Serves HTTPS out of the box with a self-signed certificate, plus\n  a plain HTTP port for use behind your own reverse proxy\n\n- Optional GPU passthrough for smoother rendering when a GPU is\n  available\n\n- Persistent home directory under /DATA/AppData/$AppID, so\n  settings, extensions, and projects survive container restarts\n\n\n**How to use?**\n\n1. Open VS Code from the Zima OS dashboard.\n2. Accept the self-signed certificate warning in your browser the\n   first time you connect.\n\n3. If you set CUSTOM_USER and PASSWORD, sign in with those\n   credentials.\n\n4. Use it like any normal VS Code install — open folders, install\n   extensions, and use the built-in terminal.\n\n5. Keep your projects inside the home folder so they persist\n   across restarts.\n\n6. Extra settings like language, GPU behavior, and kiosk mode can\n   be changed later by editing the vscode service's environment\n   variables.",
+  "tips": {
+    "before_install": "1. Open the app settings before you start the install.\n\n2. Find PUID and PGID in the vscode service.\n\n3. Set them to match a real user and group ID on this ZimaOS\n   box.\n\n\n4. Find CUSTOM_USER and PASSWORD in the vscode service. They\n   are pre-filled placeholders.\n\n\n5. Change both to a username and password you pick. This turns\n   on a login screen so strangers on your network can't open\n   your editor.\n\n\n6. Set TZ to your local timezone.\n\n7. Start the VS Code installation.\n\n8. Open VS Code from the Zima OS dashboard.\n\n9. Your browser will warn about a self-signed certificate.\n   Click through to continue.\n\n\n10. Sign in with the CUSTOM_USER and PASSWORD you set.\n\n11. More settings, like GPU options and language, live in the\n    vscode service's environment variables.\n\n\n12. Important: this app gives full desktop access with root\n    permissions inside the container. Do not expose it to the\n    internet without a reverse proxy that adds real\n    authentication."
+  },
+  "is_uncontrolled": false,
+  "repo": "https://github.com/linuxserver/docker-vscode",
+  "support": "https://github.com/linuxserver/docker-vscode/issues",
+  "docs": "https://docs.linuxserver.io/images/docker-vscode/",
+  "title": "VS Code",
+  "release_note": "- Initial version. linuxserver/vscode only publishes a floating latest tag (plus arch tags like amd64-<version>), so version and update_at are left out here.",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.vscode",
+  "version": "",
+  "categories": [
+    "developer"
+  ],
+  "min_memory": 536870912,
+  "min_image_size": {
+    "amd64": 1567470613,
+    "arm64": 1525572597
+  }
+}

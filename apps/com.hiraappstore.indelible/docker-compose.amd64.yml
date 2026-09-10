@@ -1,0 +1,211 @@
+name: indelible
+
+services:
+  indelible:
+    image: ghcr.io/useindelible/ind-api:latest@sha256:a9f2564bd7d98922915fd04635b0132f6496c525b1fb9aa3689120684c1c0622
+    container_name: indelible
+    networks:
+      - indelible-network
+    restart: unless-stopped
+    stop_grace_period: 40s
+    environment:
+      - IND_ENV=development
+      - IND_HOST=0.0.0.0
+      - IND_PORT=8080
+      - DATABASE_URL=postgres://indelible:01c66f00814d2a5c4624f13fb75e4cca@postgres:5432/indelible
+      - S3_ENDPOINT=http://silo:9000
+      - S3_REGION=us-east-1
+      - S3_BUCKET=indelible
+      - S3_ACCESS_KEY=indelible
+      - S3_SECRET_KEY=5d7625868a65eaf86d75dc3f0a959f37
+      - S3_FORCE_PATH_STYLE=true
+      - IND_BASE_URL=http://CHANGEME_YOUR_SERVER_ADDRESS:8439
+      - FRONTEND_URL=http://CHANGEME_YOUR_SERVER_ADDRESS:8439
+      - CORS_ORIGINS=http://CHANGEME_YOUR_SERVER_ADDRESS:8439
+      - JWT_SECRET=765fdb9871fa9de8e024c9ae223bef1fd034c9d51f8121eb62c2b40ee8ae0437
+      - CSRF_SECRET=95aba415eb5a10555b4745b2fe61724b1da573b71d30cc6e0fc2d55ce47d392d
+      - ASSET_COOKIE_SECRET=996e0af7cbf22bc129ca981a6c917da4c7506a17d09b2583c9fbb755ecacef8e
+      - AUTH_CREDENTIAL_KEY=u3FUTAYgLFLyvhGnKpJ7MgFvkdUpR+/HPIIAh0DuV9M=
+      - EGRESS_ALLOW_PRIVATE_TARGETS=true
+    ports:
+      - target: 8080
+        published: "8439"
+        protocol: tcp
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+    depends_on:
+      postgres:
+        condition: service_healthy
+      silo:
+        condition: service_healthy
+      silo-init:
+        condition: service_completed_successfully
+  postgres:
+    image: pgvector/pgvector:pg18@sha256:1d50c689b0a6511b9ea0a15615281c81a59fd04a08eb35057ec8646fb3a2118a
+    container_name: indelible-postgres
+    networks:
+      - indelible-network
+    restart: unless-stopped
+    stop_grace_period: 60s
+    environment:
+      - POSTGRES_USER=indelible
+      - POSTGRES_PASSWORD=01c66f00814d2a5c4624f13fb75e4cca
+      - POSTGRES_DB=indelible
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres
+        target: /var/lib/postgresql
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U indelible -d indelible"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+  silo:
+    image: docker.io/pgsty/silo:RELEASE.2026-08-06T00-00-00Z@sha256:da1284931914c3de5fc8e8ad0c43b88e4eb930d20064b36867daba4dfd546a00
+    container_name: indelible-silo
+    networks:
+      - indelible-network
+    restart: unless-stopped
+    stop_grace_period: 30s
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=indelible
+      - MINIO_ROOT_PASSWORD=5d7625868a65eaf86d75dc3f0a959f37
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/silo
+        target: /data
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD", "silo", "healthcheck", "ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+  silo-init:
+    image: docker.io/pgsty/silo:RELEASE.2026-08-06T00-00-00Z@sha256:da1284931914c3de5fc8e8ad0c43b88e4eb930d20064b36867daba4dfd546a00
+    container_name: indelible-silo-init
+    networks:
+      - indelible-network
+    restart: "no"
+    stop_grace_period: 10s
+    environment:
+      - MINIO_ROOT_PASSWORD=5d7625868a65eaf86d75dc3f0a959f37
+    entrypoint: >
+      /bin/sh -c "
+      mcli alias set silo http://silo:9000 indelible 5d7625868a65eaf86d75dc3f0a959f37 &&
+      mcli mb --ignore-existing silo/indelible
+      "
+    depends_on:
+      silo:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+  renderer:
+    image: ghcr.io/useindelible/ind-renderer:latest@sha256:1e08884b33b4869f834fa636f5f3f8e26166d9db0b5dbf24e37c1e774328aeb5
+    container_name: indelible-renderer
+    networks:
+      - indelible-network
+    restart: unless-stopped
+    stop_grace_period: 40s
+    environment:
+      - RENDERER_HOST=0.0.0.0
+      - RENDERER_PORT=3100
+      - IND_ENV=development
+      - S3_ENDPOINT=http://silo:9000
+      - S3_REGION=us-east-1
+      - S3_BUCKET=indelible
+      - S3_ACCESS_KEY=indelible
+      - S3_SECRET_KEY=5d7625868a65eaf86d75dc3f0a959f37
+      - S3_FORCE_PATH_STYLE=true
+      - EGRESS_ALLOW_PRIVATE_TARGETS=true
+    depends_on:
+      silo:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "1.50"
+          memory: 2048M
+        reservations:
+          cpus: "0.00"
+          memory: 512M
+  worker:
+    image: ghcr.io/useindelible/ind-worker:latest@sha256:a82140095fbfde2b4443635e3b1a57af100dbb78f3e2772f5091fe47d874fc32
+    container_name: indelible-worker
+    networks:
+      - indelible-network
+    restart: unless-stopped
+    stop_grace_period: 40s
+    environment:
+      - IND_ENV=development
+      - DATABASE_URL=postgres://indelible:01c66f00814d2a5c4624f13fb75e4cca@postgres:5432/indelible
+      - RENDERER_URL=http://renderer:3100
+      - S3_ENDPOINT=http://silo:9000
+      - S3_REGION=us-east-1
+      - S3_BUCKET=indelible
+      - S3_ACCESS_KEY=indelible
+      - S3_SECRET_KEY=5d7625868a65eaf86d75dc3f0a959f37
+      - S3_FORCE_PATH_STYLE=true
+      - AUTH_CREDENTIAL_KEY=u3FUTAYgLFLyvhGnKpJ7MgFvkdUpR+/HPIIAh0DuV9M=
+      - EGRESS_ALLOW_PRIVATE_TARGETS=true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      silo:
+        condition: service_healthy
+      renderer:
+        condition: service_started
+      silo-init:
+        condition: service_completed_successfully
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+networks:
+  indelible-network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.indelible
+  main: indelible
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.indelible/assets/icon.png
+  title:
+    en_US: Indelible
+  index: /
+  port_map: "8439"
+  scheme: http

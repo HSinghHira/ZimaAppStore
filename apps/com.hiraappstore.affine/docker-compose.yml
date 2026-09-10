@@ -1,0 +1,155 @@
+name: affine
+
+services:
+  affine:
+
+    image: ghcr.io/toeverything/affine:stable
+    container_name: affine
+    restart: unless-stopped
+    stop_grace_period: 40s
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      affine_migration:
+        condition: service_completed_successfully
+    environment:
+      - REDIS_SERVER_HOST=redis
+
+      - DATABASE_URL=postgresql://affine:CHANGEME_DB_PASSWORD@postgres:5432/affine
+    ports:
+      - target: 3010
+        published: "8408"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/storage
+        target: /root/.affine/storage
+        bind:
+          create_host_path: true
+
+      - type: bind
+        source: /DATA/AppData/$AppID/config
+        target: /root/.affine/config
+        bind:
+          create_host_path: true
+    networks:
+      - affine_network
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.00"
+          memory: 512M
+  affine_migration:
+    image: ghcr.io/toeverything/affine:stable
+    container_name: affine_migration
+
+    restart: "no"
+    stop_grace_period: 40s
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    command: ["sh", "-c", "node ./scripts/self-host-predeploy.js"]
+    environment:
+      - REDIS_SERVER_HOST=redis
+
+      - DATABASE_URL=postgresql://affine:CHANGEME_DB_PASSWORD@postgres:5432/affine
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/storage
+        target: /root/.affine/storage
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/config
+        target: /root/.affine/config
+        bind:
+          create_host_path: true
+    networks:
+      - affine_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+  redis:
+    image: redis:7-alpine
+    container_name: affine_redis
+    restart: unless-stopped
+    stop_grace_period: 40s
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/redis
+        target: /data
+        bind:
+          create_host_path: true
+    networks:
+      - affine_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+  postgres:
+
+    image: pgvector/pgvector:pg16
+    container_name: affine_postgres
+    restart: unless-stopped
+
+    stop_grace_period: 60s
+    environment:
+      - POSTGRES_USER=affine
+      - POSTGRES_DB=affine
+
+      - POSTGRES_PASSWORD=CHANGEME_DB_PASSWORD
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U affine -d affine"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    networks:
+      - affine_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+networks:
+  affine_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.affine
+  main: affine
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.affine/assets/icon.png
+  title:
+    en_US: AFFiNE
+  index: /
+  port_map: "8408"
+  scheme: http

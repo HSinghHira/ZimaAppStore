@@ -1,0 +1,111 @@
+name: outline
+
+services:
+  outline:
+    image: docker.getoutline.com/outlinewiki/outline:1.0.0@sha256:f0c1077baf214203d6c145a0634b268b28c443ed385d4b3a381919d0e467cf41
+    container_name: outline-app
+    restart: unless-stopped
+    stop_grace_period: 30s
+    environment:
+      - NODE_ENV=production
+      - SECRET_KEY=de6ae672db31ad0267c52ed6ec1ee5346968660f286a28c5cc526bca7c96e3f6
+      - UTILS_SECRET=483db105eab371dfb53208623ed3bf1d00e5794bd931d7544994aaf657342481
+      - DATABASE_URL=postgres://outline:f39067eaad7cf26bd6020e066d0a283cccc9c50e1644dbf4@postgres:5432/outline
+      - PGSSLMODE=disable
+      - REDIS_URL=redis://redis:6379
+      - URL=CHANGEME_YOUR_SECURE_SERVER_URL
+      - PORT=3000
+      - FILE_STORAGE=local
+      - FILE_STORAGE_UPLOAD_MAX_SIZE=26214400
+      - DEFAULT_LANGUAGE=en_US
+      - OIDC_CLIENT_ID=CHANGEME_OIDC_CLIENT_ID
+      - OIDC_CLIENT_SECRET=CHANGEME_OIDC_CLIENT_SECRET
+      - OIDC_AUTH_URI=CHANGEME_OIDC_AUTH_URI
+      - OIDC_TOKEN_URI=CHANGEME_OIDC_TOKEN_URI
+      - OIDC_USERINFO_URI=CHANGEME_OIDC_USERINFO_URI
+      - OIDC_USERNAME_CLAIM=preferred_username
+      - OIDC_DISPLAY_NAME=SSO
+      - OIDC_SCOPES=openid profile email not required
+    ports:
+      - target: 3000
+        published: "8437"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /var/lib/outline/data
+        bind:
+          create_host_path: true
+    depends_on:
+      - postgres
+      - redis
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.25"
+          memory: 512M
+    networks:
+      - outline_network
+  postgres:
+    image: postgres:16@sha256:485935f94cc7165afa896978809c37b592dc07f0a37d2c8f645f12412d0212c8
+    container_name: outline-db
+    restart: unless-stopped
+    stop_grace_period: 40s
+    environment:
+      - POSTGRES_USER=outline
+      - POSTGRES_PASSWORD=f39067eaad7cf26bd6020e066d0a283cccc9c50e1644dbf4
+      - POSTGRES_DB=outline
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.10"
+          memory: 256M
+    networks:
+      - outline_network
+  redis:
+    image: redis:7-alpine@sha256:1db42ccef14898aa29bae778452d567534b59c107129cbc1163fb552de184d3c
+    container_name: outline-redis
+    restart: unless-stopped
+    stop_grace_period: 20s
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/redis
+        target: /data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+        reservations:
+          cpus: "0.05"
+          memory: 64M
+    networks:
+      - outline_network
+networks:
+  outline_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.outline
+  main: outline
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.outline/assets/icon.png
+  title:
+    en_US: Outline
+  index: /
+  port_map: "8437"
+  scheme: http
+  version: "1.0.0"

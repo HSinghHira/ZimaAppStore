@@ -1,0 +1,36 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Productivity",
+  "developer": "DocuSeal",
+  "thumbnail": "/apps/com.hiraappstore.docuseal/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.docuseal/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.docuseal/assets/thumbnail-1.webp"
+  ],
+  "tagline": "Open-source DocuSign alternative — create, fill, and sign PDF documents online.",
+  "description": "DocuSeal is an open-source platform for filling and signing digital documents. Build a fillable PDF form once, then send it out for one or more people to sign from any device.\n\n**Features**\n\n- Drag-and-drop PDF form builder with 12+ field types (signature,\n  date, file, checkbox, and more)\n\n- Multiple submitters per document, with automated email\n  notifications\n\n- Automatic PDF eSignature and signature verification\n- Ships with its own built-in SQLite database — no separate database\n  container to manage\n\n- Persistent storage for the database and every uploaded/signed\n  document under /DATA/AppData/docuseal\n\n- Multi-architecture image (amd64 and arm64)\n\n**How to use?**\n\n1. Open DocuSeal from the Zima OS dashboard.\n2. Create your administrator account on the first-run screen.\n3. Open Settings inside the app to connect an SMTP server if you want\n   DocuSeal to send signing invitations by email — this isn't\n   required to use the app locally.\n\n4. Upload a PDF to create your first template, then place the fields\n   you need on it.\n\n5. Send the template to a submitter, or share the signing link\n   directly.\n\n6. Everything else — users, templates, and integrations — is managed\n   from the in-app Settings panel, no file editing needed.",
+  "tips": {
+    "before_install": "1. Open the app's environment settings before you start the\n   install.\n\n\n2. Find SECRET_KEY_BASE. It already has a random value filled in.\n\n3. Replace it with your own — generate one at randomkeygen.com —\n   before going live. It should only contain letters and numbers.\n\n\n4. Start the DocuSeal installation.\n\n5. Open DocuSeal from the Zima OS dashboard.\n\n6. Create your admin account on the first screen you see.\n\n7. If you want DocuSeal to send email invitations, add your SMTP\n   details from inside the app under Settings — you don't need to\n   touch the container for this.\n\n\n8. Your documents and database are stored in the data folder shown\n   in the app's storage settings. Back that up like any other\n   important folder.\n\n\n9. Important: this app uses its own built-in SQLite database by\n   default. If you'd rather use an external Postgres or MySQL\n   database, add a DATABASE_URL variable — but that only takes\n   effect on a fresh install, not on data already saved to SQLite."
+  },
+  "is_uncontrolled": false,
+  "repo": "https://github.com/docusealco/docuseal",
+  "support": "https://github.com/docusealco/docuseal/issues",
+  "docs": "https://www.docuseal.com/docs",
+  "title": "DocuSeal",
+  "release_note": "- Initial version. Upstream only publishes a floating docuseal/docuseal:latest tag with no versioned Docker tags to pin against, so version and update_at are omitted here — they'll be added once upstream starts tagging releases.\n- SECRET_KEY_BASE ships with a freshly generated random value rather than a CHANGEME placeholder, since it's a cryptographic secret.\n- Runs with the built-in SQLite database (the app's own default) rather than a bundled Postgres container, to match upstream's simplest supported setup. Set DATABASE_URL yourself before first run if you'd rather use Postgres or MySQL.",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.docuseal",
+  "version": "",
+  "categories": [
+    "productivity"
+  ],
+  "min_memory": 268435456,
+  "min_image_size": {
+    "amd64": 232049636,
+    "arm64": 229915434
+  }
+}

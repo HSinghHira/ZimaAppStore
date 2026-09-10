@@ -1,0 +1,37 @@
+{
+  "architectures": [
+    "amd64"
+  ],
+  "author": "HSinghHira",
+  "category": "Productivity",
+  "developer": "useindelible",
+  "thumbnail": "/apps/com.hiraappstore.indelible/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.indelible/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.indelible/assets/thumbnail-1.webp",
+    "/apps/com.hiraappstore.indelible/assets/thumbnail-2.webp",
+    "/apps/com.hiraappstore.indelible/assets/thumbnail-3.webp",
+    "/apps/com.hiraappstore.indelible/assets/thumbnail-4.webp"
+  ],
+  "tagline": "A self-hosted, permanent home for everything you save to read later.",
+  "description": "Indelible is a self-hosted, open-source knowledge library and read-it-later archiver: think a private Pocket or Readwise that stores everything you save, in full, on your own server, permanently.\n\n**Features**\n\n- Full-content archiving of articles, PDFs, and EPUBs, with a headless\n  Chromium renderer for pages that resist simple scraping\n\n- A focused reading view with highlights, notes, and reading progress\n  that syncs across web and mobile\n\n- Full-text and semantic search across your whole library\n- Mila, an optional AI assistant that summarizes and answers questions\n  across your saved content, using your own AI provider key\n\n- Content can arrive from the browser extension, a personal email-in\n  address, RSS feeds, or direct file uploads\n\n- Syncs to Obsidian and Notion\n- PostgreSQL with pgvector for the database, and an S3-compatible\n  object store (Silo) for archived files, both persisted under\n  /DATA/AppData/$AppID\n\n\n**How to use?**\n\n1. Open Indelible from the Zima OS dashboard.\n2. Create your account on the first visit. Signups close automatically\n   the moment that first account exists.\n\n3. Save something: paste a link, forward an email, install the browser\n   extension, or add an RSS feed.\n\n4. Open a saved item in the reader to highlight text, take notes, and\n   track reading progress.\n\n5. Turn on Mila from Settings if you want AI summaries and semantic\n   search; you supply your own OpenAI-compatible API key there, it is\n   not built into this app.\n\n6. Further setup — OIDC single sign-on, email ingestion, Notion and\n   Obsidian sync — is done with environment variables, documented at\n   useindelible.com.",
+  "tips": {
+    "before_install": "1. Open this app's settings before you install it.\n\n2. Look at the indelible service. Three settings say CHANGEME_YOUR_SERVER_ADDRESS: IND_BASE_URL, FRONTEND_URL, and CORS_ORIGINS.\n\n3. Change all three to the real address you will use to open this app, like http://192.168.1.50:8439. Use the exact same address in all three.\n\n4. This app already has random secret values filled in for JWT_SECRET, CSRF_SECRET, ASSET_COOKIE_SECRET, and AUTH_CREDENTIAL_KEY.\n\n5. Those are fine for trying the app out, but make your own before you trust it with real data. Generate new ones at randomkeygen.com.\n\n6. AUTH_CREDENTIAL_KEY must be the same in both the indelible service and the worker service. If you change it, change it in both places.\n\n7. The database password is built into DATABASE_URL in the indelible and worker services. It must match POSTGRES_PASSWORD in the postgres service.\n\n8. The storage password is built into S3_SECRET_KEY in the indelible, renderer, and worker services. It must match MINIO_ROOT_PASSWORD in the silo and silo-init services.\n\n9. Start the Indelible installation.\n\n10. Give it a minute. The postgres and silo services need to become healthy before the app can finish starting.\n\n11. Open Indelible from the Zima OS dashboard.\n\n12. Sign up. The first account you create is the only account, unless you turn on AUTH_ALLOW_SIGNUPS later to add more people.\n\n13. This app runs in development mode so it works over plain HTTP on your own network. If you later put it on the internet with a real domain, follow Indelible's own production guide and switch IND_ENV to production first."
+  },
+  "is_uncontrolled": false,
+  "repo": "https://github.com/useindelible/indelible",
+  "support": "https://github.com/useindelible/indelible/issues",
+  "docs": "https://useindelible.com/docs/self-hosting/install/",
+  "title": "Indelible",
+  "release_note": "- Initial version. Tracks ghcr.io/useindelible/ind-api, ind-worker, and ind-renderer at the :latest tag, since no versioned tag could be confirmed at manifest-authoring time; revisit once upstream's release pinning is confirmed.\n- Runs with IND_ENV=development by default so the app works over plain HTTP on a LAN IP/hostname without a reverse proxy. Switch to production mode with HTTPS in front before exposing this instance beyond your own network.",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.indelible",
+  "version": "",
+  "categories": [
+    "productivity"
+  ],
+  "min_memory": 1543503872,
+  "min_image_size": {
+    "amd64": 569425450
+  }
+}
