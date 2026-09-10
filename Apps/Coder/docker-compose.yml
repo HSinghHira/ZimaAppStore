@@ -1,0 +1,307 @@
+name: coder
+
+services:
+  coder:
+    image: ghcr.io/coder/coder:2.35.6
+    container_name: coder
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - coder_network
+    environment:
+      - CODER_HTTP_ADDRESS=0.0.0.0:7080
+      - CODER_ACCESS_URL=CHANGEME_ACCESS_URL
+      - CODER_PG_CONNECTION_URL=postgresql://coder:46db004c9e0f15314524b47e3010c9100bac1205c8155db8@postgres:5432/coder?sslmode=disable
+      - CODER_OIDC_ISSUER_URL=
+      - CODER_OIDC_CLIENT_ID=
+      - CODER_OIDC_CLIENT_SECRET=
+      - CODER_OIDC_SIGN_IN_TEXT=Sign in with Pocket ID
+      - CODER_DISABLE_PASSWORD_AUTH=false
+    ports:
+      - target: 7080
+        published: "8448"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /home/coder
+        bind:
+          create_host_path: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 4096M
+        reservations:
+          cpus: "0.25"
+          memory: 512M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Coder/icon.png
+    x-casaos:
+      id: com.hiraappstore.coder
+      envs:
+        - container: CODER_ACCESS_URL
+          description:
+            en_US: >-
+              The web address people will use to reach Coder. For a
+              local-only install, use http://<your-device-LAN-IP>:8448.
+              For a public install, use your real domain, such as
+              https://coder.example.com, and put a reverse proxy with
+              HTTPS in front of it.
+        - container: CODER_PG_CONNECTION_URL
+          description:
+            en_US: >-
+              Pre-filled with a random database password so Coder can
+              talk to its own PostgreSQL database. You do not need to
+              change this. If you do change the password part, you must
+              also change POSTGRES_PASSWORD in the postgres service to
+              the exact same value, or Coder will fail to start.
+        - container: CODER_OIDC_ISSUER_URL
+          description:
+            en_US: >-
+              Optional. Only needed if you want people to sign in with
+              Pocket ID. Set this to your Pocket ID web address, such as
+              https://pocketid.example.com. Leave blank to skip Pocket ID
+              and use Coder's built-in sign-in instead.
+        - container: CODER_OIDC_CLIENT_ID
+          description:
+            en_US: >-
+              Optional. The Client ID from the Pocket ID application you
+              created for Coder. Leave blank if you are not using Pocket
+              ID.
+        - container: CODER_OIDC_CLIENT_SECRET
+          description:
+            en_US: >-
+              Optional. The Client Secret from the Pocket ID application
+              you created for Coder. Leave blank if you are not using
+              Pocket ID.
+        - container: CODER_DISABLE_PASSWORD_AUTH
+          description:
+            en_US: >-
+              Advanced. Set to true to turn off Coder's built-in
+              username/password sign-in and force everyone to use Pocket
+              ID. Only turn this on after you have successfully signed in
+              with Pocket ID at least once, or you could lock yourself
+              out.
+      ports:
+        - container: "7080"
+          description:
+            en_US: Coder web UI and API (published on host as 8448)
+      volumes:
+        - container: /home/coder
+          description:
+            en_US: >-
+              Coder's application data: workspace metadata, build cache,
+              and uploaded templates.
+
+  postgres:
+    image: postgres:17
+    container_name: coder-postgres
+    restart: unless-stopped
+    stop_grace_period: 60s
+    networks:
+      - coder_network
+    environment:
+      - POSTGRES_USER=coder
+      - POSTGRES_PASSWORD=46db004c9e0f15314524b47e3010c9100bac1205c8155db8
+      - POSTGRES_DB=coder
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U coder -d coder"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.10"
+          memory: 256M
+    x-casaos:
+      id: com.hiraappstore.coder
+      envs:
+        - container: POSTGRES_PASSWORD
+          description:
+            en_US: >-
+              Pre-filled with a random password for Coder's private
+              database. You do not need to change this. If you do, also
+              update the password inside CODER_PG_CONNECTION_URL in the
+              coder service to the exact same value.
+      volumes:
+        - container: /var/lib/postgresql/data
+          description:
+            en_US: >-
+              Coder's PostgreSQL database: users, workspaces, templates,
+              and audit logs. This is the most important folder to back
+              up.
+
+networks:
+  coder_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.coder
+  architectures:
+    - amd64
+    - arm64
+  main: coder
+  author: HSinghHira
+  category: Developer
+  developer: Coder Technologies, Inc.
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Coder/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Coder/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Coder/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Coder/thumbnail-1.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Coder/thumbnail-2.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Coder/thumbnail-3.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Coder/thumbnail-4.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Coder/thumbnail-5.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Coder/thumbnail-6.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Coder/thumbnail-7.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Coder/thumbnail-8.png
+  title:
+    en_US: Coder
+  tagline:
+    en_US: Self-hosted, browser-based remote development environments.
+  description:
+    en_US: >-
+      Coder turns a spare machine into a cloud development platform: spin
+      up full development environments that open straight in your
+      browser or your favorite local IDE, think a self-hosted GitHub
+      Codespaces.
+
+
+      **Features**
+
+
+      - Browser-based development environments and terminal, no local
+        setup required.
+
+      - Connect from VS Code, JetBrains, or any SSH-compatible editor.
+
+      - Reproducible workspaces defined as code (Terraform-based
+        templates).
+
+      - Works great on a home network out of the box, and scales up to a
+        full public, HTTPS, single-sign-on deployment.
+
+      - Optional sign-in through Pocket ID via OpenID Connect (OIDC),
+        alongside Coder's own built-in username/password accounts.
+
+      - PostgreSQL 17 for persistent application data.
+
+      - Persistent storage under /DATA/AppData/$AppID.
+
+
+      **How to use?**
+
+
+      1. Open Coder from the Zima OS dashboard.
+
+      2. The first time you open it, create your administrator account
+         right in the browser.
+
+      3. Explore the Templates tab and start from a starter template, or
+         import one of your own.
+
+      4. Create a workspace from a template to get a full browser IDE and
+         terminal.
+
+      5. Optionally connect your local VS Code or JetBrains IDE to the
+         same workspace over SSH.
+
+      6. If you want centralized sign-in, set up Pocket ID as described in
+         this app's README, then fill in the OIDC settings and restart
+         Coder.
+
+      7. Ongoing settings (users, groups, SSO, templates) are managed from
+         Coder's own Admin area in the web UI after install.
+  tips:
+    before_install:
+      en_US: >-
+        1. Open the app's settings before you start the install.
+
+
+        2. Find CODER_ACCESS_URL. This is the address people will type to
+           open Coder.
+
+
+        3. For home-only use, set it to http://<your-device-IP>:8448. Swap
+           in your device's real LAN IP.
+
+
+        4. For internet use, set it to your real domain, like
+           https://coder.example.com. You will also need a reverse proxy
+           with HTTPS in front of Coder. See the README for examples.
+
+
+        5. CODER_PG_CONNECTION_URL is already filled in with a random
+           database password. Leave it alone unless you know what you are
+           doing.
+
+
+        6. If you do change the password inside CODER_PG_CONNECTION_URL,
+           change POSTGRES_PASSWORD in the postgres service to match, or
+           Coder cannot start.
+
+
+        7. Want Pocket ID sign-in? Fill in CODER_OIDC_ISSUER_URL,
+           CODER_OIDC_CLIENT_ID, and CODER_OIDC_CLIENT_SECRET. If not,
+           leave all three blank and skip to step 9.
+
+
+        8. Set the Pocket ID redirect URL to
+           <your-access-url>/api/v2/users/oidc/callback before you start
+           Coder, or Pocket ID sign-in will fail.
+
+
+        9. Start the Coder installation.
+
+
+        10. Wait about a minute for Coder and its database to finish
+            starting up.
+
+
+        11. Open Coder from the Zima OS dashboard.
+
+
+        12. The first person to open Coder creates the admin account
+            right there in the browser.
+
+
+        13. More settings (users, groups, templates, SSO) live inside
+            Coder's own Admin area after install, or by editing this
+            app's environment variables and restarting.
+
+
+        14. Important: only turn on CODER_DISABLE_PASSWORD_AUTH after
+            you've signed in with Pocket ID successfully at least once.
+            Turning it on too early can lock everyone out.
+  index: /
+  port_map: "8448"
+  scheme: http
+  is_uncontrolled: false
+  version: "2.35.6"
+  update_at: "2026-09-09"
+  release_notes:
+    en_US: |-
+      - Initial version.
+      - Pinned to Coder v2.35.6 (stable release channel).
+      - PostgreSQL 17 backend, internal-only, healthcheck-gated startup.
+      - Optional Pocket ID / OIDC sign-in alongside built-in password auth.
+      - Docker socket is intentionally not mounted; see README for
+        enabling Docker-based workspaces.
+  repo: "https://github.com/coder/coder"
+  support: "https://github.com/coder/coder/issues"
+  docs: "https://coder.com/docs"

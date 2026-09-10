@@ -54,7 +54,8 @@ Here is the cleaned-up and properly formatted Markdown table for your applicatio
 | DocuSeal                   | 8445                                                                                                      |
 | Documenso                  | 8446                                                                                                      |
 | SkySend                    | 8447                                                                                                      |
-| **Next new app starts at** | **8448**                                                                                                  |
+| Coder                      | 8448                                                                                                      |
+| **Next new app starts at** | **8449**                                                                                                  |
 
 - Claim the next unused number(s) in sequence and record them in this table
   _before_ writing the manifest, so two apps in progress at once can't
