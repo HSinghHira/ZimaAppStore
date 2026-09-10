@@ -1,0 +1,191 @@
+name: vscode
+
+services:
+  vscode:
+    image: lscr.io/linuxserver/vscode:latest
+    container_name: vscode
+    restart: unless-stopped
+    stop_grace_period: 30s
+    network_mode: bridge
+    cap_add:
+      - IPC_LOCK
+    shm_size: "1gb"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CUSTOM_USER=CHANGEME_USERNAME
+      - PASSWORD=CHANGEME_PASSWORD
+    ports:
+      - target: 3000
+        published: "8449"
+        protocol: tcp
+      - target: 3001
+        published: "8450"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /config
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 4096M
+        reservations:
+          cpus: "0.00"
+          memory: 512M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/VSCode/icon.png
+    x-casaos:
+      id: com.hiraappstore.vscode
+      envs:
+        - container: PUID
+          description:
+            en_US: The user ID that owns your files in the config folder. Should match a real user on this ZimaOS box.
+        - container: PGID
+          description:
+            en_US: The group ID that owns your files in the config folder. Should match a real group on this ZimaOS box.
+        - container: TZ
+          description:
+            en_US: The timezone used inside the container, for example Etc/UTC.
+        - container: CUSTOM_USER
+          description:
+            en_US: Pre-filled placeholder. Set your own username here to turn on a login screen for VS Code. Must be set together with PASSWORD.
+        - container: PASSWORD
+          description:
+            en_US: Pre-filled placeholder. Set your own password here to turn on a login screen for VS Code. Must be set together with CUSTOM_USER. Change this before using the app outside a trusted network.
+      ports:
+        - container: "3000"
+          description:
+            en_US: Plain HTTP web interface, meant to sit behind a reverse proxy (published on host as 8449).
+        - container: "3001"
+          description:
+            en_US: HTTPS web interface with a self-signed certificate. This is the address you open in your browser (published on host as 8450).
+      volumes:
+        - container: /config
+          description:
+            en_US: Your VS Code home directory. Stores your login session, editor settings, installed extensions, and any project files you keep here.
+x-casaos:
+  id: com.hiraappstore.vscode
+  architectures:
+    - amd64
+    - arm64
+  main: vscode
+  author: HSinghHira
+  category: Developer
+  developer: linuxserver.io
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/VSCode/icon.png
+  # thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/VSCode/thumbnail.png
+  # screenshot_link:
+  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/VSCode/thumbnail.png
+  title:
+    en_US: VS Code
+  tagline:
+    en_US: The full Visual Studio Code desktop app, streamed straight to your browser.
+  description:
+    en_US: >-
+      VS Code gives you the real, full Visual Studio Code desktop
+      application running inside a remote desktop session that streams
+      to your browser — think your everyday code editor, but with
+      nothing to install locally.
+
+
+      **Features**
+
+
+      - The genuine Visual Studio Code desktop app, not a limited web
+        port
+
+      - Runs inside a full Selkies-powered remote desktop, so you get a
+        real terminal, git tooling, and the ability to install any
+        extension
+
+      - Serves HTTPS out of the box with a self-signed certificate, plus
+        a plain HTTP port for use behind your own reverse proxy
+
+      - Optional GPU passthrough for smoother rendering when a GPU is
+        available
+
+      - Persistent home directory under /DATA/AppData/$AppID, so
+        settings, extensions, and projects survive container restarts
+
+
+      **How to use?**
+
+
+      1. Open VS Code from the Zima OS dashboard.
+
+      2. Accept the self-signed certificate warning in your browser the
+         first time you connect.
+
+      3. If you set CUSTOM_USER and PASSWORD, sign in with those
+         credentials.
+
+      4. Use it like any normal VS Code install — open folders, install
+         extensions, and use the built-in terminal.
+
+      5. Keep your projects inside the home folder so they persist
+         across restarts.
+
+      6. Extra settings like language, GPU behavior, and kiosk mode can
+         be changed later by editing the vscode service's environment
+         variables.
+  tips:
+    before_install:
+      en_US: >-
+        1. Open the app settings before you start the install.
+
+
+        2. Find PUID and PGID in the vscode service.
+
+
+        3. Set them to match a real user and group ID on this ZimaOS
+           box.
+
+
+        4. Find CUSTOM_USER and PASSWORD in the vscode service. They
+           are pre-filled placeholders.
+
+
+        5. Change both to a username and password you pick. This turns
+           on a login screen so strangers on your network can't open
+           your editor.
+
+
+        6. Set TZ to your local timezone.
+
+
+        7. Start the VS Code installation.
+
+
+        8. Open VS Code from the Zima OS dashboard.
+
+
+        9. Your browser will warn about a self-signed certificate.
+           Click through to continue.
+
+
+        10. Sign in with the CUSTOM_USER and PASSWORD you set.
+
+
+        11. More settings, like GPU options and language, live in the
+            vscode service's environment variables.
+
+
+        12. Important: this app gives full desktop access with root
+            permissions inside the container. Do not expose it to the
+            internet without a reverse proxy that adds real
+            authentication.
+  index: /
+  port_map: "8450"
+  scheme: https
+  is_uncontrolled: false
+  release_notes:
+    en_US: |-
+      - Initial version. linuxserver/vscode only publishes a floating latest tag (plus arch tags like amd64-<version>), so version and update_at are left out here.
+  repo: "https://github.com/linuxserver/docker-vscode"
+  support: "https://github.com/linuxserver/docker-vscode/issues"
+  docs: "https://docs.linuxserver.io/images/docker-vscode/"
