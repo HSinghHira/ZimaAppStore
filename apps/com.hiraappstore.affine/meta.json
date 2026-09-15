@@ -1,0 +1,39 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Productivity",
+  "developer": "Toeverything",
+  "thumbnail": "/apps/com.hiraappstore.affine/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.affine/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.affine/assets/screenshot-2.webp",
+    "/apps/com.hiraappstore.affine/assets/screenshot-3.webp",
+    "/apps/com.hiraappstore.affine/assets/screenshot-4.webp",
+    "/apps/com.hiraappstore.affine/assets/screenshot-5.webp",
+    "/apps/com.hiraappstore.affine/assets/screenshot-6.webp"
+  ],
+  "tagline": "A local-first knowledge base that merges docs, whiteboards, and databases",
+  "description": "AFFiNE is an open-source, all-in-one workspace that combines rich-text documents, an infinite-canvas whiteboard, and structured databases into a single integrated editor — think Notion and Miro combined.\n**Features**\n- Rich-text documents for notes, wikis, and knowledge management\n- Infinite canvas for whiteboards, brainstorming, and visual planning\n- Structured databases for organizing and managing information\n- Highly integrated workspace combining documents, databases, and canvas\n- Self-hosted for complete control over your data and privacy\n- PostgreSQL with pgvector for persistent application data\n- Redis for caching and background queues\n- Persistent storage under /DATA/AppData/$AppID\n- Optional Copilot/BYOK configuration\n- Optional email configuration\n- Server settings can be configured later without rebuilding the container\n**How to use?**\n1. Open AFFiNE from the Zima OS dashboard.\n2. Complete the initial setup and create your administrator account.\n3. Sign in to your AFFiNE workspace.\n4. Create a new workspace, document, database, or canvas.\n5. Start adding and organizing your content.\n6. Configure additional server settings such as the public URL, email, or Copilot/BYOK later through config/config.json or the in-app Admin Panel.",
+  "tips": {
+    "before_install": "1. Open the AFFiNE app configuration before starting the installation.\n2. Find every CHANGEME_DB_PASSWORD placeholder in the affine, affine_migration, and postgres services.\n3. Replace all CHANGEME_DB_PASSWORD values with the same strong PostgreSQL password.\n4. Make sure the password is identical in all three services before starting the installation.\n5. Start the AFFiNE installation.\n6. Wait for the PostgreSQL database migration/setup job to complete before using AFFiNE.\n7. Open AFFiNE from the Zima OS dashboard.\n8. Complete the first-run administrator account setup.\n9. After installation, additional server settings such as the public URL, mail, and Copilot/BYOK can be configured through config/config.json or the in-app Admin Panel.\n10. Important: PostgreSQL stores the initial password during database initialization. Changing the environment variable later does not automatically change the database password; a manual PostgreSQL password reset is required."
+  },
+  "is_uncontrolled": false,
+  "repo": "https://github.com/toeverything/AFFiNE",
+  "support": "https://github.com/toeverything/AFFiNE/issues",
+  "docs": "https://docs.affine.pro/self-host-affine/",
+  "title": "AFFiNE",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.affine",
+  "version": "",
+  "categories": [
+    "productivity"
+  ],
+  "min_memory": 1140850688,
+  "min_image_size": {
+    "amd64": 372099328,
+    "arm64": 368535360
+  }
+}

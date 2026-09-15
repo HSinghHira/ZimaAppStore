@@ -1,0 +1,272 @@
+name: enteseaweedfs
+services:
+  museum:
+    image: ghcr.io/ente/server:latest@sha256:e9e06eb01834c38f41a3a09f9a64885b631346ce0005ccff2153faea403bd6e2
+    container_name: enteseaweedfs-museum
+    depends_on:
+      postgres:
+        condition: service_healthy
+      seaweedfs:
+        condition: service_started
+      seaweedfs-init:
+        condition: service_completed_successfully
+      mailpit:
+        condition: service_started
+    environment:
+      ENTE_DB_HOST: postgres
+      ENTE_DB_PORT: "5432"
+      ENTE_DB_NAME: ente_db
+      ENTE_DB_USER: pguser
+      ENTE_DB_PASSWORD: 78d22d45fce855b10c08101e41a75e1d
+      ENTE_DB_SSLMODE: disable
+      ENTE_S3_ARE_LOCAL_BUCKETS: "true"
+      ENTE_S3_USE_PATH_STYLE_URLS: "true"
+      ENTE_S3_B2_EU_CEN_KEY: ente-seaweed-access
+      ENTE_S3_B2_EU_CEN_SECRET: 79a01574242c0c5fb33179cf0eae35c3a98bc456b2270ddc51d46df81966979f
+      ENTE_S3_B2_EU_CEN_ENDPOINT: http://CHANGEME_NAS_IP:8460
+      ENTE_S3_B2_EU_CEN_REGION: us-east-1
+      ENTE_S3_B2_EU_CEN_BUCKET: b2-eu-cen
+      ENTE_KEY_ENCRYPTION: GDpDBoeztt42neJT8/CicsKlQGsNIJOsHlt9A4HfXqE=
+      ENTE_KEY_HASH: DMvPi/YMR3gO0vitT6i5kq9vWne3fXgt2otNeTv+acSwZd3eHtC4IEvsiQJZCH+x3K4PHxVO9tWm/erXnaxu/A==
+      ENTE_JWT_SECRET: N1oGm1f2PEP-nqsjD16qpnR7WpyIVA11JyJCHayP2k0
+      ENTE_APPS_PUBLIC_ALBUMS: http://CHANGEME_NAS_IP:8459
+      ENTE_SMTP_HOST: mailpit
+      ENTE_SMTP_PORT: "1025"
+      ENTE_SMTP_USERNAME: ""
+      ENTE_SMTP_PASSWORD: ""
+      ENTE_SMTP_EMAIL: noreply@ente.local
+    ports:
+      - target: 8080
+        published: "8457"
+        protocol: tcp
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - enteseaweedfs_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+  web:
+    image: ghcr.io/ente/web:latest@sha256:c8dedd75a316460c4ac2ecf1444115c3fd70544a0828e753e30052cc8013b20e
+    container_name: enteseaweedfs-web
+    depends_on:
+      - museum
+    environment:
+      ENTE_API_ORIGIN: http://CHANGEME_NAS_IP:8457
+    ports:
+      - target: 3000
+        published: "8458"
+        protocol: tcp
+      - target: 3002
+        published: "8459"
+        protocol: tcp
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - enteseaweedfs_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+  postgres:
+    image: postgres:17-alpine@sha256:dfc2780980fe6ca2d158bfe4342660db5e4c6431fb969088e543430d09f8d0f2
+    container_name: enteseaweedfs-postgres
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: 78d22d45fce855b10c08101e41a75e1d
+      POSTGRES_DB: ente_db
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres_data
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U pguser -d ente_db
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+    stop_grace_period: 60s
+    networks:
+      - enteseaweedfs_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+  seaweedfs-config:
+    image: busybox:stable@sha256:bd44eb136a95dcc8dc58995e43abc40a413f2e8e3d4a2aae6bccbe94686acb05
+    container_name: enteseaweedfs-config
+    environment:
+      S3_ACCESS_KEY: ente-seaweed-access
+      S3_SECRET_KEY: 79a01574242c0c5fb33179cf0eae35c3a98bc456b2270ddc51d46df81966979f
+    command:
+      - /bin/sh
+      - -c
+      - |
+        mkdir -p /etc/seaweedfs
+        cat > /etc/seaweedfs/s3.json <<EOF
+        {
+          "identities": [
+            {
+              "name": "ente",
+              "credentials": [
+                {
+                  "accessKey": "$$S3_ACCESS_KEY",
+                  "secretKey": "$$S3_SECRET_KEY"
+                }
+              ],
+              "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+            }
+          ]
+        }
+        EOF
+        echo "wrote /etc/seaweedfs/s3.json"
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/seaweedfs_config
+        target: /etc/seaweedfs
+        bind:
+          create_host_path: true
+    restart: "no"
+    stop_grace_period: 40s
+    networks:
+      - enteseaweedfs_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 64M
+        reservations:
+          cpus: "0.00"
+          memory: 32M
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.22@sha256:6ffd6cfd669b97d140567b08034cc67c30dd90cbb76ee39364665439c5ead701
+    container_name: enteseaweedfs-storage
+    depends_on:
+      seaweedfs-config:
+        condition: service_completed_successfully
+    command:
+      - server
+      - -dir=/data
+      - -s3
+      - -s3.port=3200
+      - -s3.config=/etc/seaweedfs/s3.json
+      - -master.volumeSizeLimitMB=1024
+      - -volume.max=0
+      - -ip.bind=0.0.0.0
+    ports:
+      - target: 3200
+        published: "8460"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/seaweedfs_config
+        target: /etc/seaweedfs
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/seaweedfs_data
+        target: /data
+        bind:
+          create_host_path: true
+    restart: unless-stopped
+    stop_grace_period: 60s
+    networks:
+      - enteseaweedfs_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.50"
+          memory: 1536M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+  seaweedfs-init:
+    image: amazon/aws-cli:latest@sha256:f0c630a58b0e5772a58153cd989f34b905371d78bcdc45fdfdd5e212aec996c6
+    container_name: enteseaweedfs-init
+    depends_on:
+      - seaweedfs
+    environment:
+      AWS_ACCESS_KEY_ID: ente-seaweed-access
+      AWS_SECRET_ACCESS_KEY: 79a01574242c0c5fb33179cf0eae35c3a98bc456b2270ddc51d46df81966979f
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_EC2_METADATA_DISABLED: "true"
+      S3_ENDPOINT: http://seaweedfs:3200
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        until aws --endpoint-url "$$S3_ENDPOINT" s3 ls >/dev/null 2>&1; do
+          echo "waiting for seaweedfs..."
+          sleep 2
+        done
+        for bucket in b2-eu-cen wasabi-eu-central-2-v3 scw-eu-fr-v3; do
+          aws --endpoint-url "$$S3_ENDPOINT" s3api create-bucket --bucket "$$bucket" >/dev/null 2>&1 \
+            && echo "created bucket $$bucket" \
+            || echo "bucket $$bucket already present"
+        done
+        echo "seaweedfs init complete"
+    restart: "no"
+    stop_grace_period: 40s
+    networks:
+      - enteseaweedfs_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+  mailpit:
+    image: axllent/mailpit:latest@sha256:0e084fa7c1c5e8203991839cb1915cc6e88fe2b1f9ddaaa9732ecabed7929006
+    container_name: enteseaweedfs-mailpit
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+    ports:
+      - target: 8025
+        published: "8461"
+        protocol: tcp
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - enteseaweedfs_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+networks:
+  enteseaweedfs_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.enteseaweedfs
+  main: web
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.enteseaweedfs/assets/icon.png
+  title:
+    en_US: Ente Photos (SeaweedFS S3)
+  index: /
+  port_map: "8458"
+  scheme: http

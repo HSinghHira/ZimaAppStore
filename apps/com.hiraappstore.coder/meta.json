@@ -1,0 +1,44 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Developer",
+  "developer": "Coder Technologies, Inc.",
+  "thumbnail": "/apps/com.hiraappstore.coder/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.coder/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.coder/assets/thumbnail-1.webp",
+    "/apps/com.hiraappstore.coder/assets/thumbnail-2.webp",
+    "/apps/com.hiraappstore.coder/assets/thumbnail-3.webp",
+    "/apps/com.hiraappstore.coder/assets/thumbnail-4.webp",
+    "/apps/com.hiraappstore.coder/assets/thumbnail-5.webp",
+    "/apps/com.hiraappstore.coder/assets/thumbnail-6.webp",
+    "/apps/com.hiraappstore.coder/assets/thumbnail-7.webp",
+    "/apps/com.hiraappstore.coder/assets/thumbnail-8.webp"
+  ],
+  "tagline": "Self-hosted, browser-based remote development environments.",
+  "description": "Coder turns a spare machine into a cloud development platform: spin up full development environments that open straight in your browser or your favorite local IDE, think a self-hosted GitHub Codespaces.\n\n**Features**\n\n- Browser-based development environments and terminal, no local\n  setup required.\n\n- Connect from VS Code, JetBrains, or any SSH-compatible editor.\n- Reproducible workspaces defined as code (Terraform-based\n  templates).\n\n- Works great on a home network out of the box, and scales up to a\n  full public, HTTPS, single-sign-on deployment.\n\n- Optional sign-in through Pocket ID via OpenID Connect (OIDC),\n  alongside Coder's own built-in username/password accounts.\n\n- PostgreSQL 17 for persistent application data.\n- Persistent storage under /DATA/AppData/$AppID.\n\n**How to use?**\n\n1. Open Coder from the Zima OS dashboard.\n2. The first time you open it, create your administrator account\n   right in the browser.\n\n3. Explore the Templates tab and start from a starter template, or\n   import one of your own.\n\n4. Create a workspace from a template to get a full browser IDE and\n   terminal.\n\n5. Optionally connect your local VS Code or JetBrains IDE to the\n   same workspace over SSH.\n\n6. If you want centralized sign-in, set up Pocket ID as described in\n   this app's README, then fill in the OIDC settings and restart\n   Coder.\n\n7. Ongoing settings (users, groups, SSO, templates) are managed from\n   Coder's own Admin area in the web UI after install.",
+  "tips": {
+    "before_install": "1. Open the app's settings before you start the install.\n\n2. Find CODER_ACCESS_URL. This is the address people will type to\n   open Coder.\n\n\n3. For home-only use, set it to http://<your-device-IP>:8448. Swap\n   in your device's real LAN IP.\n\n\n4. For internet use, set it to your real domain, like\n   https://coder.example.com. You will also need a reverse proxy\n   with HTTPS in front of Coder. See the README for examples.\n\n\n5. CODER_PG_CONNECTION_URL is already filled in with a random\n   database password. Leave it alone unless you know what you are\n   doing.\n\n\n6. If you do change the password inside CODER_PG_CONNECTION_URL,\n   change POSTGRES_PASSWORD in the postgres service to match, or\n   Coder cannot start.\n\n\n7. Want Pocket ID sign-in? Fill in CODER_OIDC_ISSUER_URL,\n   CODER_OIDC_CLIENT_ID, and CODER_OIDC_CLIENT_SECRET. If not,\n   leave all three blank and skip to step 9.\n\n\n8. Set the Pocket ID redirect URL to\n   <your-access-url>/api/v2/users/oidc/callback before you start\n   Coder, or Pocket ID sign-in will fail.\n\n\n9. Start the Coder installation.\n\n10. Wait about a minute for Coder and its database to finish\n    starting up.\n\n\n11. Open Coder from the Zima OS dashboard.\n\n12. The first person to open Coder creates the admin account\n    right there in the browser.\n\n\n13. More settings (users, groups, templates, SSO) live inside\n    Coder's own Admin area after install, or by editing this\n    app's environment variables and restarting.\n\n\n14. Important: only turn on CODER_DISABLE_PASSWORD_AUTH after\n    you've signed in with Pocket ID successfully at least once.\n    Turning it on too early can lock everyone out."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-09-09",
+  "repo": "https://github.com/coder/coder",
+  "support": "https://github.com/coder/coder/issues",
+  "docs": "https://coder.com/docs",
+  "title": "Coder",
+  "release_note": "- Initial version.\n- Pinned to Coder v2.35.6 (stable release channel).\n- PostgreSQL 17 backend, internal-only, healthcheck-gated startup.\n- Optional Pocket ID / OIDC sign-in alongside built-in password auth.\n- Docker socket is intentionally not mounted; see README for\n  enabling Docker-based workspaces.",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.coder",
+  "version": "2.35.6",
+  "categories": [
+    "developer"
+  ],
+  "min_memory": 805306368,
+  "min_image_size": {
+    "amd64": 407747915,
+    "arm64": 397710094
+  }
+}

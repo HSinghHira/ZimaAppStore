@@ -1,0 +1,216 @@
+name: ente
+services:
+  museum:
+    image: ghcr.io/ente/server:latest@sha256:e8770139ea7d58bd9b3661d32f1239473a25079bd3f034aac1effe25de87be71
+    container_name: ente-museum
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+      minio-init:
+        condition: service_completed_successfully
+      mailpit:
+        condition: service_started
+    environment:
+      ENTE_DB_HOST: postgres
+      ENTE_DB_PORT: "5432"
+      ENTE_DB_NAME: ente_db
+      ENTE_DB_USER: pguser
+      ENTE_DB_PASSWORD: 0d87a5e90a76a912018a34e3a6f19e2c
+      ENTE_DB_SSLMODE: disable
+      ENTE_S3_ARE_LOCAL_BUCKETS: "true"
+      ENTE_S3_USE_PATH_STYLE_URLS: "true"
+      ENTE_S3_B2_EU_CEN_KEY: ente-minio-access
+      ENTE_S3_B2_EU_CEN_SECRET: 0968e477b443f214d4c7d5251b0f320d60e47895bf81dd5d8752d25f2cfc7843
+      ENTE_S3_B2_EU_CEN_ENDPOINT: http://CHANGEME_NAS_IP:8406
+      ENTE_S3_B2_EU_CEN_REGION: eu-central-2
+      ENTE_S3_B2_EU_CEN_BUCKET: b2-eu-cen
+      ENTE_KEY_ENCRYPTION: NXxWJGtF1Pi+zZblNLA676BH4nKL9Z4nvXVqll0zJs8=
+      ENTE_KEY_HASH: 4VjHWg+Tn7wD8f3C7Q0pit/bYdAylPc16qRwJYgUGiJ60MXJsGPls9NHGuBrHawTXNV7fFRBnIP2uTftPNr4PA==
+      ENTE_JWT_SECRET: kfI28-1PZSgXBK7ve4KFxUInrqM44WhBfTIcWSF40yk
+      ENTE_APPS_PUBLIC_ALBUMS: http://CHANGEME_NAS_IP:8405
+      ENTE_SMTP_HOST: mailpit
+      ENTE_SMTP_PORT: "1025"
+      ENTE_SMTP_USERNAME: ""
+      ENTE_SMTP_PASSWORD: ""
+      ENTE_SMTP_EMAIL: noreply@ente.local
+    ports:
+      - target: 8080
+        published: "8403"
+        protocol: tcp
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - ente_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+  web:
+    image: ghcr.io/ente/web:latest@sha256:b41b6faccf97aba86efa219dbaeb70b69eb197b381d7946f9603570fb8dd8513
+    container_name: ente-web
+    depends_on:
+      - museum
+    environment:
+      ENTE_API_ORIGIN: http://CHANGEME_NAS_IP:8403
+    ports:
+      - target: 3000
+        published: "8404"
+        protocol: tcp
+      - target: 3002
+        published: "8405"
+        protocol: tcp
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - ente_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+  postgres:
+    image: postgres:15@sha256:bcab099bfaab33333a73a2ebe8c1d615c9f4c2402dd43452f989a36c6da9a5ba
+    container_name: ente-postgres
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: 0d87a5e90a76a912018a34e3a6f19e2c
+      POSTGRES_DB: ente_db
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres_data
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U pguser -d ente_db
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+    stop_grace_period: 60s
+    networks:
+      - ente_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+  minio:
+    image: coollabsio/minio:latest@sha256:4f75fd76598afa23919555d1363e1fb13c632d9bcd4ce8edcf21d3cca2ed0579
+    container_name: ente-minio
+    environment:
+      MINIO_ROOT_USER: ente-minio-access
+      MINIO_ROOT_PASSWORD: 0968e477b443f214d4c7d5251b0f320d60e47895bf81dd5d8752d25f2cfc7843
+      MINIO_REGION_NAME: eu-central-2
+    command: server /data --address ":3200" --console-address ":3201"
+    ports:
+      - target: 3200
+        published: "8406"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/minio_data
+        target: /data
+        bind:
+          create_host_path: true
+    restart: unless-stopped
+    stop_grace_period: 60s
+    networks:
+      - ente_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+  minio-init:
+    image: amazon/aws-cli:latest@sha256:1fe5f7d97511f7fafd67ca3881fc51056afdddb7a8d7bfe219c36e300c455325
+    container_name: ente-minio-init
+    depends_on:
+      - minio
+    environment:
+      AWS_ACCESS_KEY_ID: ente-minio-access
+      AWS_SECRET_ACCESS_KEY: 0968e477b443f214d4c7d5251b0f320d60e47895bf81dd5d8752d25f2cfc7843
+      AWS_DEFAULT_REGION: eu-central-2
+      AWS_EC2_METADATA_DISABLED: "true"
+      S3_ENDPOINT: http://minio:3200
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        until aws --endpoint-url "$$S3_ENDPOINT" s3 ls >/dev/null 2>&1; do
+          echo "waiting for minio..."
+          sleep 2
+        done
+        for bucket in b2-eu-cen wasabi-eu-central-2-v3 scw-eu-fr-v3; do
+          aws --endpoint-url "$$S3_ENDPOINT" s3api create-bucket \
+            --bucket "$$bucket" \
+            --create-bucket-configuration LocationConstraint="$$AWS_DEFAULT_REGION" >/dev/null 2>&1 \
+            && echo "created bucket $$bucket" \
+            || echo "bucket $$bucket already present"
+        done
+        echo "minio init complete"
+    restart: "no"
+    stop_grace_period: 40s
+    networks:
+      - ente_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+  mailpit:
+    image: axllent/mailpit:latest@sha256:3856f9327f3f228afe8c4ce2dcca3cb2aa00f6ec60b569f36483f7ebb1ff44f7
+    container_name: ente-mailpit
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+    ports:
+      - target: 8025
+        published: "8407"
+        protocol: tcp
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - ente_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+networks:
+  ente_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.ente
+  main: web
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.ente/assets/icon.png
+  title:
+    en_US: Ente Photos (MiniO S3)
+  index: /
+  port_map: "8404"
+  scheme: http

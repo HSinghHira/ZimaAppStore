@@ -1,0 +1,37 @@
+name: watchyourlan
+
+services:
+  watchyourlan:
+    image: aceberg/watchyourlan:2.1.4
+    container_name: watchyourlan
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: host
+    environment:
+      - TZ=UTC
+      - IFACES=CHANGEME_IFACE
+      - PORT=8421
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /data/WatchYourLAN
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+x-casaos:
+  id: com.hiraappstore.watchyourlan
+  main: watchyourlan
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.watchyourlan/assets/icon.png
+  title:
+    en_US: WatchYourLAN
+  index: /
+  port_map: "8421"
+  scheme: http
+  version: "2.1.4"

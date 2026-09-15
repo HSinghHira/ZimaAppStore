@@ -1,0 +1,42 @@
+name: nodecast-tv
+
+services:
+  nodecast-tv:
+
+    image: ghcr.io/technomancer702/nodecast-tv:latest
+    container_name: nodecast-tv
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+
+    ports:
+      - target: 3000
+        published: "8413"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /app/data
+        bind:
+          create_host_path: true
+
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+x-casaos:
+  id: com.hiraappstore.nodecast-tv
+  main: nodecast-tv
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.nodecast-tv/assets/icon.png
+  title:
+    en_US: Nodecast TV
+  index: /
+  port_map: "8413"
+  scheme: http

@@ -1,0 +1,71 @@
+name: helix
+
+services:
+  helix:
+    image: ghcr.io/unifiedkings/helix:latest
+    container_name: helix
+    restart: unless-stopped
+    stop_grace_period: 30s
+    network_mode: bridge
+    environment:
+      - LISTENBRAINZ_TOKEN=
+      - SUBSONIC_BASE_URL=
+      - SUBSONIC_USERNAME=
+      - SUBSONIC_PASSWORD=
+      - HELIX_YTDLP_AUTO_UPDATE=true
+      - HELIX_YTDLP_CHANNEL=stable
+      - HELIX_PREFETCH_AHEAD=3
+      - HELIX_LOBBY_YT_LINK_MAX_ITEMS=100
+      - HELIX_ENABLE_API_DOCS=false
+      - HELIX_ALLOW_NON_ADMIN_IMPORT=false
+      - HELIX_ENABLE_CUSTOM_STATION_TYPES=false
+      - HELIX_CUSTOM_STATION_TYPES_DIR=/data/plugins/stations
+      - HELIX_DB_WATCHDOG_WARN_S=2
+      - HELIX_DB_WATCHDOG_ERROR_S=10
+    ports:
+      - target: 8000
+        published: "8440"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/inbound_yt
+        target: /inbound_yt
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/beets_config
+        target: /data/helix/beets
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/custom_stations
+        target: /data/plugins/stations
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/Media/Music
+        target: /data/music
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+x-casaos:
+  id: com.hiraappstore.helix
+  main: helix
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.helix/assets/icon.png
+  title:
+    en_US: Helix
+  index: /
+  port_map: "8440"
+  scheme: http

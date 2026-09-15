@@ -1,0 +1,39 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Media",
+  "developer": "ente-io",
+  "thumbnail": "/apps/com.hiraappstore.entegarage/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.entegarage/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.entegarage/assets/screenshot-2.webp",
+    "/apps/com.hiraappstore.entegarage/assets/screenshot-3.webp",
+    "/apps/com.hiraappstore.entegarage/assets/screenshot-4.webp"
+  ],
+  "tagline": "End-to-end encrypted photo storage on Garage object storage",
+  "description": "Ente is a self-hosted, end-to-end encrypted platform to store, share, and rediscover your photos and videos across all your devices. This build stores them in Garage, a lightweight open-source object store that is still actively maintained.\n\n**Features**\n\n- End-to-end encryption for every photo and video you upload.\n\n- Web app for your library plus a separate public-albums app for\n  sharing.\n\n\n- Garage v2 for S3-compatible object storage — small memory footprint\n  and a live upstream, unlike the archived MinIO project.\n\n\n- Garage's config file, cluster layout, access key and buckets are all\n  created automatically on first start.\n\n\n- PostgreSQL 17 for accounts, albums and photo metadata.\n\n- Bundled Mailpit catcher for sign-up verification codes — no SMTP\n  setup required to get started, with the option to switch to a real\n  provider later.\n\n\n- Persistent storage under /DATA/AppData/$AppID for PostgreSQL and for\n  Garage metadata and data.\n\n\n**How to use?**\n1. Open Ente Photos (Garage) from the Zima OS dashboard.\n2. Sign up for an account in the web app.\n3. Open Mailpit at http://your-nas-ip:8456 and read the verification\n   code.\n\n4. Type the code into the web app to finish signing up.\n5. Every new account starts with Ente's normal 10 GB limit. Raise it\n   with a one-time database command — see the install tips.\n\n6. Start uploading photos and videos, and set up a public album to\n   share with others.\n\n7. SMTP settings and the S3 address can be changed later in the\n   service environment variables — no rebuild needed, just a\n   container restart.",
+  "tips": {
+    "before_install": "1. Find your Zima OS box's IP address. You will need it three times.\n2. Open the app settings before you install.\n3. In the museum service, replace CHANGEME_NAS_IP in\n   ENTE_S3_B2_EU_CEN_ENDPOINT with that IP.\n\n4. In the museum service, replace CHANGEME_NAS_IP in\n   ENTE_APPS_PUBLIC_ALBUMS with that IP.\n\n5. In the web service, replace CHANGEME_NAS_IP in ENTE_API_ORIGIN\n   with that IP.\n\n6. Do not use localhost. Phones cannot reach it.\n7. Pick a new database password. Make one at randomkeygen.com.\n8. Put it in ENTE_DB_PASSWORD (museum) and POSTGRES_PASSWORD\n   (postgres). Both must match.\n\n9. Pick a new storage password. It must be 64 characters and use\n   only 0-9 and a-f.\n\n10. Put it in ENTE_S3_B2_EU_CEN_SECRET (museum) and\n    GARAGE_KEY_SECRET (garage-init). Both must match.\n\n11. Pick a new admin token at randomkeygen.com.\n12. Put it in GARAGE_ADMIN_TOKEN in both garage-config and\n    garage-init. Both must match.\n\n13. Replace GARAGE_RPC_SECRET in garage-config with a new 64\n    character value using only 0-9 and a-f.\n\n14. Replace ENTE_KEY_ENCRYPTION, ENTE_KEY_HASH and ENTE_JWT_SECRET\n    in the museum service with your own values from\n    randomkeygen.com.\n\n15. Start the Ente Photos (Garage) installation.\n16. Wait for the entegarage-init container to finish before you\n    sign up. It sets up Garage's layout, key and buckets.\n\n17. Open Ente Photos (Garage) from the Zima OS dashboard.\n18. Sign up, then read your code at http://your-nas-ip:8456.\n19. Your account starts with a 10 GB limit. To raise it, run:\n    docker exec entegarage-postgres psql -U pguser -d ente_db -c\n    \"UPDATE subscriptions SET storage = 109951162777600;\"\n\n20. That command sets every account on this server to about\n    100 TB. Run it again any time you add a new account.\n\n21. Important: the garage.toml file is written once. If you change\n    GARAGE_RPC_SECRET or GARAGE_ADMIN_TOKEN later, delete\n    /DATA/AppData/entegarage/garage_config/garage.toml and restart.\n\n22. Important: changing a password later does not change it inside\n    PostgreSQL or Garage. Set them before the first start.\n\n23. Important: changing ENTE_KEY_ENCRYPTION after you upload\n    photos makes those photos unreadable."
+  },
+  "is_uncontrolled": false,
+  "website": "https://ente.io",
+  "repo": "https://github.com/ente/ente",
+  "support": "https://github.com/ente/ente/issues",
+  "docs": "https://ente.com/help/self-hosting/",
+  "title": "Ente Photos (Garage S3)",
+  "release_note": "- First version. Same Ente stack as the MinIO build, with Garage v2.3.0 in place of MinIO.\n- Garage is pinned to a real version tag. The Ente server and web images only publish floating tags, so there is no single version field to track for the app as a whole.\n- garage.toml is written by a busybox init service instead of being bind-mounted as a file, because a missing file on the host becomes an empty directory and breaks the container in a confusing way.\n- Garage's cluster layout, access key and buckets are created through the v2 admin API on first start.\n- No socat sidecar. The S3 endpoint is the box's own IP, which both the server and phones can reach.\n- No storage-unlimited container. It ran a full extra Postgres image forever just to poll one column. Raising storage is now a one-time docker exec command in the install tips.",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.entegarage",
+  "version": "",
+  "categories": [
+    "media"
+  ],
+  "min_memory": 973078528,
+  "min_image_size": {
+    "amd64": 301096146,
+    "arm64": 294264563
+  }
+}

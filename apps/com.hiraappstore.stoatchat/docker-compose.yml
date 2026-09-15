@@ -1,0 +1,511 @@
+name: stoatchat
+
+configs:
+  stoat_caddyfile:
+    content: |
+      :80 {
+        encode zstd gzip
+
+        handle /api* {
+          reverse_proxy api:8000
+        }
+
+        handle /ws* {
+          reverse_proxy api:8000
+        }
+
+        handle /autumn* {
+          reverse_proxy autumn:8000
+        }
+
+        handle /january* {
+          reverse_proxy january:8000
+        }
+
+        handle /gifbox* {
+          reverse_proxy gifbox:8000
+        }
+
+        handle /livekit* {
+          reverse_proxy livekit:7880
+        }
+
+        handle {
+          reverse_proxy web:5000
+        }
+      }
+  stoat_revolt_toml:
+    content: |
+      [database]
+      type = "MongoDB"
+      url = "mongodb://database:27017"
+
+      [redis]
+      url = "redis://redis:6379"
+
+      [rabbit]
+      host = "rabbit"
+      username = "rabbituser"
+      password = "rabbitpass"
+
+      [files]
+      storage = "s3"
+      endpoint = "http://minio:9000"
+      bucket = "revolt-uploads"
+      access_key = "minioautumn"
+      secret_key = "minioautumn"
+
+      [api]
+      bind = "0.0.0.0:8000"
+
+      [api.security.captcha]
+      hcaptcha_key = "0x0000000000000000000000000000000000000000"
+      hcaptcha_sitekey = "10000000-ffff-ffff-ffff-000000000001"
+
+      [api.vapid]
+      public_key = ""
+      private_key = ""
+
+      [pushd.vapid]
+      public_key = ""
+      private_key = ""
+
+      [api.livekit.nodes.worldwide]
+      hostname = "livekit:7880"
+      key = ""
+      secret = ""
+  stoat_livekit_yml:
+    content: |
+      port: 7880
+      bind_addresses:
+        - "0.0.0.0"
+      rtc:
+        tcp_port: 7881
+        port_range_start: 50000
+        port_range_end: 50100
+      redis:
+        address: redis:6379
+
+services:
+  database:
+    image: mongo:8.0
+    container_name: stoatchat-database
+    restart: unless-stopped
+    stop_grace_period: 60s
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/mongodb
+        target: /data/db
+        bind:
+          create_host_path: true
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.50"
+          memory: 512M
+  redis:
+    image: eqalpha/keydb:latest
+    container_name: stoatchat-redis
+    restart: unless-stopped
+    stop_grace_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.10"
+          memory: 128M
+  rabbit:
+    image: rabbitmq:4
+    container_name: stoatchat-rabbit
+    restart: unless-stopped
+    stop_grace_period: 60s
+    environment:
+      - RABBITMQ_DEFAULT_USER=rabbituser
+      - RABBITMQ_DEFAULT_PASS=rabbitpass
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/rabbitmq
+        target: /var/lib/rabbitmq
+        bind:
+          create_host_path: true
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+  minio:
+    image: minio/minio:latest
+    container_name: stoatchat-minio
+    restart: unless-stopped
+    stop_grace_period: 60s
+    command: server /data
+    environment:
+      - MINIO_ROOT_USER=minioautumn
+      - MINIO_ROOT_PASSWORD=minioautumn
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/minio
+        target: /data
+        bind:
+          create_host_path: true
+    networks:
+      default:
+        aliases:
+          - revolt-uploads.minio
+          - attachments.minio
+          - avatars.minio
+          - backgrounds.minio
+          - icons.minio
+          - banners.minio
+          - emojis.minio
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+  createbuckets:
+    image: minio/mc:latest
+    container_name: stoatchat-createbuckets
+    restart: "no"
+    stop_grace_period: 30s
+    depends_on:
+      minio:
+        condition: service_started
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        until /usr/bin/mc alias set minio http://minio:9000 minioautumn minioautumn; do sleep 2; done
+        until /usr/bin/mc ready minio; do sleep 2; done
+        /usr/bin/mc mb --ignore-existing minio/revolt-uploads
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+        reservations:
+          cpus: "0.05"
+          memory: 64M
+  livekit:
+    image: ghcr.io/stoatchat/livekit-server:v1.9.13
+    container_name: stoatchat-livekit
+    restart: unless-stopped
+    stop_grace_period: 40s
+    command: --config /etc/livekit.yml
+    environment:
+      - "LIVEKIT_KEYS=7c4cff3b1ee23bb0874ec4420816c2a2: 85a4d1c5f5d17e4ab2d0352ddb2cdabfe1da13d523b4b1f1da8a9e3e8c9f41bd"
+    configs:
+      - source: stoat_livekit_yml
+        target: /etc/livekit.yml
+    depends_on:
+      redis:
+        condition: service_started
+    ports:
+      - target: 7881
+        published: "8423"
+        protocol: tcp
+      - target: 50000
+        published: "8424"
+        protocol: udp
+      - target: 50001
+        published: "8425"
+        protocol: udp
+      - target: 50002
+        published: "8426"
+        protocol: udp
+      - target: 50003
+        published: "8427"
+        protocol: udp
+      - target: 50004
+        published: "8428"
+        protocol: udp
+      - target: 50005
+        published: "8429"
+        protocol: udp
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.50"
+          memory: 512M
+  api:
+    image: ghcr.io/stoatchat/api:v0.13.8
+    container_name: stoatchat-api
+    restart: unless-stopped
+    stop_grace_period: 40s
+    environment:
+      - REVOLT__API__VAPID__PUBLIC_KEY=BMHJ0YgfIFgVehh91a_Pg-GVSocLnZEdGwPct-tqcR4JOD7ymOPaHxPBUYCIHRHFi6nv-OtiwOzmX1xB1-ZBizw
+      - REVOLT__API__VAPID__PRIVATE_KEY=evRmVlW91Wq2oAtim5co_wWuQ9tDqkaTvgiO-ZotcNY
+      - REVOLT__API__LIVEKIT__NODES__WORLDWIDE__KEY=7c4cff3b1ee23bb0874ec4420816c2a2
+      - REVOLT__API__LIVEKIT__NODES__WORLDWIDE__SECRET=85a4d1c5f5d17e4ab2d0352ddb2cdabfe1da13d523b4b1f1da8a9e3e8c9f41bd
+    configs:
+      - source: stoat_revolt_toml
+        target: /Revolt.toml
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      rabbit:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.50"
+          memory: 512M
+  events:
+    image: ghcr.io/stoatchat/events:v0.13.8
+    container_name: stoatchat-events
+    restart: unless-stopped
+    stop_grace_period: 40s
+    configs:
+      - source: stoat_revolt_toml
+        target: /Revolt.toml
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+  autumn:
+    image: ghcr.io/stoatchat/file-server:v0.13.8
+    container_name: stoatchat-autumn
+    restart: unless-stopped
+    stop_grace_period: 40s
+    configs:
+      - source: stoat_revolt_toml
+        target: /Revolt.toml
+    depends_on:
+      database:
+        condition: service_healthy
+      createbuckets:
+        condition: service_completed_successfully
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+  january:
+    image: ghcr.io/stoatchat/proxy:v0.13.8
+    container_name: stoatchat-january
+    restart: unless-stopped
+    stop_grace_period: 40s
+    configs:
+      - source: stoat_revolt_toml
+        target: /Revolt.toml
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+  gifbox:
+    image: ghcr.io/stoatchat/gifbox:v0.13.8
+    container_name: stoatchat-gifbox
+    restart: unless-stopped
+    stop_grace_period: 40s
+    configs:
+      - source: stoat_revolt_toml
+        target: /Revolt.toml
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+  crond:
+    image: ghcr.io/stoatchat/crond:v0.13.8
+    container_name: stoatchat-crond
+    restart: unless-stopped
+    stop_grace_period: 40s
+    configs:
+      - source: stoat_revolt_toml
+        target: /Revolt.toml
+    depends_on:
+      database:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 512M
+        reservations:
+          cpus: "0.10"
+          memory: 128M
+  pushd:
+    image: ghcr.io/stoatchat/pushd:v0.13.8
+    container_name: stoatchat-pushd
+    restart: unless-stopped
+    stop_grace_period: 40s
+    environment:
+      - REVOLT__PUSHD__VAPID__PUBLIC_KEY=BMHJ0YgfIFgVehh91a_Pg-GVSocLnZEdGwPct-tqcR4JOD7ymOPaHxPBUYCIHRHFi6nv-OtiwOzmX1xB1-ZBizw
+      - REVOLT__PUSHD__VAPID__PRIVATE_KEY=evRmVlW91Wq2oAtim5co_wWuQ9tDqkaTvgiO-ZotcNY
+    configs:
+      - source: stoat_revolt_toml
+        target: /Revolt.toml
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      rabbit:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 512M
+        reservations:
+          cpus: "0.10"
+          memory: 128M
+  voice-ingress:
+    image: ghcr.io/stoatchat/voice-ingress:v0.13.8
+    container_name: stoatchat-voice-ingress
+    restart: unless-stopped
+    stop_grace_period: 40s
+    environment:
+      - REVOLT__API__LIVEKIT__NODES__WORLDWIDE__KEY=7c4cff3b1ee23bb0874ec4420816c2a2
+      - REVOLT__API__LIVEKIT__NODES__WORLDWIDE__SECRET=85a4d1c5f5d17e4ab2d0352ddb2cdabfe1da13d523b4b1f1da8a9e3e8c9f41bd
+    configs:
+      - source: stoat_revolt_toml
+        target: /Revolt.toml
+    depends_on:
+      database:
+        condition: service_healthy
+      rabbit:
+        condition: service_healthy
+      livekit:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+  web:
+    image: ghcr.io/stoatchat/for-web:746bee5
+    container_name: stoatchat-web
+    restart: unless-stopped
+    stop_grace_period: 40s
+    environment:
+      - PUBLIC_API_URL=/api
+      - PUBLIC_WS_URL=/ws
+      - PUBLIC_AUTUMN_URL=/autumn
+      - PUBLIC_JANUARY_URL=/january
+      - PUBLIC_GIFBOX_URL=/gifbox
+      - PUBLIC_LIVEKIT_URL=/livekit
+    depends_on:
+      api:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+  caddy:
+    image: caddy:2.8-alpine
+    container_name: stoatchat-caddy
+    restart: unless-stopped
+    stop_grace_period: 40s
+    configs:
+      - source: stoat_caddyfile
+        target: /etc/caddy/Caddyfile
+    depends_on:
+      web:
+        condition: service_started
+      api:
+        condition: service_started
+      autumn:
+        condition: service_started
+      january:
+        condition: service_started
+      gifbox:
+        condition: service_started
+      livekit:
+        condition: service_started
+    ports:
+      - target: 80
+        published: "8422"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/caddy-data
+        target: /data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/caddy-config
+        target: /config
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.10"
+          memory: 128M
+x-casaos:
+  id: com.hiraappstore.stoatchat
+  main: caddy
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.stoatchat/assets/icon.png
+  title:
+    en_US: Stoat Chat
+  index: /
+  port_map: "8422"
+  scheme: http
+  version: "0.13.8"

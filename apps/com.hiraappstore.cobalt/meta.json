@@ -1,0 +1,36 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Media",
+  "developer": "imputnet",
+  "thumbnail": "/apps/com.hiraappstore.cobalt/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.cobalt/assets/thumbnail.webp"
+  ],
+  "tagline": "Save video, audio, and media from the web — no ads, no trackers, no nonsense.",
+  "description": "cobalt is a media downloader that doesn't piss you off — paste a link from YouTube, Instagram, TikTok, Twitter/X, SoundCloud, Reddit, and dozens of other platforms, and get the file back. No ads, no trackers, no paywalls.\n**Features**\n- Downloads video, audio, and images from a wide range of platforms\n  (YouTube, TikTok, Instagram, Twitter/X, Reddit, SoundCloud, Vimeo,\n  and more)\n\n- Acts as a streaming proxy rather than caching content — nothing is\n  stored server-side beyond the lifetime of an active download\n\n- Stateless: no database or persistent config directory required\n- Optional cookie support for fetching content that requires being\n  logged in to the source platform\n\n- Bundled web UI (community-maintained frontend) so you don't need\n  to hit the raw API by hand — paste a link and download, same as\n  the public cobalt.tools site but pointed at your own instance\n\n**How to use?**\n1. Open cobalt from the Zima OS dashboard — this opens the web UI,\n   not the raw API.\n\n2. Paste a link to the video, audio, or media you want to save into\n   the input box.\n\n3. Choose your preferred format/quality if prompted, then download.\n4. If some sources require login (e.g. private/age-gated content),\n   set up cookies as described in the pre-install tips — this can be\n   changed later by replacing the mounted cookies.json file.\n\n5. Bot protection (Cloudflare Turnstile) and API key auth can be\n   configured later via additional environment variables if this\n   instance will be exposed publicly — see cobalt's\n   \"protect an instance\" docs.",
+  "tips": {
+    "before_install": "1. Decide the URL the **API** service will be reachable at (its\n   own address, not the source platforms you're downloading\n   from) — e.g. http://192.168.1.140:8417/.\n\n2. Find the `API_URL` placeholder (`CHANGEME_API_URL`) on the\n   `cobalt` service, and the `WEB_DEFAULT_API` placeholder (also\n   `CHANGEME_API_URL`) on the `cobalt-web` service.\n\n3. Replace **both** with the exact same URL from step 1,\n   including the trailing slash — the frontend can't reach its\n   backend if these two don't match exactly.\n\n4. Optional: replace `WEB_HOST` (`CHANGEME_WEB_HOST`) on\n   `cobalt-web` with the hostname/IP you'll actually browse to\n   (e.g. 192.168.1.140). Cosmetic only — safe to leave as-is if\n   you're not sure.\n\n5. Start the cobalt installation.\n6. Open cobalt from the Zima OS dashboard — this opens the web UI\n   on port 8418. Paste a link to test that downloads work.\n\n7. Optional: if you need to download from sources that require\n   being logged in, create a `cookies.json` file, uncomment the\n   `COOKIE_PATH` env var and the `volumes` section on the\n   `cobalt` service, and restart it — the file must exist on the\n   host *before* the container starts, or Docker will create an\n   empty directory in its place instead.\n\n8. Optional: if this instance will face the public internet,\n   configure Cloudflare Turnstile (`TURNSTILE_SITEKEY`,\n   `TURNSTILE_SECRET`, `JWT_SECRET`) and/or API key auth\n   (`API_KEY_URL`, `API_AUTH_REQUIRED`) via additional environment\n   variables on the `cobalt` service — see cobalt's \"protect an\n   instance\" docs. These are not pre-filled here since they\n   require values you generate yourself.\n\n9. Important: if you ever change `API_URL` after install (e.g.\n   switching from a LAN IP to a domain), you must update\n   `WEB_DEFAULT_API` on `cobalt-web` to match and restart both\n   services — an out-of-sync pair silently breaks downloads\n   rather than erroring loudly."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-08-16",
+  "repo": "https://github.com/imputnet/cobalt",
+  "support": "https://github.com/imputnet/cobalt/issues",
+  "docs": "https://github.com/imputnet/cobalt/tree/main/docs",
+  "title": "Cobalt",
+  "release_note": "- Added cobalt-web frontend service (ghcr.io/spotdemo4/cobalt-web),\n  published on host port 8418\n- Open button (main/port_map) now points at the web UI instead of\n  the raw API",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.cobalt",
+  "version": "11.7.1",
+  "categories": [
+    "media"
+  ],
+  "min_memory": 402653184,
+  "min_image_size": {
+    "amd64": 208641105,
+    "arm64": 205305040
+  }
+}

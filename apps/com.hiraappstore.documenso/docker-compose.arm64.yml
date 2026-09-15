@@ -1,0 +1,98 @@
+name: documenso
+
+networks:
+  documenso_network:
+    driver: bridge
+
+services:
+  documenso:
+    image: documenso/documenso:latest@sha256:615d0e79047ff9615dc86092bf9a6ba021750ee3895f440621e94477b581b183
+    container_name: documenso
+    restart: unless-stopped
+    stop_grace_period: 30s
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      - NEXTAUTH_SECRET=DwN9439C3sIE5xsxD1PrL8I9w9ptnDFCcW2riF8Qtv8=
+      - NEXT_PRIVATE_ENCRYPTION_KEY=64MTHTfNU3k/ezJpNcTA+/oy4PJfRrnfXpaKz/cPyvY=
+      - NEXT_PRIVATE_ENCRYPTION_SECONDARY_KEY=GHNkJzEuoOtDwbhL2QHAjhU4K9w9o9Ggs7YOVEUGRs4=
+      - NEXT_PUBLIC_WEBAPP_URL=https://SECURE-URL
+      - NEXT_PRIVATE_INTERNAL_WEBAPP_URL=http://localhost:3000
+      - NEXT_PRIVATE_DATABASE_URL=postgresql://documenso:2ac7833ce01076c3da8ea747fa8c8100@database:5432/documenso
+      - NEXT_PRIVATE_DIRECT_DATABASE_URL=postgresql://documenso:2ac7833ce01076c3da8ea747fa8c8100@database:5432/documenso
+      - NEXT_PRIVATE_SMTP_TRANSPORT=smtp-auth
+      - NEXT_PRIVATE_SMTP_HOST=CHANGEME_SMTP_HOST
+      - NEXT_PRIVATE_SMTP_PORT=587
+      - NEXT_PRIVATE_SMTP_USERNAME=CHANGEME_SMTP_USERNAME
+      - NEXT_PRIVATE_SMTP_PASSWORD=CHANGEME_SMTP_PASSWORD
+      - NEXT_PRIVATE_SMTP_FROM_NAME=Documenso
+      - NEXT_PRIVATE_SMTP_FROM_ADDRESS=CHANGEME_SMTP_FROM_ADDRESS
+      - NEXT_PRIVATE_SIGNING_PASSPHRASE=CHANGEME_SIGNING_PASSPHRASE
+      - NEXT_PRIVATE_GOOGLE_CLIENT_ID=
+      - NEXT_PRIVATE_GOOGLE_CLIENT_SECRET=
+      - NEXT_PRIVATE_MICROSOFT_CLIENT_ID=
+      - NEXT_PRIVATE_MICROSOFT_CLIENT_SECRET=
+      - NEXT_PRIVATE_OIDC_WELL_KNOWN=
+      - NEXT_PRIVATE_OIDC_CLIENT_ID=
+      - NEXT_PRIVATE_OIDC_CLIENT_SECRET=
+      - NEXT_PRIVATE_OIDC_PROVIDER_LABEL=OIDC
+      - NEXT_PUBLIC_DISABLE_SIGNUP=false
+    networks:
+      - documenso_network
+    ports:
+      - target: 3000
+        published: "8446"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/cert.p12
+        target: /opt/documenso/cert.p12
+        read_only: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 2048M
+        reservations:
+          cpus: "0.50"
+          memory: 512M
+  database:
+    image: postgres:15@sha256:0b90daad6708473be4845619f4663bd8898ce926e62cab8a6da796a278eb28f8
+    container_name: database
+    restart: unless-stopped
+    stop_grace_period: 60s
+    environment:
+      - POSTGRES_USER=documenso
+      - POSTGRES_PASSWORD=2ac7833ce01076c3da8ea747fa8c8100
+      - POSTGRES_DB=documenso
+    networks:
+      - documenso_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U documenso -d documenso"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/database
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+x-casaos:
+  id: com.hiraappstore.documenso
+  main: documenso
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.documenso/assets/icon.png
+  title:
+    en_US: Documenso
+  index: /
+  port_map: "8446"
+  scheme: http

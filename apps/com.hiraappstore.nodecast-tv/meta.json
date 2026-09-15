@@ -1,0 +1,35 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Media",
+  "developer": "technomancer702",
+  "thumbnail": "/apps/com.hiraappstore.nodecast-tv/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.nodecast-tv/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.nodecast-tv/assets/screenshot-1.webp"
+  ],
+  "tagline": "Stream Live TV, Movies, and Series from your Xtream Codes or M3U provider, right in your browser.",
+  "description": "Nodecast TV is a self-hosted, web-based IPTV player for Live TV, an interactive EPG, and VOD Movies and Series — think a lightweight Xtream Codes / M3U client built for large libraries and smooth playback.\n**Features**\n- Live TV with fast channel zapping, category grouping, and search\n- Interactive EPG grid guide with a 24h timeline and search\n- VOD sections for Movies and Series with metadata, posters, and\n  episode lists\n\n- Unified favorites for channels, movies, and series\n- User authentication with admin and viewer roles, plus optional OIDC\n  SSO (Authentik, Keycloak, etc.)\n\n- Hardware-accelerated transcoding (NVIDIA NVENC, AMD AMF, Intel\n  QuickSync, VAAPI) with automatic codec detection and smart\n  remux/transcode decisions\n\n- Configurable 5.1→Stereo audio downmix presets (ITU, Night Mode,\n  Cinematic) with passthrough for compatible sources\n\n- SQLite storage for channels, EPG, favorites, and settings, persisted\n  under /DATA/AppData/$AppID\n\n**How to use?**\n1. Open Nodecast TV from the Zima OS dashboard.\n2. Complete the initial setup and create your administrator account.\n3. Go to Settings → Content Sources and add your Xtream Codes or M3U\n   provider details.\n\n4. Click \"Refresh Sources\" to sync channels, movies, and series.\n5. Browse Live TV, Movies, or Series from the main navigation.\n6. Optional: visit Settings → Transcoding to configure hardware\n   encoder, max resolution, quality preset, and audio mix — these can\n   be changed anytime from the in-app admin panel without rebuilding\n   the container.\n\n7. Optional: enable OIDC SSO later by setting the `OIDC_*` environment\n   variables in this app's configuration and restarting — new SSO\n   users default to the Viewer role and must be promoted to Admin\n   manually.",
+  "tips": {
+    "before_install": "1. Nodecast TV works out of the box with no required placeholder\n   values — NODE_ENV and PORT are already set.\n\n2. If you plan to use OIDC SSO, uncomment the `OIDC_ISSUER_URL`,\n   `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`, and `OIDC_CALLBACK_URL`\n   entries under `environment:` before installing and replace the\n   `CHANGEME_*` placeholders with values from your OIDC provider.\n   The callback URL should point at\n   `http://<your-host>:8413/api/auth/oidc/callback` (or your\n   reverse-proxy domain).\n\n3. If you have an Intel/AMD/NVIDIA GPU and want hardware\n   transcoding, uncomment the matching `devices:` /\n   `group_add:` / `deploy.resources.reservations.devices` block for\n   your hardware before installing.\n\n4. Start the Nodecast TV installation.\n5. Open Nodecast TV from the Zima OS dashboard and create your\n   administrator account on first run.\n\n6. Go to Settings → Content Sources to add your Xtream Codes or\n   M3U provider, then click \"Refresh Sources\".\n\n7. Transcoding, audio downmix, and network/proxy settings all live\n   under Settings → Transcoding and can be changed anytime after\n   install without touching this compose file.\n\n8. Important: if you're running behind an HTTPS reverse proxy,\n   make sure it forwards the `X-Forwarded-Proto` header, and enable\n   \"Force Backend Proxy\" in Settings → Transcoding → Network if\n   streams fail with CORS or mixed-content errors."
+  },
+  "is_uncontrolled": false,
+  "repo": "https://github.com/technomancer702/nodecast-tv",
+  "support": "https://github.com/technomancer702/nodecast-tv/issues",
+  "docs": "https://github.com/technomancer702/nodecast-tv/blob/main/README.md",
+  "title": "Nodecast TV",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.nodecast-tv",
+  "version": "",
+  "categories": [
+    "media"
+  ],
+  "min_memory": 268435456,
+  "min_image_size": {
+    "amd64": 495503234,
+    "arm64": 464336025
+  }
+}

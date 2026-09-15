@@ -1,0 +1,361 @@
+name: entegarage
+services:
+  museum:
+    image: ghcr.io/ente/server:latest@sha256:e8770139ea7d58bd9b3661d32f1239473a25079bd3f034aac1effe25de87be71
+    container_name: entegarage-museum
+    depends_on:
+      postgres:
+        condition: service_healthy
+      garage:
+        condition: service_started
+      garage-init:
+        condition: service_completed_successfully
+      mailpit:
+        condition: service_started
+    environment:
+      ENTE_DB_HOST: postgres
+      ENTE_DB_PORT: "5432"
+      ENTE_DB_NAME: ente_db
+      ENTE_DB_USER: pguser
+      ENTE_DB_PASSWORD: 48e1b5a3d4ad7aaeaa62068658fe590f
+      ENTE_DB_SSLMODE: disable
+      ENTE_S3_ARE_LOCAL_BUCKETS: "true"
+      ENTE_S3_USE_PATH_STYLE_URLS: "true"
+      ENTE_S3_B2_EU_CEN_KEY: GK58ca8c941193a5d3b52d9ab9
+      ENTE_S3_B2_EU_CEN_SECRET: e42b0519a0a9a32bb19c4871fa63050514d9fe343a9a51724e24f4a3b4b1b8d4
+      ENTE_S3_B2_EU_CEN_ENDPOINT: http://CHANGEME_NAS_IP:8455
+      ENTE_S3_B2_EU_CEN_REGION: garage
+      ENTE_S3_B2_EU_CEN_BUCKET: b2-eu-cen
+      ENTE_KEY_ENCRYPTION: e/+vd2ccFIh/lhV3xz3g5dhZC/rX8+WvQNS5ZG5fzrc=
+      ENTE_KEY_HASH: VSYSTQxeoKjNnf/mW+5GJKFCIcqv7hzPiPicKGU0OqzlcuYf9tReBrvw+GlVWYZpd2QiitlMYUMblyO6YwJ/1g==
+      ENTE_JWT_SECRET: lRJKS3aPlVk5Vfx6OmqHkuI5rTPv5s3jYP6N0mT8qLs
+      ENTE_APPS_PUBLIC_ALBUMS: http://CHANGEME_NAS_IP:8454
+      ENTE_SMTP_HOST: mailpit
+      ENTE_SMTP_PORT: "1025"
+      ENTE_SMTP_USERNAME: ""
+      ENTE_SMTP_PASSWORD: ""
+      ENTE_SMTP_EMAIL: noreply@ente.local
+    ports:
+      - target: 8080
+        published: "8452"
+        protocol: tcp
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - entegarage_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+  web:
+    image: ghcr.io/ente/web:latest@sha256:b41b6faccf97aba86efa219dbaeb70b69eb197b381d7946f9603570fb8dd8513
+    container_name: entegarage-web
+    depends_on:
+      - museum
+    environment:
+      ENTE_API_ORIGIN: http://CHANGEME_NAS_IP:8452
+    ports:
+      - target: 3000
+        published: "8453"
+        protocol: tcp
+      - target: 3002
+        published: "8454"
+        protocol: tcp
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - entegarage_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+  postgres:
+    image: postgres:17-alpine@sha256:7456ef82e5f5bc43d997f4781bbd7c0d6389bff397564649a356e206ba473aee
+    container_name: entegarage-postgres
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: 48e1b5a3d4ad7aaeaa62068658fe590f
+      POSTGRES_DB: ente_db
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres_data
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U pguser -d ente_db
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+    stop_grace_period: 60s
+    networks:
+      - entegarage_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+  garage-config:
+    image: busybox:stable@sha256:b7f3d86d6e84fc17718c48bcde1450807faa2d56704205c697b4bd5df7b9e29f
+    container_name: entegarage-config
+    environment:
+      GARAGE_RPC_SECRET: 0e763bf636585870a7c79e9fba9790d654edb423a39d61dc1946d3930b1c2548
+      GARAGE_ADMIN_TOKEN: 533afebb0290dfbcd7c5f65a868959e6e4688b7efc81afd2
+      GARAGE_REGION: garage
+      GARAGE_REPLICATION_FACTOR: "1"
+    command:
+      - /bin/sh
+      - -c
+      - |
+        mkdir -p /etc/garage-config
+        cat > /etc/garage-config/garage.toml <<EOF
+        metadata_dir = "/var/lib/garage/meta"
+        data_dir = "/var/lib/garage/data"
+        db_engine = "sqlite"
+        replication_factor = $$GARAGE_REPLICATION_FACTOR
+        compression_level = 2
+        rpc_bind_addr = "[::]:3901"
+        rpc_public_addr = "127.0.0.1:3901"
+        rpc_secret = "$$GARAGE_RPC_SECRET"
+
+        [s3_api]
+        s3_region = "$$GARAGE_REGION"
+        api_bind_addr = "[::]:3900"
+        root_domain = ".s3.garage.localhost"
+
+        [s3_web]
+        bind_addr = "[::]:3902"
+        root_domain = ".web.garage.localhost"
+        index = "index.html"
+
+        [admin]
+        api_bind_addr = "[::]:3903"
+        admin_token = "$$GARAGE_ADMIN_TOKEN"
+        EOF
+        echo "wrote /etc/garage-config/garage.toml"
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/garage_config
+        target: /etc/garage-config
+        bind:
+          create_host_path: true
+    restart: "no"
+    stop_grace_period: 40s
+    networks:
+      - entegarage_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 64M
+        reservations:
+          cpus: "0.00"
+          memory: 32M
+  garage:
+    image: dxflrs/garage:v2.3.0@sha256:dac0c92add4f1a0b41035e94b41036a270ffbe88a37c7ac9c3f19e6dc5bdccf2
+    container_name: entegarage-garage
+    depends_on:
+      garage-config:
+        condition: service_completed_successfully
+    command:
+      - -c
+      - /etc/garage-config/garage.toml
+      - server
+    ports:
+      - target: 3900
+        published: "8455"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/garage_config
+        target: /etc/garage-config
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/garage_meta
+        target: /var/lib/garage/meta
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/garage_data
+        target: /var/lib/garage/data
+        bind:
+          create_host_path: true
+    restart: unless-stopped
+    stop_grace_period: 60s
+    networks:
+      - entegarage_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+  garage-init:
+    image: python:3.13-slim@sha256:cc9dffa47c8294ba9bb795a8dfaeb7b76f2b30acade2c52a461a2999d127eb00
+    container_name: entegarage-init
+    depends_on:
+      garage:
+        condition: service_started
+    environment:
+      GARAGE_ADMIN_URL: http://garage:3903
+      GARAGE_ADMIN_TOKEN: 533afebb0290dfbcd7c5f65a868959e6e4688b7efc81afd2
+      GARAGE_KEY_ID: GK58ca8c941193a5d3b52d9ab9
+      GARAGE_KEY_SECRET: e42b0519a0a9a32bb19c4871fa63050514d9fe343a9a51724e24f4a3b4b1b8d4
+      GARAGE_ZONE: zima
+      GARAGE_CAPACITY_BYTES: "1099511627776"
+      GARAGE_BUCKETS: b2-eu-cen,wasabi-eu-central-2-v3,scw-eu-fr-v3
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        cat > /tmp/garage_init.py <<'PYEOF'
+        import json, os, time, urllib.request, urllib.error
+
+        BASE = os.environ["GARAGE_ADMIN_URL"].rstrip("/")
+        TOKEN = os.environ["GARAGE_ADMIN_TOKEN"]
+        KEY_ID = os.environ["GARAGE_KEY_ID"]
+        KEY_SECRET = os.environ["GARAGE_KEY_SECRET"]
+        ZONE = os.environ.get("GARAGE_ZONE", "zima")
+        CAPACITY = int(os.environ["GARAGE_CAPACITY_BYTES"])
+        BUCKETS = [b.strip() for b in os.environ["GARAGE_BUCKETS"].split(",") if b.strip()]
+
+        def call(method, path, body=None):
+            data = json.dumps(body).encode() if body is not None else None
+            req = urllib.request.Request(BASE + path, data=data, method=method)
+            req.add_header("Authorization", "Bearer " + TOKEN)
+            if data is not None:
+                req.add_header("Content-Type", "application/json")
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                raw = resp.read().decode()
+                return json.loads(raw) if raw.strip() else {}
+
+        status = None
+        for attempt in range(150):
+            try:
+                status = call("GET", "/v2/GetClusterStatus")
+                break
+            except Exception as exc:
+                print("waiting for garage admin api:", exc, flush=True)
+                time.sleep(2)
+        if status is None:
+            raise SystemExit("garage admin api never became reachable")
+
+        nodes = status.get("nodes") or []
+        if not nodes:
+            raise SystemExit("garage reported no nodes")
+        node_id = nodes[0]["id"]
+        print("garage node:", node_id, flush=True)
+
+        if not any(n.get("role") for n in nodes):
+            print("assigning cluster layout", flush=True)
+            call("POST", "/v2/UpdateClusterLayout", {
+                "roles": [{"id": node_id, "zone": ZONE, "capacity": CAPACITY, "tags": []}]
+            })
+            layout = call("GET", "/v2/GetClusterLayout")
+            call("POST", "/v2/ApplyClusterLayout", {"version": int(layout.get("version", 0)) + 1})
+            time.sleep(5)
+        else:
+            print("cluster layout already assigned", flush=True)
+
+        try:
+            call("POST", "/v2/ImportKey", {
+                "accessKeyId": KEY_ID, "secretAccessKey": KEY_SECRET, "name": "ente"
+            })
+            print("imported access key", KEY_ID, flush=True)
+        except urllib.error.HTTPError as exc:
+            print("import key returned", exc.code, exc.read().decode()[:300], flush=True)
+
+        for bucket in BUCKETS:
+            bucket_id = None
+            try:
+                created = call("POST", "/v2/CreateBucket", {"globalAlias": bucket})
+                bucket_id = created.get("id") or (created.get("bucket") or {}).get("id")
+                print("created bucket", bucket, flush=True)
+            except urllib.error.HTTPError as exc:
+                print("create bucket", bucket, "returned", exc.code, flush=True)
+            if not bucket_id:
+                try:
+                    info = call("GET", "/v2/GetBucketInfo?globalAlias=" + bucket)
+                    bucket_id = info.get("id")
+                except Exception as exc:
+                    print("could not look up bucket", bucket, exc, flush=True)
+            if not bucket_id:
+                raise SystemExit("bucket " + bucket + " could not be created or found")
+            try:
+                call("POST", "/v2/AllowBucketKey", {
+                    "bucketId": bucket_id,
+                    "accessKeyId": KEY_ID,
+                    "permissions": {"read": True, "write": True, "owner": True},
+                })
+                print("granted access to", bucket, flush=True)
+            except urllib.error.HTTPError as exc:
+                print("allow bucket key", bucket, "returned", exc.code, flush=True)
+
+        print("garage init complete", flush=True)
+        PYEOF
+        python3 /tmp/garage_init.py
+    restart: "no"
+    stop_grace_period: 40s
+    networks:
+      - entegarage_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+  mailpit:
+    image: axllent/mailpit:latest@sha256:3856f9327f3f228afe8c4ce2dcca3cb2aa00f6ec60b569f36483f7ebb1ff44f7
+    container_name: entegarage-mailpit
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+    ports:
+      - target: 8025
+        published: "8456"
+        protocol: tcp
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - entegarage_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+networks:
+  entegarage_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.entegarage
+  main: web
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.entegarage/assets/icon.png
+  title:
+    en_US: Ente Photos (Garage S3)
+  index: /
+  port_map: "8453"
+  scheme: http

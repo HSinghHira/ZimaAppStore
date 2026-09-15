@@ -1,0 +1,36 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Productivity",
+  "developer": "Documenso",
+  "thumbnail": "/apps/com.hiraappstore.documenso/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.documenso/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.documenso/assets/thumbnail-1.webp"
+  ],
+  "tagline": "The open source DocuSign alternative",
+  "description": "Documenso is an open source document-signing platform — think DocuSign, but self-hosted and fully auditable.\n\n**Features**\n\n- Upload PDFs, place signature and text fields, and send documents out\n  for signature\n\n- Own signing certificate (.p12) support for cryptographically signed,\n  legally binding documents\n\n- Multi-recipient signing flows with email notifications\n- PostgreSQL database bundled for persistent application data\n- Open API for integrating signing into your own workflows\n\n**How to use?**\n\n1. Open Documenso from the Zima OS dashboard.\n2. Sign up to create your account. All signups become regular user\n   accounts — admin access has to be granted directly in the database\n   afterwards.\n\n3. Upload a PDF and add the recipients who need to sign it.\n4. Drag signature, date, and text fields onto the document, then send\n   it out.\n\n5. Recipients get an email invite and sign right in their browser — no\n   account required on their end.\n\n6. SMTP settings, signup restrictions, and storage options can be\n   changed later by editing the environment variables and restarting\n   the app.",
+  "tips": {
+    "before_install": "1. Open the app's environment variables before you start the\n   install.\n\n\n2. Find NEXT_PRIVATE_SMTP_HOST, NEXT_PRIVATE_SMTP_USERNAME,\n   NEXT_PRIVATE_SMTP_PASSWORD, and NEXT_PRIVATE_SMTP_FROM_ADDRESS in\n   the documenso service. They start with CHANGEME.\n\n\n3. Replace them with your real SMTP details so Documenso can send\n   signing emails.\n\n\n4. Find NEXT_PRIVATE_SIGNING_PASSPHRASE. Replace CHANGEME with the\n   passphrase you used when you made your cert.p12 file.\n\n\n5. NEXTAUTH_SECRET, NEXT_PRIVATE_ENCRYPTION_KEY, and\n   NEXT_PRIVATE_ENCRYPTION_SECONDARY_KEY are pre-filled with random\n   values. Replace them with your own before going live — generate\n   new ones at randomkeygen.com.\n\n\n6. Before you start the app, make a signing certificate and copy it\n   to /DATA/AppData/$AppID/cert.p12 on your device. Documenso needs\n   this file to exist the first time it starts.\n\n\n7. NEXT_PUBLIC_WEBAPP_URL is set to your device's address and port.\n   Change it if you use a different domain or a reverse proxy.\n\n\n7a. Google, Microsoft, and OIDC sign-in are optional. Leave\n    NEXT_PRIVATE_GOOGLE_CLIENT_ID, NEXT_PRIVATE_MICROSOFT_CLIENT_ID,\n    and NEXT_PRIVATE_OIDC_CLIENT_ID (and their matching secrets)\n    blank if you do not want them. Fill them in with the client ID\n    and secret from that provider if you do.\n\n\n8. Start the Documenso installation.\n\n9. Wait for the database to show healthy and for Documenso to finish\n   its first-time setup. Check the logs if it takes a while.\n\n\n10. Open Documenso from the Zima OS dashboard.\n\n11. Sign up to create your account.\n\n12. To make your account an admin, you need to update it directly in\n    the database.\n\n\n13. Important: POSTGRES_PASSWORD is only used the first time the\n    database starts. Changing it later in the compose file will not\n    change the already-created database password."
+  },
+  "is_uncontrolled": false,
+  "repo": "https://github.com/documenso/documenso",
+  "support": "https://github.com/documenso/documenso/issues",
+  "docs": "https://docs.documenso.com/docs/self-hosting",
+  "title": "Documenso",
+  "release_note": "- Initial version\n\n- Pinned to a specific version tag once (2.7.0), but that tag could\n  not be pulled, so this now tracks documenso/documenso:latest\n  instead until a reliably-pullable version tag is confirmed",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.documenso",
+  "version": "",
+  "categories": [
+    "productivity"
+  ],
+  "min_memory": 805306368,
+  "min_image_size": {
+    "amd64": 603781566,
+    "arm64": 597335878
+  }
+}

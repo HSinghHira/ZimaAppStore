@@ -1,0 +1,40 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Networking",
+  "developer": "Pocket ID",
+  "thumbnail": "/apps/com.hiraappstore.pocketid/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.pocketid/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.pocketid/assets/thumbnail-1.webp",
+    "/apps/com.hiraappstore.pocketid/assets/thumbnail-2.webp",
+    "/apps/com.hiraappstore.pocketid/assets/thumbnail-3.webp"
+  ],
+  "description": "Pocket ID is a simple, OpenID Connect Certified OIDC and OAuth 2.0 provider built entirely around passkeys - no passwords, no accounts to leak, just sign in with a passkey or a hardware key like a YubiKey.\n\n**Features**\n\n- Passkey-only authentication - no passwords exist anywhere in the\n  system.\n\n- OpenID Connect Certified and OAuth 2.0 compliant, so it works with\n  most apps that support \"Login with OIDC\".\n\n- Simple admin UI for managing users, groups, and OIDC clients,\n  without the complexity of Keycloak or ORY Hydra.\n\n- Optional self-service user signups, LDAP sync, and SCIM\n  provisioning for pulling in users from an existing directory.\n\n- SQLite by default, with no separate database container needed.\n  Persistent storage under /DATA/AppData/pocket-id.\n\n\n**How to use?**\n1. Open Pocket ID from the Zima OS dashboard.\n2. Go to /setup and create the first administrator account with a\n   passkey.\n\n3. Add your other users, or connect LDAP if you already have a\n   directory.\n\n4. Create an OIDC client for each self-hosted app you want to add\n   single sign-on to.\n\n5. Point that app's OIDC settings at your Pocket ID issuer URL, and\n   copy over the client ID and secret.\n\n6. Further settings, like custom branding, email, and self-service\n   signups, live in the in-app admin panel under Settings, or can be\n   locked to the environment variables below by setting\n   UI_CONFIG_DISABLED to true.",
+  "docs": "https://pocket-id.org/docs/introduction",
+  "hostname": "",
+  "is_uncontrolled": false,
+  "repo": "https://github.com/pocket-id/pocket-id",
+  "support": "https://github.com/pocket-id/pocket-id/issues",
+  "tagline": "A simple, passkey-only OIDC and OAuth 2.0 provider for your self-hosted apps.",
+  "tips": {
+    "before_install": "1. Open the app configuration before starting the installation.\n\n2. Find APP_URL in the pocket-id service. It says\n   CHANGEME_YOUR_SERVER_URL.\n\n3. Set it to the exact address you will open Pocket ID at, like\n   https://your-server-ip:8436. Must be a secure IP/URL.\n\n4. Do not change APP_URL later. Passkeys are locked to this exact\n   address, and changing it can break sign in.\n\n5. Find ENCRYPTION_KEY. It is pre-filled with a random value.\n\n6. Replace it with your own. Generate one at randomkeygen.com.\n\n7. Only change ENCRYPTION_KEY right after this fresh install,\n   before adding real users.\n\n8. Want open or invite-only signups instead of admin-only? Set\n   ALLOW_USER_SIGNUPS to open or withToken, and make sure\n   UI_CONFIG_DISABLED stays set to true.\n\n9. Start the Pocket ID installation.\n\n10. Open Pocket ID from the Zima OS dashboard.\n\n11. Go to the /setup page and create your admin account with a\n    passkey.\n\n12. More settings, like LDAP sync and email, are in the in-app\n    admin panel under Settings."
+  },
+  "update_at": "2026-09-09T00:00:00",
+  "title": "Pocket ID",
+  "release_note": "- Added the missing top-level `name` field so Pocket ID's data now\n  stores under /DATA/AppData/pocket-id instead of an\n  auto-generated compose-<hash> folder.\n\n- Added UI_CONFIG_DISABLED, ALLOW_USER_SIGNUPS, ANALYTICS_DISABLED,\n  and VERSION_CHECK_DISABLED environment variables.\n\n- Switched APP_URL's placeholder to the standard CHANGEME_* format.\n\n- Added the per-service x-casaos envs/ports/volumes metadata.",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.pocketid",
+  "version": "2.14.0",
+  "categories": [
+    "networking"
+  ],
+  "min_memory": 134217728,
+  "min_image_size": {
+    "amd64": 32243193,
+    "arm64": 30210272
+  }
+}

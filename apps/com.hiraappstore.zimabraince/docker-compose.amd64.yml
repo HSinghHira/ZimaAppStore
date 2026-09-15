@@ -1,0 +1,79 @@
+name: zimabrain-ce
+
+services:
+  zimabrain-ce:
+    image: gelbuilding/zimabrain-ce:latest@sha256:545e59d6f3230a71754273a0bc2e2255d9478aea70979b161c208ace3b4eab11
+    container_name: zimabrain-ce
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    privileged: true
+    pid: host
+    environment:
+      - ZIMABRAIN_PASSWORD=CHANGEME_SET_A_LOGIN_PASSWORD
+      - ZIMABRAIN_SECRET_KEY=337b21196b9ba99d4ff435c3d4a87749b2361f41621050975644040234883c89
+      - TZ=UTC
+    ports:
+      - target: 8601
+        published: "8441"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/docs
+        target: /app/docs
+        bind:
+          create_host_path: true
+        read_only: true
+      - type: bind
+        source: /proc
+        target: /host/proc
+        read_only: true
+      - type: bind
+        source: /sys
+        target: /host/sys
+        read_only: true
+      - type: bind
+        source: /etc/hostname
+        target: /host/etc/hostname
+        read_only: true
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8601/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+    labels:
+      title: ZimaBrain CE
+      description: Local ZimaOS diagnostic assistant
+      index: /
+      scheme: http
+      port_map: "8441"
+x-casaos:
+  id: com.hiraappstore.zimabrainCE
+  main: zimabrain-ce
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.zimabraince/assets/icon.png
+  title:
+    en_US: ZimaBrain CE
+  index: /
+  port_map: "8441"
+  scheme: http
+  version: "1.6.0-beta"
