@@ -36,7 +36,7 @@ services:
           cpus: "0.00"
           memory: 256M
     labels:
-      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Degoog/icon.png
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/deGoog/icon.png
     x-casaos:
       id: com.hiraappstore.degoog
       envs:
@@ -85,7 +85,7 @@ x-casaos:
   author: HSinghHira
   category: Networking
   developer: degoog-org
-  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Degoog/icon.png
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/deGoog/icon.png
   thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Degoog/thumbnail.png
   screenshot_link:
     - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Degoog/thumbnail.png

@@ -1,14 +1,14 @@
-name: ente
+name: enteseaweedfs
 services:
   museum:
-    image: ghcr.io/ente/server:latest
-    container_name: ente-museum
+    image: ghcr.io/ente/server:latest@sha256:e9e06eb01834c38f41a3a09f9a64885b631346ce0005ccff2153faea403bd6e2
+    container_name: enteseaweedfs-museum
     depends_on:
       postgres:
         condition: service_healthy
-      minio:
+      seaweedfs:
         condition: service_started
-      minio-init:
+      seaweedfs-init:
         condition: service_completed_successfully
       mailpit:
         condition: service_started
@@ -17,19 +17,19 @@ services:
       ENTE_DB_PORT: "5432"
       ENTE_DB_NAME: ente_db
       ENTE_DB_USER: pguser
-      ENTE_DB_PASSWORD: 0d87a5e90a76a912018a34e3a6f19e2c
+      ENTE_DB_PASSWORD: 78d22d45fce855b10c08101e41a75e1d
       ENTE_DB_SSLMODE: disable
       ENTE_S3_ARE_LOCAL_BUCKETS: "true"
       ENTE_S3_USE_PATH_STYLE_URLS: "true"
-      ENTE_S3_B2_EU_CEN_KEY: ente-minio-access
-      ENTE_S3_B2_EU_CEN_SECRET: 0968e477b443f214d4c7d5251b0f320d60e47895bf81dd5d8752d25f2cfc7843
-      ENTE_S3_B2_EU_CEN_ENDPOINT: http://CHANGEME_NAS_IP:8406
-      ENTE_S3_B2_EU_CEN_REGION: eu-central-2
+      ENTE_S3_B2_EU_CEN_KEY: ente-seaweed-access
+      ENTE_S3_B2_EU_CEN_SECRET: 79a01574242c0c5fb33179cf0eae35c3a98bc456b2270ddc51d46df81966979f
+      ENTE_S3_B2_EU_CEN_ENDPOINT: http://CHANGEME_NAS_IP:8460
+      ENTE_S3_B2_EU_CEN_REGION: us-east-1
       ENTE_S3_B2_EU_CEN_BUCKET: b2-eu-cen
-      ENTE_KEY_ENCRYPTION: NXxWJGtF1Pi+zZblNLA676BH4nKL9Z4nvXVqll0zJs8=
-      ENTE_KEY_HASH: 4VjHWg+Tn7wD8f3C7Q0pit/bYdAylPc16qRwJYgUGiJ60MXJsGPls9NHGuBrHawTXNV7fFRBnIP2uTftPNr4PA==
-      ENTE_JWT_SECRET: kfI28-1PZSgXBK7ve4KFxUInrqM44WhBfTIcWSF40yk
-      ENTE_APPS_PUBLIC_ALBUMS: http://CHANGEME_NAS_IP:8405
+      ENTE_KEY_ENCRYPTION: GDpDBoeztt42neJT8/CicsKlQGsNIJOsHlt9A4HfXqE=
+      ENTE_KEY_HASH: DMvPi/YMR3gO0vitT6i5kq9vWne3fXgt2otNeTv+acSwZd3eHtC4IEvsiQJZCH+x3K4PHxVO9tWm/erXnaxu/A==
+      ENTE_JWT_SECRET: N1oGm1f2PEP-nqsjD16qpnR7WpyIVA11JyJCHayP2k0
+      ENTE_APPS_PUBLIC_ALBUMS: http://CHANGEME_NAS_IP:8459
       ENTE_SMTP_HOST: mailpit
       ENTE_SMTP_PORT: "1025"
       ENTE_SMTP_USERNAME: ""
@@ -37,12 +37,12 @@ services:
       ENTE_SMTP_EMAIL: noreply@ente.local
     ports:
       - target: 8080
-        published: "8403"
+        published: "8457"
         protocol: tcp
     restart: unless-stopped
     stop_grace_period: 40s
     networks:
-      - ente_network
+      - enteseaweedfs_network
     deploy:
       resources:
         limits:
@@ -54,7 +54,7 @@ services:
     labels:
       icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/icon.png
     x-casaos:
-      id: com.hiraappstore.ente
+      id: com.hiraappstore.enteseaweedfs
       envs:
         - container: ENTE_DB_HOST
           description:
@@ -79,22 +79,22 @@ services:
             en_US: "Tells Ente the object storage is a local S3-compatible server rather than a cloud provider. Leave as true."
         - container: ENTE_S3_USE_PATH_STYLE_URLS
           description:
-            en_US: "MinIO does not support subdomain-style bucket URLs. Leave as true."
+            en_US: "SeaweedFS is reached by path-style bucket URLs here. Leave as true."
         - container: ENTE_S3_B2_EU_CEN_KEY
           description:
-            en_US: "S3 access key ID. Must match MINIO_ROOT_USER in the minio service and AWS_ACCESS_KEY_ID in the minio-init service."
+            en_US: "S3 access key ID. Must match S3_ACCESS_KEY in the seaweedfs-config service and AWS_ACCESS_KEY_ID in the seaweedfs-init service."
         - container: ENTE_S3_B2_EU_CEN_SECRET
           description:
-            en_US: "Pre-filled with a random value. Replace it with your own — generate one at randomkeygen.com — before going live. Must match MINIO_ROOT_PASSWORD in the minio service and AWS_SECRET_ACCESS_KEY in the minio-init service exactly."
+            en_US: "Pre-filled with a random value. Replace it with your own — generate one at randomkeygen.com — before going live. Must match S3_SECRET_KEY in the seaweedfs-config service and AWS_SECRET_ACCESS_KEY in the seaweedfs-init service exactly."
         - container: ENTE_S3_B2_EU_CEN_ENDPOINT
           description:
-            en_US: "Replace CHANGEME_NAS_IP with your Zima OS box's IP address or domain name. This exact address is handed to phones and browsers when they upload, so localhost will not work. Keep the http:// prefix and port 8406."
+            en_US: "Replace CHANGEME_NAS_IP with your Zima OS box's IP address or domain name. This exact address is handed to phones and browsers when they upload, so localhost will not work. Keep the http:// prefix and port 8460."
         - container: ENTE_S3_B2_EU_CEN_REGION
           description:
-            en_US: "S3 region name. Must match MINIO_REGION_NAME in the minio service."
+            en_US: "S3 region name. SeaweedFS expects us-east-1. Leave it alone unless you know otherwise."
         - container: ENTE_S3_B2_EU_CEN_BUCKET
           description:
-            en_US: "Bucket name Ente stores photos in. The minio-init service creates it automatically."
+            en_US: "Bucket name Ente stores photos in. The seaweedfs-init service creates it automatically."
         - container: ENTE_KEY_ENCRYPTION
           description:
             en_US: "Pre-filled with a random value. Replace it with your own — generate one at randomkeygen.com — before going live. Changing this after photos are uploaded makes them unreadable."
@@ -106,7 +106,7 @@ services:
             en_US: "Pre-filled with a random value. Replace it with your own — generate one at randomkeygen.com — before going live. Anyone who knows this value can forge logins."
         - container: ENTE_APPS_PUBLIC_ALBUMS
           description:
-            en_US: "Replace CHANGEME_NAS_IP with your Zima OS box's IP address or domain name. This is the link people get when you share an album. Keep the http:// prefix and port 8405."
+            en_US: "Replace CHANGEME_NAS_IP with your Zima OS box's IP address or domain name. This is the link people get when you share an album. Keep the http:// prefix and port 8459."
         - container: ENTE_SMTP_HOST
           description:
             en_US: "Defaults to the bundled Mailpit catcher, where you read your sign-up code. To send real email instead, put your SMTP provider's hostname here."
@@ -125,26 +125,26 @@ services:
       ports:
         - container: "8080"
           description:
-            en_US: "Ente API (published on host as 8403)"
+            en_US: "Ente API (published on host as 8457)"
 
   web:
-    image: ghcr.io/ente/web:latest
-    container_name: ente-web
+    image: ghcr.io/ente/web:latest@sha256:c8dedd75a316460c4ac2ecf1444115c3fd70544a0828e753e30052cc8013b20e
+    container_name: enteseaweedfs-web
     depends_on:
       - museum
     environment:
-      ENTE_API_ORIGIN: http://CHANGEME_NAS_IP:8403
+      ENTE_API_ORIGIN: http://CHANGEME_NAS_IP:8457
     ports:
       - target: 3000
-        published: "8404"
+        published: "8458"
         protocol: tcp
       - target: 3002
-        published: "8405"
+        published: "8459"
         protocol: tcp
     restart: unless-stopped
     stop_grace_period: 40s
     networks:
-      - ente_network
+      - enteseaweedfs_network
     deploy:
       resources:
         limits:
@@ -156,25 +156,25 @@ services:
     labels:
       icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/icon.png
     x-casaos:
-      id: com.hiraappstore.ente
+      id: com.hiraappstore.enteseaweedfs
       envs:
         - container: ENTE_API_ORIGIN
           description:
-            en_US: "Replace CHANGEME_NAS_IP with your Zima OS box's IP address or domain name. Your browser and phone use this to reach the API. Keep the http:// prefix and port 8403."
+            en_US: "Replace CHANGEME_NAS_IP with your Zima OS box's IP address or domain name. Your browser and phone use this to reach the API. Keep the http:// prefix and port 8457."
       ports:
         - container: "3000"
           description:
-            en_US: "Photos web app (published on host as 8404)"
+            en_US: "Photos web app (published on host as 8458)"
         - container: "3002"
           description:
-            en_US: "Public albums app (published on host as 8405)"
+            en_US: "Public albums app (published on host as 8459)"
 
   postgres:
-    image: postgres:15@sha256:bcab099bfaab33333a73a2ebe8c1d615c9f4c2402dd43452f989a36c6da9a5ba
-    container_name: ente-postgres
+    image: postgres:17-alpine
+    container_name: enteseaweedfs-postgres
     environment:
       POSTGRES_USER: pguser
-      POSTGRES_PASSWORD: 0d87a5e90a76a912018a34e3a6f19e2c
+      POSTGRES_PASSWORD: 78d22d45fce855b10c08101e41a75e1d
       POSTGRES_DB: ente_db
     volumes:
       - type: bind
@@ -193,7 +193,7 @@ services:
     restart: unless-stopped
     stop_grace_period: 60s
     networks:
-      - ente_network
+      - enteseaweedfs_network
     deploy:
       resources:
         limits:
@@ -205,7 +205,7 @@ services:
     labels:
       icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/icon.png
     x-casaos:
-      id: com.hiraappstore.ente
+      id: com.hiraappstore.enteseaweedfs
       envs:
         - container: POSTGRES_USER
           description:
@@ -221,90 +221,155 @@ services:
           description:
             en_US: "PostgreSQL data — accounts, albums and photo metadata."
 
-  minio:
-    image: coollabsio/minio:latest
-    container_name: ente-minio
+  seaweedfs-config:
+    image: busybox:stable
+    container_name: enteseaweedfs-config
     environment:
-      MINIO_ROOT_USER: ente-minio-access
-      MINIO_ROOT_PASSWORD: 0968e477b443f214d4c7d5251b0f320d60e47895bf81dd5d8752d25f2cfc7843
-      MINIO_REGION_NAME: eu-central-2
-    command: server /data --address ":3200" --console-address ":3201"
+      S3_ACCESS_KEY: ente-seaweed-access
+      S3_SECRET_KEY: 79a01574242c0c5fb33179cf0eae35c3a98bc456b2270ddc51d46df81966979f
+    command:
+      - /bin/sh
+      - -c
+      - |
+        mkdir -p /etc/seaweedfs
+        cat > /etc/seaweedfs/s3.json <<EOF
+        {
+          "identities": [
+            {
+              "name": "ente",
+              "credentials": [
+                {
+                  "accessKey": "$$S3_ACCESS_KEY",
+                  "secretKey": "$$S3_SECRET_KEY"
+                }
+              ],
+              "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+            }
+          ]
+        }
+        EOF
+        echo "wrote /etc/seaweedfs/s3.json"
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/seaweedfs_config
+        target: /etc/seaweedfs
+        bind:
+          create_host_path: true
+    restart: "no"
+    stop_grace_period: 40s
+    networks:
+      - enteseaweedfs_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 64M
+        reservations:
+          cpus: "0.00"
+          memory: 32M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/icon.png
+    x-casaos:
+      id: com.hiraappstore.enteseaweedfs
+      envs:
+        - container: S3_ACCESS_KEY
+          description:
+            en_US: "S3 access key ID written into SeaweedFS's credentials file. Must match ENTE_S3_B2_EU_CEN_KEY in the museum service and AWS_ACCESS_KEY_ID in the seaweedfs-init service."
+        - container: S3_SECRET_KEY
+          description:
+            en_US: "Pre-filled with a random value. Replace it with your own — generate one at randomkeygen.com — before going live. Must match ENTE_S3_B2_EU_CEN_SECRET in the museum service and AWS_SECRET_ACCESS_KEY in the seaweedfs-init service exactly."
+      volumes:
+        - container: /etc/seaweedfs
+          description:
+            en_US: "Holds the generated s3.json credentials file. Delete the file here if you change the keys and want it rewritten."
+
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.22
+    container_name: enteseaweedfs-storage
+    depends_on:
+      seaweedfs-config:
+        condition: service_completed_successfully
+    command:
+      - server
+      - -dir=/data
+      - -s3
+      - -s3.port=3200
+      - -s3.config=/etc/seaweedfs/s3.json
+      - -master.volumeSizeLimitMB=1024
+      - -volume.max=0
+      - -ip.bind=0.0.0.0
     ports:
       - target: 3200
-        published: "8406"
+        published: "8460"
         protocol: tcp
     volumes:
       - type: bind
-        source: /DATA/AppData/$AppID/minio_data
+        source: /DATA/AppData/$AppID/seaweedfs_config
+        target: /etc/seaweedfs
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/seaweedfs_data
         target: /data
         bind:
           create_host_path: true
     restart: unless-stopped
     stop_grace_period: 60s
     networks:
-      - ente_network
+      - enteseaweedfs_network
     deploy:
       resources:
         limits:
-          cpus: "1.00"
-          memory: 1024M
+          cpus: "1.50"
+          memory: 1536M
         reservations:
           cpus: "0.25"
           memory: 256M
     labels:
       icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/icon.png
     x-casaos:
-      id: com.hiraappstore.ente
-      envs:
-        - container: MINIO_ROOT_USER
-          description:
-            en_US: "S3 access key ID. Must match ENTE_S3_B2_EU_CEN_KEY in the museum service and AWS_ACCESS_KEY_ID in the minio-init service."
-        - container: MINIO_ROOT_PASSWORD
-          description:
-            en_US: "Pre-filled with a random value. Replace it with your own — generate one at randomkeygen.com — before going live. Must match ENTE_S3_B2_EU_CEN_SECRET in the museum service and AWS_SECRET_ACCESS_KEY in the minio-init service exactly."
-        - container: MINIO_REGION_NAME
-          description:
-            en_US: "S3 region name. Must match ENTE_S3_B2_EU_CEN_REGION in the museum service and AWS_DEFAULT_REGION in the minio-init service."
+      id: com.hiraappstore.enteseaweedfs
       volumes:
+        - container: /etc/seaweedfs
+          description:
+            en_US: "The s3.json credentials file written by the seaweedfs-config service."
         - container: /data
           description:
-            en_US: "Your encrypted photos and videos."
+            en_US: "Your encrypted photos and videos, plus SeaweedFS's master, volume and filer state."
       ports:
         - container: "3200"
           description:
-            en_US: "S3 API (published on host as 8406). Phones and browsers upload directly to this port."
+            en_US: "S3 API (published on host as 8460). Phones and browsers upload directly to this port."
 
-  minio-init:
+  seaweedfs-init:
     image: amazon/aws-cli:latest
-    container_name: ente-minio-init
+    container_name: enteseaweedfs-init
     depends_on:
-      - minio
+      - seaweedfs
     environment:
-      AWS_ACCESS_KEY_ID: ente-minio-access
-      AWS_SECRET_ACCESS_KEY: 0968e477b443f214d4c7d5251b0f320d60e47895bf81dd5d8752d25f2cfc7843
-      AWS_DEFAULT_REGION: eu-central-2
+      AWS_ACCESS_KEY_ID: ente-seaweed-access
+      AWS_SECRET_ACCESS_KEY: 79a01574242c0c5fb33179cf0eae35c3a98bc456b2270ddc51d46df81966979f
+      AWS_DEFAULT_REGION: us-east-1
       AWS_EC2_METADATA_DISABLED: "true"
-      S3_ENDPOINT: http://minio:3200
+      S3_ENDPOINT: http://seaweedfs:3200
     entrypoint:
       - /bin/sh
       - -c
       - |
         until aws --endpoint-url "$$S3_ENDPOINT" s3 ls >/dev/null 2>&1; do
-          echo "waiting for minio..."
+          echo "waiting for seaweedfs..."
           sleep 2
         done
         for bucket in b2-eu-cen wasabi-eu-central-2-v3 scw-eu-fr-v3; do
-          aws --endpoint-url "$$S3_ENDPOINT" s3api create-bucket \
-            --bucket "$$bucket" \
-            --create-bucket-configuration LocationConstraint="$$AWS_DEFAULT_REGION" >/dev/null 2>&1 \
+          aws --endpoint-url "$$S3_ENDPOINT" s3api create-bucket --bucket "$$bucket" >/dev/null 2>&1 \
             && echo "created bucket $$bucket" \
             || echo "bucket $$bucket already present"
         done
-        echo "minio init complete"
+        echo "seaweedfs init complete"
     restart: "no"
     stop_grace_period: 40s
     networks:
-      - ente_network
+      - enteseaweedfs_network
     deploy:
       resources:
         limits:
@@ -316,38 +381,38 @@ services:
     labels:
       icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/icon.png
     x-casaos:
-      id: com.hiraappstore.ente
+      id: com.hiraappstore.enteseaweedfs
       envs:
         - container: AWS_ACCESS_KEY_ID
           description:
-            en_US: "S3 access key ID used to create the buckets. Must match MINIO_ROOT_USER in the minio service."
+            en_US: "S3 access key ID used to create the buckets. Must match S3_ACCESS_KEY in the seaweedfs-config service."
         - container: AWS_SECRET_ACCESS_KEY
           description:
-            en_US: "Pre-filled with a random value. Replace it with your own — generate one at randomkeygen.com — before going live. Must match MINIO_ROOT_PASSWORD in the minio service exactly."
+            en_US: "Pre-filled with a random value. Replace it with your own — generate one at randomkeygen.com — before going live. Must match S3_SECRET_KEY in the seaweedfs-config service exactly."
         - container: AWS_DEFAULT_REGION
           description:
-            en_US: "S3 region used when creating buckets. Must match MINIO_REGION_NAME in the minio service."
+            en_US: "S3 region used when creating buckets. Must match ENTE_S3_B2_EU_CEN_REGION in the museum service."
         - container: AWS_EC2_METADATA_DISABLED
           description:
             en_US: "Stops the AWS CLI from looking for cloud credentials. Leave as true."
         - container: S3_ENDPOINT
           description:
-            en_US: "Internal address of the MinIO container. Leave as http://minio:3200."
+            en_US: "Internal address of the SeaweedFS container. Leave as http://seaweedfs:3200."
 
   mailpit:
     image: axllent/mailpit:latest
-    container_name: ente-mailpit
+    container_name: enteseaweedfs-mailpit
     environment:
       MP_SMTP_AUTH_ACCEPT_ANY: "1"
       MP_SMTP_AUTH_ALLOW_INSECURE: "1"
     ports:
       - target: 8025
-        published: "8407"
+        published: "8461"
         protocol: tcp
     restart: unless-stopped
     stop_grace_period: 40s
     networks:
-      - ente_network
+      - enteseaweedfs_network
     deploy:
       resources:
         limits:
@@ -359,7 +424,7 @@ services:
     labels:
       icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/icon.png
     x-casaos:
-      id: com.hiraappstore.ente
+      id: com.hiraappstore.enteseaweedfs
       envs:
         - container: MP_SMTP_AUTH_ACCEPT_ANY
           description:
@@ -370,15 +435,15 @@ services:
       ports:
         - container: "8025"
           description:
-            en_US: "Mailpit web UI (published on host as 8407). Read your sign-up code here. Anyone on your network who can reach this port can read any code, so keep it off the public internet."
+            en_US: "Mailpit web UI (published on host as 8461). Read your sign-up code here. Anyone on your network who can reach this port can read any code, so keep it off the public internet."
 
 
 networks:
-  ente_network:
+  enteseaweedfs_network:
     driver: bridge
 
 x-casaos:
-  id: com.hiraappstore.ente
+  id: com.hiraappstore.enteseaweedfs
   architectures:
     - amd64
     - arm64
@@ -390,17 +455,18 @@ x-casaos:
   thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/thumbnail.png
   screenshot_link:
     - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/thumbnail.png
-    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/screenshot-2.png
-    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/screenshot-3.png
-    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/screenshot-4.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/thumbnail-1.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/thumbnail-2.png
   title:
-    en_US: Ente Photos (MiniO S3)
+    en_US: Ente Photos (SeaweedFS S3)
   tagline:
-    en_US: End-to-end encrypted photo storage
+    en_US: End-to-end encrypted photo storage on SeaweedFS object storage
   description:
     en_US: >-
       Ente is a self-hosted, end-to-end encrypted platform to store, share,
-      and rediscover your photos and videos across all your devices.
+      and rediscover your photos and videos across all your devices. This
+      build stores them in SeaweedFS, an actively maintained open-source
+      object store built for very large numbers of files.
 
 
       **Features**
@@ -413,8 +479,19 @@ x-casaos:
         sharing.
 
 
-      - PostgreSQL for application data and MinIO for S3-compatible object
-        storage, both bundled and pre-wired.
+      - SeaweedFS all-in-one server for S3-compatible object storage — one
+        container running master, volume server, filer and S3 gateway.
+
+
+      - Fast reads even with millions of files, which suits a large photo
+        library.
+
+
+      - SeaweedFS credentials and Ente's buckets are created automatically
+        on first start.
+
+
+      - PostgreSQL 17 for accounts, albums and photo metadata.
 
 
       - Bundled Mailpit catcher for sign-up verification codes — no SMTP
@@ -422,17 +499,17 @@ x-casaos:
         provider later.
 
 
-      - Persistent storage under /DATA/AppData/$AppID for both PostgreSQL and
-        MinIO data.
+      - Persistent storage under /DATA/AppData/$AppID for PostgreSQL and
+        SeaweedFS data.
 
 
       **How to use?**
 
-      1. Open Ente Photos from the Zima OS dashboard.
+      1. Open Ente Photos (SeaweedFS) from the Zima OS dashboard.
 
       2. Sign up for an account in the web app.
 
-      3. Open Mailpit at http://your-nas-ip:8407 and read the verification
+      3. Open Mailpit at http://your-nas-ip:8461 and read the verification
          code.
 
       4. Type the code into the web app to finish signing up.
@@ -471,47 +548,52 @@ x-casaos:
 
         9. Pick a new storage password. Make one at randomkeygen.com.
 
-        10. Put it in ENTE_S3_B2_EU_CEN_SECRET (museum),
-            MINIO_ROOT_PASSWORD (minio) and AWS_SECRET_ACCESS_KEY
-            (minio-init). All three must match.
+        10. Put it in ENTE_S3_B2_EU_CEN_SECRET (museum), S3_SECRET_KEY
+            (seaweedfs-config) and AWS_SECRET_ACCESS_KEY (seaweedfs-init).
+            All three must match.
 
         11. Replace ENTE_KEY_ENCRYPTION, ENTE_KEY_HASH and ENTE_JWT_SECRET
             in the museum service with your own values from
             randomkeygen.com.
 
-        12. Start the Ente Photos installation.
+        12. Start the Ente Photos (SeaweedFS) installation.
 
-        13. Wait for the ente-minio-init container to finish before you
-            sign up.
+        13. Wait for the enteseaweedfs-init container to finish before you
+            sign up. It creates the buckets.
 
-        14. Open Ente Photos from the Zima OS dashboard.
+        14. Open Ente Photos (SeaweedFS) from the Zima OS dashboard.
 
-        15. Sign up, then read your code at http://your-nas-ip:8407.
+        15. Sign up, then read your code at http://your-nas-ip:8461.
 
         16. Your account starts with a 10 GB limit. To raise it, run:
-            docker exec ente-postgres psql -U pguser -d ente_db -c
+            docker exec enteseaweedfs-postgres psql -U pguser -d ente_db -c
             "UPDATE subscriptions SET storage = 109951162777600;"
 
         17. That command sets every account on this server to about
             100 TB. Run it again any time you add a new account.
 
-        18. Important: changing a password later does not change it inside
-            PostgreSQL or MinIO. Set them before the first start.
+        18. Important: the s3.json file is written once. If you change the
+            keys later, delete
+            /DATA/AppData/enteseaweedfs/seaweedfs_config/s3.json and
+            restart.
 
-        19. Important: changing ENTE_KEY_ENCRYPTION after you upload
+        19. Important: changing a password later does not change it inside
+            PostgreSQL. Set it before the first start.
+
+        20. Important: changing ENTE_KEY_ENCRYPTION after you upload
             photos makes those photos unreadable.
   index: /
-  port_map: "8404"
+  port_map: "8458"
   scheme: http
   is_uncontrolled: false
   release_notes:
     en_US: |-
-      - Switched object storage to the coollabsio community MinIO build; the official minio/minio images were pulled from Docker Hub in October 2025 and the project was archived.
-      - Removed the socat sidecar. It only made localhost work inside the server container, which never helped phones on the network.
-      - S3 endpoint, API origin and public album URL now ship as CHANGEME_NAS_IP so a wrong address fails loudly instead of half-working.
-      - Bucket creation moved from the discontinued minio/mc image to the AWS CLI.
-      - Removed the storage-unlimited container. It ran a full extra Postgres image forever just to poll one column. Raising storage is now a one-time docker exec command in the install tips.
-      - The Ente server and web images only publish floating tags, so there is no version field to track here.
+      - First version. Same Ente stack as the MinIO build, with SeaweedFS 4.22 in place of MinIO.
+      - SeaweedFS is pinned to a real version tag. The Ente server and web images only publish floating tags, so there is no single version field to track for the app as a whole.
+      - s3.json is written by a busybox init service instead of being bind-mounted as a file, because a missing file on the host becomes an empty directory and breaks the container in a confusing way.
+      - master.volumeSizeLimitMB is set to 1024 so three buckets do not reserve far more disk than a home NAS has.
+      - No socat sidecar. The S3 endpoint is the box's own IP, which both the server and phones can reach.
+      - No storage-unlimited container. It ran a full extra Postgres image forever just to poll one column. Raising storage is now a one-time docker exec command in the install tips.
   website: "https://ente.io"
   repo: "https://github.com/ente/ente"
   support: "https://github.com/ente/ente/issues"

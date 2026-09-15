@@ -1,0 +1,707 @@
+name: entegarage
+services:
+  museum:
+    image: ghcr.io/ente/server:latest
+    container_name: entegarage-museum
+    depends_on:
+      postgres:
+        condition: service_healthy
+      garage:
+        condition: service_started
+      garage-init:
+        condition: service_completed_successfully
+      mailpit:
+        condition: service_started
+    environment:
+      ENTE_DB_HOST: postgres
+      ENTE_DB_PORT: "5432"
+      ENTE_DB_NAME: ente_db
+      ENTE_DB_USER: pguser
+      ENTE_DB_PASSWORD: 48e1b5a3d4ad7aaeaa62068658fe590f
+      ENTE_DB_SSLMODE: disable
+      ENTE_S3_ARE_LOCAL_BUCKETS: "true"
+      ENTE_S3_USE_PATH_STYLE_URLS: "true"
+      ENTE_S3_B2_EU_CEN_KEY: GK58ca8c941193a5d3b52d9ab9
+      ENTE_S3_B2_EU_CEN_SECRET: e42b0519a0a9a32bb19c4871fa63050514d9fe343a9a51724e24f4a3b4b1b8d4
+      ENTE_S3_B2_EU_CEN_ENDPOINT: http://CHANGEME_NAS_IP:8455
+      ENTE_S3_B2_EU_CEN_REGION: garage
+      ENTE_S3_B2_EU_CEN_BUCKET: b2-eu-cen
+      ENTE_KEY_ENCRYPTION: e/+vd2ccFIh/lhV3xz3g5dhZC/rX8+WvQNS5ZG5fzrc=
+      ENTE_KEY_HASH: VSYSTQxeoKjNnf/mW+5GJKFCIcqv7hzPiPicKGU0OqzlcuYf9tReBrvw+GlVWYZpd2QiitlMYUMblyO6YwJ/1g==
+      ENTE_JWT_SECRET: lRJKS3aPlVk5Vfx6OmqHkuI5rTPv5s3jYP6N0mT8qLs
+      ENTE_APPS_PUBLIC_ALBUMS: http://CHANGEME_NAS_IP:8454
+      ENTE_SMTP_HOST: mailpit
+      ENTE_SMTP_PORT: "1025"
+      ENTE_SMTP_USERNAME: ""
+      ENTE_SMTP_PASSWORD: ""
+      ENTE_SMTP_EMAIL: noreply@ente.local
+    ports:
+      - target: 8080
+        published: "8452"
+        protocol: tcp
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - entegarage_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/icon.png
+    x-casaos:
+      id: com.hiraappstore.entegarage
+      envs:
+        - container: ENTE_DB_HOST
+          description:
+            en_US: "Hostname of the bundled PostgreSQL container. Leave as postgres."
+        - container: ENTE_DB_PORT
+          description:
+            en_US: "PostgreSQL port inside the Docker network. Leave as 5432."
+        - container: ENTE_DB_NAME
+          description:
+            en_US: "Database name. Must match POSTGRES_DB in the postgres service."
+        - container: ENTE_DB_USER
+          description:
+            en_US: "Database user. Must match POSTGRES_USER in the postgres service."
+        - container: ENTE_DB_PASSWORD
+          description:
+            en_US: "Pre-filled with a random value. Replace it with your own — generate one at randomkeygen.com — before going live. Must match POSTGRES_PASSWORD in the postgres service exactly."
+        - container: ENTE_DB_SSLMODE
+          description:
+            en_US: "TLS mode for the database connection. Leave as disable for the bundled container."
+        - container: ENTE_S3_ARE_LOCAL_BUCKETS
+          description:
+            en_US: "Tells Ente the object storage is a local S3-compatible server rather than a cloud provider. Leave as true."
+        - container: ENTE_S3_USE_PATH_STYLE_URLS
+          description:
+            en_US: "Garage is reached by path-style bucket URLs here. Leave as true."
+        - container: ENTE_S3_B2_EU_CEN_KEY
+          description:
+            en_US: "Garage access key ID. Must match GARAGE_KEY_ID in the garage-init service. Garage requires this to start with GK followed by 24 hexadecimal characters."
+        - container: ENTE_S3_B2_EU_CEN_SECRET
+          description:
+            en_US: "Pre-filled with a random value. Replace it with your own 64-character hexadecimal value — generate one at randomkeygen.com — before going live. Must match GARAGE_KEY_SECRET in the garage-init service exactly."
+        - container: ENTE_S3_B2_EU_CEN_ENDPOINT
+          description:
+            en_US: "Replace CHANGEME_NAS_IP with your Zima OS box's IP address or domain name. This exact address is handed to phones and browsers when they upload, so localhost will not work. Keep the http:// prefix and port 8455."
+        - container: ENTE_S3_B2_EU_CEN_REGION
+          description:
+            en_US: "S3 region name. Must match GARAGE_REGION in the garage-config service."
+        - container: ENTE_S3_B2_EU_CEN_BUCKET
+          description:
+            en_US: "Bucket name Ente stores photos in. The garage-init service creates it automatically."
+        - container: ENTE_KEY_ENCRYPTION
+          description:
+            en_US: "Pre-filled with a random value. Replace it with your own — generate one at randomkeygen.com — before going live. Changing this after photos are uploaded makes them unreadable."
+        - container: ENTE_KEY_HASH
+          description:
+            en_US: "Pre-filled with a random value. Replace it with your own — generate one at randomkeygen.com — before going live. Changing this after accounts exist locks those accounts out."
+        - container: ENTE_JWT_SECRET
+          description:
+            en_US: "Pre-filled with a random value. Replace it with your own — generate one at randomkeygen.com — before going live. Anyone who knows this value can forge logins."
+        - container: ENTE_APPS_PUBLIC_ALBUMS
+          description:
+            en_US: "Replace CHANGEME_NAS_IP with your Zima OS box's IP address or domain name. This is the link people get when you share an album. Keep the http:// prefix and port 8454."
+        - container: ENTE_SMTP_HOST
+          description:
+            en_US: "Defaults to the bundled Mailpit catcher, where you read your sign-up code. To send real email instead, put your SMTP provider's hostname here."
+        - container: ENTE_SMTP_PORT
+          description:
+            en_US: "Mailpit's SMTP port is 1025. Real providers usually use 587."
+        - container: ENTE_SMTP_USERNAME
+          description:
+            en_US: "Leave blank for Mailpit. Fill in only if you switch to a real SMTP provider."
+        - container: ENTE_SMTP_PASSWORD
+          description:
+            en_US: "Leave blank for Mailpit. Fill in only if you switch to a real SMTP provider. Treat it as a secret."
+        - container: ENTE_SMTP_EMAIL
+          description:
+            en_US: "The from address on verification code emails. A real provider will require an address it has approved."
+      ports:
+        - container: "8080"
+          description:
+            en_US: "Ente API (published on host as 8452)"
+
+  web:
+    image: ghcr.io/ente/web:latest
+    container_name: entegarage-web
+    depends_on:
+      - museum
+    environment:
+      ENTE_API_ORIGIN: http://CHANGEME_NAS_IP:8452
+    ports:
+      - target: 3000
+        published: "8453"
+        protocol: tcp
+      - target: 3002
+        published: "8454"
+        protocol: tcp
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - entegarage_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/icon.png
+    x-casaos:
+      id: com.hiraappstore.entegarage
+      envs:
+        - container: ENTE_API_ORIGIN
+          description:
+            en_US: "Replace CHANGEME_NAS_IP with your Zima OS box's IP address or domain name. Your browser and phone use this to reach the API. Keep the http:// prefix and port 8452."
+      ports:
+        - container: "3000"
+          description:
+            en_US: "Photos web app (published on host as 8453)"
+        - container: "3002"
+          description:
+            en_US: "Public albums app (published on host as 8454)"
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: entegarage-postgres
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: 48e1b5a3d4ad7aaeaa62068658fe590f
+      POSTGRES_DB: ente_db
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres_data
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U pguser -d ente_db
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+    stop_grace_period: 60s
+    networks:
+      - entegarage_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/icon.png
+    x-casaos:
+      id: com.hiraappstore.entegarage
+      envs:
+        - container: POSTGRES_USER
+          description:
+            en_US: "Database user. Must match ENTE_DB_USER in the museum service."
+        - container: POSTGRES_PASSWORD
+          description:
+            en_US: "Pre-filled with a random value. Replace it with your own — generate one at randomkeygen.com — before going live. Must match ENTE_DB_PASSWORD in the museum service exactly."
+        - container: POSTGRES_DB
+          description:
+            en_US: "Database name. Must match ENTE_DB_NAME in the museum service."
+      volumes:
+        - container: /var/lib/postgresql/data
+          description:
+            en_US: "PostgreSQL data — accounts, albums and photo metadata."
+
+  garage-config:
+    image: busybox:stable
+    container_name: entegarage-config
+    environment:
+      GARAGE_RPC_SECRET: 0e763bf636585870a7c79e9fba9790d654edb423a39d61dc1946d3930b1c2548
+      GARAGE_ADMIN_TOKEN: 533afebb0290dfbcd7c5f65a868959e6e4688b7efc81afd2
+      GARAGE_REGION: garage
+      GARAGE_REPLICATION_FACTOR: "1"
+    command:
+      - /bin/sh
+      - -c
+      - |
+        mkdir -p /etc/garage-config
+        cat > /etc/garage-config/garage.toml <<EOF
+        metadata_dir = "/var/lib/garage/meta"
+        data_dir = "/var/lib/garage/data"
+        db_engine = "sqlite"
+        replication_factor = $$GARAGE_REPLICATION_FACTOR
+        compression_level = 2
+        rpc_bind_addr = "[::]:3901"
+        rpc_public_addr = "127.0.0.1:3901"
+        rpc_secret = "$$GARAGE_RPC_SECRET"
+
+        [s3_api]
+        s3_region = "$$GARAGE_REGION"
+        api_bind_addr = "[::]:3900"
+        root_domain = ".s3.garage.localhost"
+
+        [s3_web]
+        bind_addr = "[::]:3902"
+        root_domain = ".web.garage.localhost"
+        index = "index.html"
+
+        [admin]
+        api_bind_addr = "[::]:3903"
+        admin_token = "$$GARAGE_ADMIN_TOKEN"
+        EOF
+        echo "wrote /etc/garage-config/garage.toml"
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/garage_config
+        target: /etc/garage-config
+        bind:
+          create_host_path: true
+    restart: "no"
+    stop_grace_period: 40s
+    networks:
+      - entegarage_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 64M
+        reservations:
+          cpus: "0.00"
+          memory: 32M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/icon.png
+    x-casaos:
+      id: com.hiraappstore.entegarage
+      envs:
+        - container: GARAGE_RPC_SECRET
+          description:
+            en_US: "Pre-filled with a random value. Replace it with your own 64-character hexadecimal value — generate one at randomkeygen.com — before going live. Garage uses it to talk to itself."
+        - container: GARAGE_ADMIN_TOKEN
+          description:
+            en_US: "Pre-filled with a random value. Replace it with your own — generate one at randomkeygen.com — before going live. Must match GARAGE_ADMIN_TOKEN in the garage-init service exactly."
+        - container: GARAGE_REGION
+          description:
+            en_US: "S3 region name. Must match ENTE_S3_B2_EU_CEN_REGION in the museum service."
+        - container: GARAGE_REPLICATION_FACTOR
+          description:
+            en_US: "Number of copies Garage keeps. Leave as 1 on a single Zima OS box."
+      volumes:
+        - container: /etc/garage-config
+          description:
+            en_US: "Holds the generated garage.toml. Delete the file here if you change GARAGE_RPC_SECRET or GARAGE_ADMIN_TOKEN and want it rewritten."
+
+  garage:
+    image: dxflrs/garage:v2.3.0
+    container_name: entegarage-garage
+    depends_on:
+      garage-config:
+        condition: service_completed_successfully
+    command:
+      - -c
+      - /etc/garage-config/garage.toml
+      - server
+    ports:
+      - target: 3900
+        published: "8455"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/garage_config
+        target: /etc/garage-config
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/garage_meta
+        target: /var/lib/garage/meta
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/garage_data
+        target: /var/lib/garage/data
+        bind:
+          create_host_path: true
+    restart: unless-stopped
+    stop_grace_period: 60s
+    networks:
+      - entegarage_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/icon.png
+    x-casaos:
+      id: com.hiraappstore.entegarage
+      volumes:
+        - container: /etc/garage-config
+          description:
+            en_US: "The garage.toml written by the garage-config service."
+        - container: /var/lib/garage/meta
+          description:
+            en_US: "Garage metadata index. Keep this on the fastest disk you have."
+        - container: /var/lib/garage/data
+          description:
+            en_US: "Your encrypted photos and videos."
+      ports:
+        - container: "3900"
+          description:
+            en_US: "S3 API (published on host as 8455). Phones and browsers upload directly to this port."
+
+  garage-init:
+    image: python:3.13-slim
+    container_name: entegarage-init
+    depends_on:
+      garage:
+        condition: service_started
+    environment:
+      GARAGE_ADMIN_URL: http://garage:3903
+      GARAGE_ADMIN_TOKEN: 533afebb0290dfbcd7c5f65a868959e6e4688b7efc81afd2
+      GARAGE_KEY_ID: GK58ca8c941193a5d3b52d9ab9
+      GARAGE_KEY_SECRET: e42b0519a0a9a32bb19c4871fa63050514d9fe343a9a51724e24f4a3b4b1b8d4
+      GARAGE_ZONE: zima
+      GARAGE_CAPACITY_BYTES: "1099511627776"
+      GARAGE_BUCKETS: b2-eu-cen,wasabi-eu-central-2-v3,scw-eu-fr-v3
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        cat > /tmp/garage_init.py <<'PYEOF'
+        import json, os, time, urllib.request, urllib.error
+
+        BASE = os.environ["GARAGE_ADMIN_URL"].rstrip("/")
+        TOKEN = os.environ["GARAGE_ADMIN_TOKEN"]
+        KEY_ID = os.environ["GARAGE_KEY_ID"]
+        KEY_SECRET = os.environ["GARAGE_KEY_SECRET"]
+        ZONE = os.environ.get("GARAGE_ZONE", "zima")
+        CAPACITY = int(os.environ["GARAGE_CAPACITY_BYTES"])
+        BUCKETS = [b.strip() for b in os.environ["GARAGE_BUCKETS"].split(",") if b.strip()]
+
+        def call(method, path, body=None):
+            data = json.dumps(body).encode() if body is not None else None
+            req = urllib.request.Request(BASE + path, data=data, method=method)
+            req.add_header("Authorization", "Bearer " + TOKEN)
+            if data is not None:
+                req.add_header("Content-Type", "application/json")
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                raw = resp.read().decode()
+                return json.loads(raw) if raw.strip() else {}
+
+        status = None
+        for attempt in range(150):
+            try:
+                status = call("GET", "/v2/GetClusterStatus")
+                break
+            except Exception as exc:
+                print("waiting for garage admin api:", exc, flush=True)
+                time.sleep(2)
+        if status is None:
+            raise SystemExit("garage admin api never became reachable")
+
+        nodes = status.get("nodes") or []
+        if not nodes:
+            raise SystemExit("garage reported no nodes")
+        node_id = nodes[0]["id"]
+        print("garage node:", node_id, flush=True)
+
+        if not any(n.get("role") for n in nodes):
+            print("assigning cluster layout", flush=True)
+            call("POST", "/v2/UpdateClusterLayout", {
+                "roles": [{"id": node_id, "zone": ZONE, "capacity": CAPACITY, "tags": []}]
+            })
+            layout = call("GET", "/v2/GetClusterLayout")
+            call("POST", "/v2/ApplyClusterLayout", {"version": int(layout.get("version", 0)) + 1})
+            time.sleep(5)
+        else:
+            print("cluster layout already assigned", flush=True)
+
+        try:
+            call("POST", "/v2/ImportKey", {
+                "accessKeyId": KEY_ID, "secretAccessKey": KEY_SECRET, "name": "ente"
+            })
+            print("imported access key", KEY_ID, flush=True)
+        except urllib.error.HTTPError as exc:
+            print("import key returned", exc.code, exc.read().decode()[:300], flush=True)
+
+        for bucket in BUCKETS:
+            bucket_id = None
+            try:
+                created = call("POST", "/v2/CreateBucket", {"globalAlias": bucket})
+                bucket_id = created.get("id") or (created.get("bucket") or {}).get("id")
+                print("created bucket", bucket, flush=True)
+            except urllib.error.HTTPError as exc:
+                print("create bucket", bucket, "returned", exc.code, flush=True)
+            if not bucket_id:
+                try:
+                    info = call("GET", "/v2/GetBucketInfo?globalAlias=" + bucket)
+                    bucket_id = info.get("id")
+                except Exception as exc:
+                    print("could not look up bucket", bucket, exc, flush=True)
+            if not bucket_id:
+                raise SystemExit("bucket " + bucket + " could not be created or found")
+            try:
+                call("POST", "/v2/AllowBucketKey", {
+                    "bucketId": bucket_id,
+                    "accessKeyId": KEY_ID,
+                    "permissions": {"read": True, "write": True, "owner": True},
+                })
+                print("granted access to", bucket, flush=True)
+            except urllib.error.HTTPError as exc:
+                print("allow bucket key", bucket, "returned", exc.code, flush=True)
+
+        print("garage init complete", flush=True)
+        PYEOF
+        python3 /tmp/garage_init.py
+    restart: "no"
+    stop_grace_period: 40s
+    networks:
+      - entegarage_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/icon.png
+    x-casaos:
+      id: com.hiraappstore.entegarage
+      envs:
+        - container: GARAGE_ADMIN_URL
+          description:
+            en_US: "Internal address of Garage's admin API. Leave as http://garage:3903."
+        - container: GARAGE_ADMIN_TOKEN
+          description:
+            en_US: "Pre-filled with a random value. Replace it with your own — generate one at randomkeygen.com — before going live. Must match GARAGE_ADMIN_TOKEN in the garage-config service exactly."
+        - container: GARAGE_KEY_ID
+          description:
+            en_US: "Garage access key ID. Must match ENTE_S3_B2_EU_CEN_KEY in the museum service. Garage requires this to start with GK followed by 24 hexadecimal characters."
+        - container: GARAGE_KEY_SECRET
+          description:
+            en_US: "Pre-filled with a random value. Replace it with your own 64-character hexadecimal value — generate one at randomkeygen.com — before going live. Must match ENTE_S3_B2_EU_CEN_SECRET in the museum service exactly."
+        - container: GARAGE_ZONE
+          description:
+            en_US: "Name Garage gives this machine in its cluster layout. Any short word is fine."
+        - container: GARAGE_CAPACITY_BYTES
+          description:
+            en_US: "How much space Garage is told it may use, in bytes. The default is 1 TB. This is a planning figure, not a hard cap."
+        - container: GARAGE_BUCKETS
+          description:
+            en_US: "Comma-separated buckets to create. Ente expects these three names. Do not rename b2-eu-cen unless you also change ENTE_S3_B2_EU_CEN_BUCKET."
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: entegarage-mailpit
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+    ports:
+      - target: 8025
+        published: "8456"
+        protocol: tcp
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - entegarage_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/icon.png
+    x-casaos:
+      id: com.hiraappstore.entegarage
+      envs:
+        - container: MP_SMTP_AUTH_ACCEPT_ANY
+          description:
+            en_US: "Lets Ente send mail without a login. Leave as 1."
+        - container: MP_SMTP_AUTH_ALLOW_INSECURE
+          description:
+            en_US: "Lets Ente send mail without TLS inside the Docker network. Leave as 1."
+      ports:
+        - container: "8025"
+          description:
+            en_US: "Mailpit web UI (published on host as 8456). Read your sign-up code here. Anyone on your network who can reach this port can read any code, so keep it off the public internet."
+
+
+networks:
+  entegarage_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.entegarage
+  architectures:
+    - amd64
+    - arm64
+  main: web
+  author: HSinghHira
+  category: Media
+  developer: ente-io
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/thumbnail-1.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Ente/thumbnail-2.png
+  title:
+    en_US: Ente Photos (Garage S3)
+  tagline:
+    en_US: End-to-end encrypted photo storage on Garage object storage
+  description:
+    en_US: >-
+      Ente is a self-hosted, end-to-end encrypted platform to store, share,
+      and rediscover your photos and videos across all your devices. This
+      build stores them in Garage, a lightweight open-source object store
+      that is still actively maintained.
+
+
+      **Features**
+
+
+      - End-to-end encryption for every photo and video you upload.
+
+
+      - Web app for your library plus a separate public-albums app for
+        sharing.
+
+
+      - Garage v2 for S3-compatible object storage — small memory footprint
+        and a live upstream, unlike the archived MinIO project.
+
+
+      - Garage's config file, cluster layout, access key and buckets are all
+        created automatically on first start.
+
+
+      - PostgreSQL 17 for accounts, albums and photo metadata.
+
+
+      - Bundled Mailpit catcher for sign-up verification codes — no SMTP
+        setup required to get started, with the option to switch to a real
+        provider later.
+
+
+      - Persistent storage under /DATA/AppData/$AppID for PostgreSQL and for
+        Garage metadata and data.
+
+
+      **How to use?**
+
+      1. Open Ente Photos (Garage) from the Zima OS dashboard.
+
+      2. Sign up for an account in the web app.
+
+      3. Open Mailpit at http://your-nas-ip:8456 and read the verification
+         code.
+
+      4. Type the code into the web app to finish signing up.
+
+      5. Every new account starts with Ente's normal 10 GB limit. Raise it
+         with a one-time database command — see the install tips.
+
+      6. Start uploading photos and videos, and set up a public album to
+         share with others.
+
+      7. SMTP settings and the S3 address can be changed later in the
+         service environment variables — no rebuild needed, just a
+         container restart.
+  tips:
+    before_install:
+      en_US: >-
+        1. Find your Zima OS box's IP address. You will need it three times.
+
+        2. Open the app settings before you install.
+
+        3. In the museum service, replace CHANGEME_NAS_IP in
+           ENTE_S3_B2_EU_CEN_ENDPOINT with that IP.
+
+        4. In the museum service, replace CHANGEME_NAS_IP in
+           ENTE_APPS_PUBLIC_ALBUMS with that IP.
+
+        5. In the web service, replace CHANGEME_NAS_IP in ENTE_API_ORIGIN
+           with that IP.
+
+        6. Do not use localhost. Phones cannot reach it.
+
+        7. Pick a new database password. Make one at randomkeygen.com.
+
+        8. Put it in ENTE_DB_PASSWORD (museum) and POSTGRES_PASSWORD
+           (postgres). Both must match.
+
+        9. Pick a new storage password. It must be 64 characters and use
+           only 0-9 and a-f.
+
+        10. Put it in ENTE_S3_B2_EU_CEN_SECRET (museum) and
+            GARAGE_KEY_SECRET (garage-init). Both must match.
+
+        11. Pick a new admin token at randomkeygen.com.
+
+        12. Put it in GARAGE_ADMIN_TOKEN in both garage-config and
+            garage-init. Both must match.
+
+        13. Replace GARAGE_RPC_SECRET in garage-config with a new 64
+            character value using only 0-9 and a-f.
+
+        14. Replace ENTE_KEY_ENCRYPTION, ENTE_KEY_HASH and ENTE_JWT_SECRET
+            in the museum service with your own values from
+            randomkeygen.com.
+
+        15. Start the Ente Photos (Garage) installation.
+
+        16. Wait for the entegarage-init container to finish before you
+            sign up. It sets up Garage's layout, key and buckets.
+
+        17. Open Ente Photos (Garage) from the Zima OS dashboard.
+
+        18. Sign up, then read your code at http://your-nas-ip:8456.
+
+        19. Your account starts with a 10 GB limit. To raise it, run:
+            docker exec entegarage-postgres psql -U pguser -d ente_db -c
+            "UPDATE subscriptions SET storage = 109951162777600;"
+
+        20. That command sets every account on this server to about
+            100 TB. Run it again any time you add a new account.
+
+        21. Important: the garage.toml file is written once. If you change
+            GARAGE_RPC_SECRET or GARAGE_ADMIN_TOKEN later, delete
+            /DATA/AppData/entegarage/garage_config/garage.toml and restart.
+
+        22. Important: changing a password later does not change it inside
+            PostgreSQL or Garage. Set them before the first start.
+
+        23. Important: changing ENTE_KEY_ENCRYPTION after you upload
+            photos makes those photos unreadable.
+  index: /
+  port_map: "8453"
+  scheme: http
+  is_uncontrolled: false
+  release_notes:
+    en_US: |-
+      - First version. Same Ente stack as the MinIO build, with Garage v2.3.0 in place of MinIO.
+      - Garage is pinned to a real version tag. The Ente server and web images only publish floating tags, so there is no single version field to track for the app as a whole.
+      - garage.toml is written by a busybox init service instead of being bind-mounted as a file, because a missing file on the host becomes an empty directory and breaks the container in a confusing way.
+      - Garage's cluster layout, access key and buckets are created through the v2 admin API on first start.
+      - No socat sidecar. The S3 endpoint is the box's own IP, which both the server and phones can reach.
+      - No storage-unlimited container. It ran a full extra Postgres image forever just to poll one column. Raising storage is now a one-time docker exec command in the install tips.
+  website: "https://ente.io"
+  repo: "https://github.com/ente/ente"
+  support: "https://github.com/ente/ente/issues"
+  docs: "https://ente.com/help/self-hosting/"

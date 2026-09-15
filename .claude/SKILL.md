@@ -23,8 +23,7 @@ Here is the cleaned-up and properly formatted Markdown table for your applicatio
 | -------------------------- | --------------------------------------------------------------------------------------------------------- |
 | OmniRoute                  | 8401                                                                                                      |
 | SearXNG                    | 8402                                                                                                      |
-| Ente                       | 8403 (API), 8404 (Photos web), 8405 (public albums), 8406 (MinIO S3), 8407 (Mailpit)                      |
-| _(support services)_       | Postfix relay — internal only, no published port                                                          |
+| Ente Photos (MinIO)        | 8403 (API), 8404 (Photos web), 8405 (public albums), 8406 (MinIO S3), 8407 (Mailpit)                      |
 | AFFiNE                     | 8408                                                                                                      |
 | Cloudreve                  | 8409 (web UI/API), 8410 (Aria2 remote-download port, tcp+udp)                                             |
 | Mailpit                    | 8411 (web UI), 8412 (SMTP)                                                                                |
@@ -57,8 +56,10 @@ Here is the cleaned-up and properly formatted Markdown table for your applicatio
 | Coder                      | 8448                                                                                                      |
 | VS Code                    | 8449 (HTTP), 8450 (HTTPS)                                                                                 |
 | VS Codium Web              | 8451                                                                                                      |
+| Ente Photos (Garage)       | 8452 (API), 8453 (Photos web), 8454 (public albums), 8455 (Garage S3), 8456 (Mailpit)                     |
+| Ente Photos (SeaweedFS)    | 8457 (API), 8458 (Photos web), 8459 (public albums), 8460 (SeaweedFS S3), 8461 (Mailpit)                  |
 
-Next new app starts at: **8452**
+Next new app starts at: **8462**
 
 - Claim the next unused number(s) in sequence and record them in this table
   _before_ writing the manifest, so two apps in progress at once can't
