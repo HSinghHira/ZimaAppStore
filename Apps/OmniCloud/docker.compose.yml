@@ -94,6 +94,7 @@ services:
     stop_grace_period: 40s
     volumes: []
 x-casaos:
+  id: com.hiraappstore.omnicloud
   architectures:
     - amd64
     - arm64
@@ -162,7 +163,6 @@ x-casaos:
          the container.
   docs: https://github.com/dimartarmizi/OmniCloud/tree/main/docs
   hostname: ""
-  id: com.hiraappstore.omnicloud
   index: /
   is_uncontrolled: false
   main: web

@@ -110,10 +110,6 @@ CasaOS doesn’t read `store.json` — instead, it can install a full custom app
 
 ---
 
-> ℹ️ **Postfix relay** — an internal SMTP relay used by the stack, not published on any host port.
-
----
-
 ## Support
 
 Found a bug or want to request an app? Open an issue on the [Zima OS GitHub repository](https://github.com/HSinghHira/ZimaAppStore/issues).
