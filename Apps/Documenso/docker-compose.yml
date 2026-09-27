@@ -14,13 +14,16 @@ services:
       database:
         condition: service_healthy
     environment:
+      # Authentication secrets
       - NEXTAUTH_SECRET=DwN9439C3sIE5xsxD1PrL8I9w9ptnDFCcW2riF8Qtv8=
       - NEXT_PRIVATE_ENCRYPTION_KEY=64MTHTfNU3k/ezJpNcTA+/oy4PJfRrnfXpaKz/cPyvY=
       - NEXT_PRIVATE_ENCRYPTION_SECONDARY_KEY=GHNkJzEuoOtDwbhL2QHAjhU4K9w9o9Ggs7YOVEUGRs4=
-      - NEXT_PUBLIC_WEBAPP_URL=https://SECURE-URL
+
+      - NEXT_PUBLIC_WEBAPP_URL=https://SECURE-WEBSITE
       - NEXT_PRIVATE_INTERNAL_WEBAPP_URL=http://localhost:3000
       - NEXT_PRIVATE_DATABASE_URL=postgresql://documenso:2ac7833ce01076c3da8ea747fa8c8100@database:5432/documenso
       - NEXT_PRIVATE_DIRECT_DATABASE_URL=postgresql://documenso:2ac7833ce01076c3da8ea747fa8c8100@database:5432/documenso
+
       - NEXT_PRIVATE_SMTP_TRANSPORT=smtp-auth
       - NEXT_PRIVATE_SMTP_HOST=CHANGEME_SMTP_HOST
       - NEXT_PRIVATE_SMTP_PORT=587
@@ -28,16 +31,33 @@ services:
       - NEXT_PRIVATE_SMTP_PASSWORD=CHANGEME_SMTP_PASSWORD
       - NEXT_PRIVATE_SMTP_FROM_NAME=Documenso
       - NEXT_PRIVATE_SMTP_FROM_ADDRESS=CHANGEME_SMTP_FROM_ADDRESS
+
+      # Signing certificate
       - NEXT_PRIVATE_SIGNING_PASSPHRASE=CHANGEME_SIGNING_PASSPHRASE
+
+      # Google - disabled
       - NEXT_PRIVATE_GOOGLE_CLIENT_ID=
       - NEXT_PRIVATE_GOOGLE_CLIENT_SECRET=
+
+      # Microsoft - disabled
       - NEXT_PRIVATE_MICROSOFT_CLIENT_ID=
       - NEXT_PRIVATE_MICROSOFT_CLIENT_SECRET=
+
+      # Pocket ID - ONLY login provider
       - NEXT_PRIVATE_OIDC_WELL_KNOWN=
       - NEXT_PRIVATE_OIDC_CLIENT_ID=
       - NEXT_PRIVATE_OIDC_CLIENT_SECRET=
-      - NEXT_PRIVATE_OIDC_PROVIDER_LABEL=OIDC
-      - NEXT_PUBLIC_DISABLE_SIGNUP=false
+      - NEXT_PRIVATE_OIDC_PROVIDER_LABEL=
+
+      # Disable Default Email/Password Signin
+      - NEXT_PUBLIC_DISABLE_EMAIL_PASSWORD_SIGNIN=
+
+      # Disable Google/Microsoft signin
+      - NEXT_PUBLIC_DISABLE_GOOGLE_SIGNIN=true
+      - NEXT_PUBLIC_DISABLE_MICROSOFT_SIGNIN=true
+
+      # No new account registration
+      - NEXT_PUBLIC_DISABLE_SIGNUP=
     networks:
       - documenso_network
     ports:
@@ -144,18 +164,30 @@ services:
         - container: NEXT_PRIVATE_OIDC_WELL_KNOWN
           description:
             en_US: >-
-              Optional. Well-known configuration URL from your OIDC provider
-              (Authentik, Keycloak, Authelia, etc). Leave blank to skip OIDC
-              sign-in.
+              Well-known configuration URL from your Pocket ID instance,
+              e.g. https://auth.example.com/.well-known/openid-configuration.
         - container: NEXT_PRIVATE_OIDC_CLIENT_ID
           description:
-            en_US: Optional. Client ID from your OIDC provider. Leave blank to skip OIDC sign-in.
+            en_US: Client ID from the OIDC client you created in Pocket ID.
         - container: NEXT_PRIVATE_OIDC_CLIENT_SECRET
           description:
-            en_US: Optional. Client secret from your OIDC provider. Leave blank to skip OIDC sign-in.
+            en_US: Client secret from the same Pocket ID OIDC client.
         - container: NEXT_PRIVATE_OIDC_PROVIDER_LABEL
           description:
-            en_US: Name shown on the OIDC sign-in button, e.g. your company name.
+            en_US: Name shown on the OIDC sign-in button, e.g. Pocket ID.
+        - container: NEXT_PUBLIC_DISABLE_EMAIL_PASSWORD_SIGNIN
+          description:
+            en_US: >-
+              Set to true to hide email/password sign-in and require Pocket
+              ID for every login. In Pocket ID, make sure each user's email
+              is verified, or Documenso will reject their sign-in with an
+              UNVERIFIED_EMAIL error.
+        - container: NEXT_PUBLIC_DISABLE_GOOGLE_SIGNIN
+          description:
+            en_US: Set to true to hide the Google sign-in button.
+        - container: NEXT_PUBLIC_DISABLE_MICROSOFT_SIGNIN
+          description:
+            en_US: Set to true to hide the Microsoft sign-in button.
       ports:
         - container: "3000"
           description:
@@ -282,65 +314,25 @@ x-casaos:
   tips:
     before_install:
       en_US: >-
-        1. Open the app's environment variables before you start the
-           install.
+        1. Open the app's environment variables before you start the install.
+
+        2. Start the Documenso installation.
 
 
-        2. Find NEXT_PRIVATE_SMTP_HOST, NEXT_PRIVATE_SMTP_USERNAME,
-           NEXT_PRIVATE_SMTP_PASSWORD, and NEXT_PRIVATE_SMTP_FROM_ADDRESS in
-           the documenso service. They start with CHANGEME.
+        3. Wait for the database to show healthy and for Documenso to finish its first-time setup. Check the logs if it takes a while.
 
 
-        3. Replace them with your real SMTP details so Documenso can send
-           signing emails.
+        4. Open Documenso from the Zima OS dashboard.
 
 
-        4. Find NEXT_PRIVATE_SIGNING_PASSPHRASE. Replace CHANGEME with the
-           passphrase you used when you made your cert.p12 file.
+        5. Sign up to create your account.
 
 
-        5. NEXTAUTH_SECRET, NEXT_PRIVATE_ENCRYPTION_KEY, and
-           NEXT_PRIVATE_ENCRYPTION_SECONDARY_KEY are pre-filled with random
-           values. Replace them with your own before going live — generate
-           new ones at randomkeygen.com.
+        6. To make your account an admin, you need to update it directly in the database with Command:
+         docker exec -it database psql -U documenso -d documenso -c "UPDATE \"User\" SET roles = '{ADMIN}' WHERE email = 'your@email.com';"
 
 
-        6. Before you start the app, make a signing certificate and copy it
-           to /DATA/AppData/$AppID/cert.p12 on your device. Documenso needs
-           this file to exist the first time it starts.
-
-
-        7. NEXT_PUBLIC_WEBAPP_URL is set to your device's address and port.
-           Change it if you use a different domain or a reverse proxy.
-
-
-        7a. Google, Microsoft, and OIDC sign-in are optional. Leave
-            NEXT_PRIVATE_GOOGLE_CLIENT_ID, NEXT_PRIVATE_MICROSOFT_CLIENT_ID,
-            and NEXT_PRIVATE_OIDC_CLIENT_ID (and their matching secrets)
-            blank if you do not want them. Fill them in with the client ID
-            and secret from that provider if you do.
-
-
-        8. Start the Documenso installation.
-
-
-        9. Wait for the database to show healthy and for Documenso to finish
-           its first-time setup. Check the logs if it takes a while.
-
-
-        10. Open Documenso from the Zima OS dashboard.
-
-
-        11. Sign up to create your account.
-
-
-        12. To make your account an admin, you need to update it directly in
-            the database.
-
-
-        13. Important: POSTGRES_PASSWORD is only used the first time the
-            database starts. Changing it later in the compose file will not
-            change the already-created database password.
+        7. Important: POSTGRES_PASSWORD is only used the first time the database starts. Changing it later in the compose file will not change the already-created database password.
   index: /
   port_map: "8446"
   scheme: http

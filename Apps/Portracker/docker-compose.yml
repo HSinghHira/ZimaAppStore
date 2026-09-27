@@ -1,0 +1,155 @@
+name: portracker
+
+services:
+  portracker:
+    image: mostafawahied/portracker:latest
+    container_name: portracker
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    pid: "host"
+    cap_add:
+      - SYS_PTRACE
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    environment:
+      - ENABLE_AUTH=true
+      - SESSION_SECRET=8f3a1c9e2b4d6f0a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b3d5f7a
+    ports:
+      - target: 4999
+        published: "8462"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Portracker/icon.png
+    x-casaos:
+      id: com.hiraappstore.portracker
+      envs:
+        - container: ENABLE_AUTH
+          description:
+            en_US: Turns on portracker's built-in login screen and setup wizard. Set to false to leave the dashboard open to anyone on the network.
+        - container: SESSION_SECRET
+          description:
+            en_US: >-
+              Pre-filled with a random value. Replace it with your own —
+              generate one at
+              [randomkeygen.com](https://randomkeygen.com/) — before
+              going live. Keeps you logged in after the container
+              restarts.
+      ports:
+        - container: "4999"
+          description:
+            en_US: Dashboard web UI (published on host as 8462)
+      volumes:
+        - container: /data
+          description:
+            en_US: The embedded SQLite database and all app settings.
+        - container: /var/run/docker.sock
+          description:
+            en_US: Read-only access to the Docker socket, used to discover containers and their ports.
+
+x-casaos:
+  id: com.hiraappstore.portracker
+  architectures:
+    - amd64
+    - arm64
+  main: portracker
+  author: HSinghHira
+  category: Networking
+  developer: mostafa-wahied
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Portracker/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Portracker/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Portracker/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Portracker/thumbnail-1.png
+  title:
+    en_US: portracker
+  tagline:
+    en_US: Live, self-hosted port monitoring and discovery for your homelab.
+  description:
+    en_US: >-
+      portracker automatically scans your host and Docker containers to
+      build a live, accurate map of every port in use, so messy
+      spreadsheets and surprise port conflicts stop happening.
+
+
+      **Features**
+
+
+      - Automatic port discovery for both host system ports and Docker
+        containers, with clear separation between internal and published
+        ports
+
+      - Peer-to-peer monitoring — add other portracker instances as
+        peers to see every server, container, and VM from one dashboard
+
+      - Optional built-in authentication with a first-run setup wizard;
+        portracker does not support OIDC or any external identity
+        provider yet, only its own username and password login
+
+      - Lightweight single-container app with an embedded SQLite
+        database — no external database required
+
+
+      **How to use?**
+
+      1. Open portracker from the Zima OS dashboard.
+      2. Since authentication is turned on, complete the setup wizard
+         and create your admin username and password.
+      3. portracker starts scanning right away — no further setup is
+         needed to see host and Docker ports.
+      4. Add other portracker instances as peers from the Settings gear
+         icon to monitor multiple machines from one screen.
+      5. Caching, UDP scanning, and TrueNAS integration can all be
+         tweaked later through the container's environment variables.
+  tips:
+    before_install:
+      en_US: >-
+        1. Find SESSION_SECRET in the portracker service.
+
+        2. Replace it with your own — generate one at
+           [randomkeygen.com](https://randomkeygen.com/) — before going
+           live.
+
+        3. Start the portracker installation.
+
+        4. Open portracker from the Zima OS dashboard.
+
+        5. You will see a login screen because ENABLE_AUTH is turned
+           on.
+
+        6. Follow the setup wizard to create your admin username and
+           password.
+
+        7. If you ever forget your password, look up portracker's
+           RECOVERY_MODE setting in its own docs to reset it.
+  index: /
+  port_map: "8462"
+  scheme: http
+  is_uncontrolled: false
+  release_notes:
+    en_US: |-
+      - Initial version
+      - Upstream only publishes a floating `latest` tag, so no pinned
+        version is tracked here
+  repo: "https://github.com/mostafa-wahied/portracker"
+  support: "https://github.com/mostafa-wahied/portracker/issues"
+  docs: "https://github.com/mostafa-wahied/portracker#readme"
