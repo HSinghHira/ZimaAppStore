@@ -46,7 +46,8 @@ order apps were added:
 | Ente Photos (Garage) | 8452 (API), 8453 (Photos web), 8454 (public albums), 8455 (Garage S3), 8456 (Mailpit) |
 | Ente Photos (SeaweedFS) | 8457 (API), 8458 (Photos web), 8459 (public albums), 8460 (SeaweedFS S3), 8461 (Mailpit) |
 | Portracker | 8462 |
-
+| AutoXpose | 8464 |
+ 
 **Next new app starts at: 8464**
 
 ## Rules

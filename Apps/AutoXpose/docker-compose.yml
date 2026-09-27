@@ -1,0 +1,157 @@
+name: autoxpose
+
+services:
+  autoxpose:
+    image: mostafawahied/autoxpose:0.5.2
+    container_name: autoxpose
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    environment:
+      - SERVER_IP=CHANGEME
+      - LAN_IP=CHANGEME
+      - LOG_LEVEL=info
+    ports:
+      - target: 3000
+        published: "8464"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /app/packages/backend/data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        bind:
+          create_host_path: false
+        read_only: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/AutoXpose/icon.png
+    x-casaos:
+      id: com.hiraappstore.autoxpose
+      envs:
+        - container: SERVER_IP
+          description:
+            en_US: Your public IP or hostname. Used for DNS A records.
+        - container: LAN_IP
+          description:
+            en_US: Your LAN/private IP. Used as the reverse proxy target. Auto-detected as a fallback if left blank.
+        - container: LOG_LEVEL
+          description:
+            en_US: How much detail shows up in the logs. One of debug, info, warn, or error.
+      ports:
+        - container: "3000"
+          description:
+            en_US: Web UI (published on host as 8464)
+      volumes:
+        - container: /app/packages/backend/data
+          description:
+            en_US: The SQLite database and app settings.
+        - container: /var/run/docker.sock
+          description:
+            en_US: Read-only access to the Docker socket, used to discover other containers and read their autoxpose labels.
+
+x-casaos:
+  id: com.hiraappstore.autoxpose
+  architectures:
+    - amd64
+    - arm64
+  main: autoxpose
+  author: HSinghHira
+  category: Networking
+  developer: mostafa-wahied
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/AutoXpose/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/AutoXpose/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/AutoXpose/thumbnail.png
+  title:
+    en_US: AutoXpose
+  tagline:
+    en_US: Label a container, and AutoXpose builds the DNS record and reverse proxy for it.
+  description:
+    en_US: >-
+      AutoXpose watches your Docker containers and, when it finds one with an
+      autoxpose label, automatically creates the DNS record and configures
+      your reverse proxy with SSL — no manual setup required.
+
+
+      **Features**
+
+
+      - Scans running containers for autoxpose labels and lists what it finds
+
+      - Creates and removes DNS records, with propagation checks, across
+        Cloudflare, Netlify, DigitalOcean, or Porkbun
+
+      - Configures Nginx Proxy Manager or Caddy as the reverse proxy, with
+        automatic HTTPS/scheme detection
+
+      - Optional auto-expose mode (`autoxpose.enable=auto`) skips the manual
+        "Expose" click entirely
+
+      - Finds and cleans up orphaned DNS records and proxy hosts left behind
+        by removed containers
+
+      - Single container with an embedded SQLite database under
+        /DATA/AppData/$AppID — no external database needed
+
+
+      **How to use?**
+
+      1. Open AutoXpose from the Zima OS dashboard.
+
+      2. Go to Settings and add a DNS provider (Cloudflare, Netlify,
+         DigitalOcean, or Porkbun) and a proxy provider (Nginx Proxy Manager
+         or Caddy).
+
+      3. Add the labels `autoxpose.enable=true` (or `auto`) and, optionally,
+         `autoxpose.subdomain=myapp` to any container you want to expose,
+         then recreate that container.
+
+      4. Open AutoXpose again — the container shows up under Discovered
+         Services. Click "Expose" if you used `enable=true`.
+
+      5. DNS provider tokens, proxy credentials, SERVER_IP, and LAN_IP can
+         all be changed later from Settings without rebuilding the container.
+  tips:
+    before_install:
+      en_US: >-
+        1. Open the app configuration before starting the installation.
+
+        2. Add SERVER_IP variable, means your Public IP.
+
+        3. Add LAN_IP variable, means your Private IP.
+
+        4. Start the AutoXpose installation.
+
+        5. Open AutoXpose from the Zima OS dashboard.
+
+        6. Go to Settings and add your DNS provider and proxy provider.
+
+        7. Add an autoxpose.enable label to any container you want exposed,
+           then recreate that container so the label takes effect.
+
+        8. You can change SERVER_IP, LAN_IP, and provider settings later
+            from Settings.
+  index: /
+  port_map: "8464"
+  scheme: http
+  is_uncontrolled: false
+  version: "0.5.2"
+  update_at: "2026-09-27"
+  release_notes:
+    en_US: |-
+      - Initial version
+  repo: "https://github.com/mostafa-wahied/autoxpose"
+  support: "https://github.com/mostafa-wahied/autoxpose/issues"
+  docs: "https://github.com/mostafa-wahied/autoxpose/tree/main/README.md"
