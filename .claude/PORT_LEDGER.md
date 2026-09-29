@@ -47,8 +47,10 @@ order apps were added:
 | Ente Photos (SeaweedFS) | 8457 (API), 8458 (Photos web), 8459 (public albums), 8460 (SeaweedFS S3), 8461 (Mailpit) |
 | Portracker | 8462 |
 | AutoXpose | 8464 |
-| Trackie | 8465 (web UI), 8466 (bundled Logto sign-in server), 8467 (bundled Logto admin console) 
-**Next new app starts at: 8468**
+| Trackie | 8465 (web UI), 8466 (bundled Logto sign-in server), 8467 (bundled Logto admin console) |
+| Homedex | 8468 (web UI/API). Docker socket proxy has no published port — reached only over the internal discovery network. |
+
+**Next new app starts at: 8469**
 
 ## Rules
 

@@ -1,0 +1,214 @@
+name: homedex
+
+services:
+  docker-socket-proxy:
+    image: tecnativa/docker-socket-proxy:v0.4.2
+    container_name: docker-socket-proxy
+    restart: unless-stopped
+    stop_grace_period: 40s
+    environment:
+      - CONTAINERS=1
+      - IMAGES=1
+      - INFO=1
+      - NETWORKS=1
+      - VERSION=1
+      - POST=0
+      - ALLOW_START=0
+      - ALLOW_STOP=0
+      - ALLOW_RESTARTS=0
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
+    read_only: true
+    tmpfs:
+      - /run
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - discovery
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 128M
+        reservations:
+          cpus: "0.00"
+          memory: 32M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Homedex/icon.png
+    x-casaos:
+      id: com.hiraappstore.homedex
+      envs:
+        - container: POST
+          description:
+            en_US: Keep this at 0. It blocks every Docker action that changes something, so Homedex can only read.
+
+  homedex:
+    image: ghcr.io/harshshah0203/homedex:0.2.5
+    container_name: homedex
+    restart: unless-stopped
+    stop_grace_period: 40s
+    user: "0:0"
+    depends_on:
+      - docker-socket-proxy
+    environment:
+      - HOMEDEX_DATA_DIR=/data
+      - HOMEDEX_LISTEN=:7377
+      - HOMEDEX_ADMIN_PASSWORD=bdbfd9c44fa3ac856d04e403f3e22f95
+    ports:
+      - target: 7377
+        published: "8468"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /data
+        bind:
+          create_host_path: true
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - app
+      - discovery
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Homedex/icon.png
+    x-casaos:
+      id: com.hiraappstore.homedex
+      envs:
+        - container: HOMEDEX_ADMIN_PASSWORD
+          description:
+            en_US: >-
+              Pre-filled with a random value. It is your admin password.
+              Replace it with your own (12 or more characters) — generate
+              one at [randomkeygen.com](https://randomkeygen.com/) — before
+              going live.
+      ports:
+        - container: "7377"
+          description:
+            en_US: Web UI and API (published on host as 8468)
+      volumes:
+        - container: /data
+          description:
+            en_US: The Homedex SQLite database and its settings.
+
+networks:
+  app:
+    internal: false
+  discovery:
+    internal: true
+
+x-casaos:
+  id: com.hiraappstore.homedex
+  architectures:
+    - amd64
+    - arm64
+  main: homedex
+  author: HSinghHira
+  category: Networking
+  developer: Harsh Shah
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Homedex/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Homedex/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Homedex/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Homedex/thumbnail-2.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Homedex/thumbnail-3.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Homedex/thumbnail-4.png
+  title:
+    en_US: Homedex
+  tagline:
+    en_US: The missing inventory for your homelab.
+  description:
+    en_US: >-
+      A read-only homelab inventory. It scans Docker, Proxmox, Tailscale and
+      your reverse proxy, then builds a searchable record of services, hosts,
+      ports, routes, certificates, domains, and changes.
+
+
+      **Features**
+
+
+      - Finds every container, image, port, and network on your Docker hosts
+
+      - Shows which reverse proxy route leads to which container, and flags broken ones
+
+      - Tracks certificate and domain expiry by days remaining
+
+      - Change feed shows what moved between scans
+
+      - Read-only by design: a filtering socket proxy blocks any Docker action that changes something
+
+      - SQLite storage under /DATA/AppData/$AppID
+
+
+      **How to use?**
+
+      1. Open Homedex from the Zima OS dashboard.
+
+      2. Sign in with the admin password you set before install.
+
+      3. In the setup wizard, keep the prefilled source `tcp://docker-socket-proxy:2375` and run the first scan.
+
+      4. Add more sources later under **Sources**: Traefik, Caddy, Nginx Proxy Manager, Proxmox, Tailscale, and more.
+
+      5. Export Markdown, JSON, or CSV, or share a read-only view from the UI.
+  tips:
+    before_install:
+      en_US: >-
+        1. Open the app configuration before starting the installation.
+
+
+        2. Find HOMEDEX_ADMIN_PASSWORD in the homedex service.
+
+
+        3. It is your admin password. It is filled with a random value.
+
+
+        4. Replace it with your own. Use 12 or more characters.
+
+
+        5. Make one at [randomkeygen.com](https://randomkeygen.com/).
+
+
+        6. Write it down. You need it to sign in.
+
+
+        7. Start the Homedex installation.
+
+
+        8. Open Homedex from the Zima OS dashboard.
+
+
+        9. Sign in and finish the setup wizard.
+
+
+        10. Manage sources later under Sources in the app.
+  index: /
+  port_map: "8468"
+  scheme: http
+  is_uncontrolled: false
+  version: "0.2.5"
+  update_at: "2026-09-29"
+  release_notes:
+    en_US: |-
+      - Initial version
+  repo: "https://github.com/HarshShah0203/homedex"
+  support: "https://github.com/HarshShah0203/homedex/issues"
+  docs: "https://github.com/HarshShah0203/homedex/tree/main/docs"
