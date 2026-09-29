@@ -1,0 +1,359 @@
+name: trackie
+
+services:
+  trackie:
+    image: ghcr.io/trackie-nz/trackie:26.9.0-trackie.2
+    container_name: trackie
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    depends_on:
+      - logto
+    environment:
+      - NODE_ENV=production
+      - ACTUAL_LOGIN_METHOD=openid
+      - ACTUAL_OPENID_ENFORCE=true
+      - ACTUAL_USER_CREATION_MODE=login
+      - ACTUAL_TOKEN_EXPIRATION=7776000
+      - ACTUAL_OPENID_SERVER_HOSTNAME=http://[SERVER-IP]
+      - ACTUAL_OPENID_DISCOVERY_URL=
+      - ACTUAL_OPENID_CLIENT_ID=
+      - ACTUAL_OPENID_CLIENT_SECRET=
+      - ACTUAL_IDENTITY_SECRET=969943b041388e6d3709e7df6dfd17ffdd3d91e35ed28f2122a86e987
+      - ACTUAL_AKAHU_TOKEN_SECRET=9553c430823726a9a7789f2337ff11402145c7f3535f1e9cf735f
+      - TRACKIE_SUPPORT_EMAIL=
+      - TZ=Pacific/Auckland
+    ports:
+      - target: 5006
+        published: "8465"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Trackie/icon.png
+    x-casaos:
+      id: com.hiraappstore.trackie
+      envs:
+        - container: ACTUAL_OPENID_SERVER_HOSTNAME
+          description:
+            en_US: >-
+              The public web address people will use to reach Trackie, for
+              example http://192.168.1.50:8465. Must include the port.
+        - container: ACTUAL_OPENID_DISCOVERY_URL
+          description:
+            en_US: >-
+              The sign-in server's discovery link. Use your Logto address
+              followed by /oidc/.well-known/openid-configuration, for
+              example http://192.168.1.50:8466/oidc/.well-known/openid-configuration.
+        - container: ACTUAL_OPENID_CLIENT_ID
+          description:
+            en_US: >-
+              Comes from Logto after you register Trackie as an app there.
+              See the setup steps below.
+        - container: ACTUAL_OPENID_CLIENT_SECRET
+          description:
+            en_US: >-
+              Also comes from Logto after you register Trackie as an app
+              there. See the setup steps below.
+        - container: ACTUAL_IDENTITY_SECRET
+          description:
+            en_US: >-
+              Pre-filled with a random value. Replace it with your own —
+              generate one at [randomkeygen.com](https://randomkeygen.com/)
+              — before going live. Never change it again once people have
+              signed in, or everyone gets locked out of their budget.
+        - container: ACTUAL_AKAHU_TOKEN_SECRET
+          description:
+            en_US: >-
+              Pre-filled with a random value. Replace it with your own —
+              generate one at [randomkeygen.com](https://randomkeygen.com/)
+              — before going live.
+        - container: TRACKIE_SUPPORT_EMAIL
+          description:
+            en_US: >-
+              Optional. An email address shown in the app's Help menu.
+              Leave blank to hide that menu entry.
+      ports:
+        - container: "5006"
+          description:
+            en_US: Trackie web UI (published on host as 8465)
+      volumes:
+        - container: /data
+          description:
+            en_US: Budgets, accounts, and the Trackie database.
+
+  logto:
+    image: svhd/logto:1.37.1
+    container_name: trackie-logto
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    depends_on:
+      logto-db:
+        condition: service_healthy
+    environment:
+      - TRUST_PROXY_HEADER=0
+      - ENDPOINT=http://[SERVER-IP]:8466
+      - ADMIN_ENDPOINT=http://[SERVER-IP]:8467
+      - DB_URL=postgres://logto:4wBTB3OvY6JjqUY1osBmRtvZwzmjBWZJ@logto-db:5432/logto
+      - OIDC_PRIVATE_KEYS=
+    entrypoint: ["sh", "-c", "npm run cli db seed -- --swe && npm start"]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/oidc/.well-known/openid-configuration"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    ports:
+      - target: 3001
+        published: "8466"
+        protocol: tcp
+      - target: 3002
+        published: "8467"
+        protocol: tcp
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Trackie/icon.png
+    x-casaos:
+      id: com.hiraappstore.trackie
+      envs:
+        - container: TRUST_PROXY_HEADER
+          description:
+            en_US: >-
+              Set to 1 only if you put an HTTPS reverse proxy in front of
+              Logto. Leave at 0 for a plain http setup.
+        - container: ENDPOINT
+          description:
+            en_US: >-
+              The public web address for the sign-in server, for example
+              http://192.168.1.50:8466. Must include the port.
+        - container: ADMIN_ENDPOINT
+          description:
+            en_US: >-
+              The public web address for the sign-in admin console, for
+              example http://192.168.1.50:8467. Must include the port.
+        - container: DB_URL
+          description:
+            en_US: >-
+              Pre-filled with a random password that must match
+              POSTGRES_PASSWORD in the logto-db service. Only change the
+              host/port/database parts if you know what you're doing.
+        - container: OIDC_PRIVATE_KEYS
+          description:
+            en_US: >-
+              Optional. Leave blank and rotate the signing key to RSA in
+              the Logto admin console after first boot instead. See the
+              setup steps below.
+      ports:
+        - container: "3001"
+          description:
+            en_US: Sign-in server (published on host as 8466)
+        - container: "3002"
+          description:
+            en_US: Sign-in admin console (published on host as 8467)
+
+  logto-db:
+    image: postgres:17-alpine
+    container_name: trackie-logto-db
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    environment:
+      - POSTGRES_USER=logto
+      - POSTGRES_PASSWORD=4wBTB3OvY6JjqUY1osBmRtvZwzmjBWZJ
+      - POSTGRES_DB=logto
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U logto"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/logto-db
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Trackie/icon.png
+    x-casaos:
+      id: com.hiraappstore.trackie
+      envs:
+        - container: POSTGRES_PASSWORD
+          description:
+            en_US: >-
+              Pre-filled with a random password that must match the
+              password inside DB_URL in the logto service.
+      volumes:
+        - container: /var/lib/postgresql/data
+          description:
+            en_US: The sign-in server's own database. Not your budget data.
+
+x-casaos:
+  id: com.hiraappstore.trackie
+  architectures:
+    - amd64
+  main: trackie
+  author: HSinghHira
+  category: Finance
+  developer: trackie-nz
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Trackie/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Trackie/thumbnail.png
+  screenshot-links:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Trackie/thumbnail-1.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Trackie/thumbnail-2.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Trackie/thumbnail.png
+  title:
+    en_US: Trackie (Actual Budget - NZ Fork)
+  tagline:
+    en_US: Free, private budgeting for New Zealand, built on Actual Budget.
+  description:
+    en_US: >-
+      Trackie is a New Zealand-focused fork of Actual Budget, a fast,
+      private, open-source budgeting app. This manifest self-hosts the
+      same code that runs trackie.nz.
+
+
+      **Features**
+
+
+      - Your own private budget per person, created on first sign-in
+
+      - Passwordless sign-in through a bundled, self-hosted Logto server
+
+      - Optional end-to-end encryption you control, on top of Actual Budget
+
+      - Per-user NZ bank sync via Akahu, using each person's own tokens
+
+      - NZ defaults: DD/MM/YYYY dates, week starts Monday
+
+
+      **How to use?**
+
+
+      1. Finish the one-time Logto setup described in the install tips.
+
+      2. Open Trackie from the Zima OS dashboard.
+
+      3. Sign in with your email to create your private budget.
+
+      4. Link your bank under Settings if you want automatic transaction
+         syncing.
+
+      5. Everything else is configured later from Settings inside Trackie,
+         or the Logto admin console for sign-in settings.
+  tips:
+    before_install:
+      en_US: >-
+        1. Open the app configuration before starting the installation.
+
+
+        2. In the trackie service, find ACTUAL_OPENID_SERVER_HOSTNAME. Set
+           it to the address you will use for Trackie, like
+           http://192.168.1.50:8465.
+
+
+        3. In the logto service, find ENDPOINT. Set it to
+           http://192.168.1.50:8466 (same host, port 8466).
+
+
+        4. In the logto service, find ADMIN_ENDPOINT. Set it to
+           http://192.168.1.50:8467 (same host, port 8467).
+
+
+        5. In the trackie service, find ACTUAL_IDENTITY_SECRET and
+           ACTUAL_AKAHU_TOKEN_SECRET. Replace both with your own random
+           values from [randomkeygen.com](https://randomkeygen.com/).
+
+
+        6. Leave ACTUAL_OPENID_DISCOVERY_URL, ACTUAL_OPENID_CLIENT_ID, and
+           ACTUAL_OPENID_CLIENT_SECRET as they are for now. You will fill
+           these in after step 10.
+
+
+        7. Start the Trackie installation and wait for all three
+           containers to show as running.
+
+
+        8. Open the Logto admin console at your ADMIN_ENDPOINT address.
+
+
+        9. In the Logto console, go to Sign-in experience and turn on the
+           email connector so login codes can be sent. If you skip this,
+           set up an SMTP connector under Connectors first.
+
+
+        10. In the Logto console, go to Applications and add a new
+            Traditional Web application called Trackie. Set its redirect
+            URI to your SERVER_HOSTNAME plus /openid/callback, for example
+            http://192.168.1.50:8465/openid/callback.
+
+
+        11. Copy the Application ID and Application Secret Logto shows
+            you.
+
+
+        12. Go back to the app configuration. Set
+            ACTUAL_OPENID_CLIENT_ID and ACTUAL_OPENID_CLIENT_SECRET in the
+            trackie service to the values from step 11.
+
+
+        13. Set ACTUAL_OPENID_DISCOVERY_URL in the trackie service to your
+            ENDPOINT address plus /oidc/.well-known/openid-configuration,
+            for example http://192.168.1.50:8466/oidc/.well-known/openid-configuration.
+
+
+        14. In the Logto console, go to Signing keys and rotate the key
+            to RSA. Trackie will not be able to sign you in until this is
+            done.
+
+
+        15. Restart the Trackie app so the new settings take effect.
+
+
+        16. Open Trackie from the Zima OS dashboard and sign in with your
+            email to create your budget.
+
+
+        17. You can change bank sync, encryption, and other settings
+            later from Settings inside Trackie, without reinstalling.
+  index: /
+  port_map: "8465"
+  scheme: http
+  is_uncontrolled: false
+  version: "26.9.0-trackie.2"
+  update_at: "2026-09-27"
+  release_notes:
+    en_US: |-
+      - Initial version
+      - Bundles a self-hosted Logto server (pinned 1.37.1) plus its own
+        Postgres, since Trackie requires an OIDC provider and enforces
+        passwordless sign-in
+  repo: "https://github.com/trackie-nz/trackie"
+  support: "https://github.com/trackie-nz/trackie/issues"
+  docs: "https://github.com/trackie-nz/trackie/tree/main/docs"
