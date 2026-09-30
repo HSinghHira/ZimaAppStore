@@ -49,8 +49,9 @@ order apps were added:
 | AutoXpose | 8464 |
 | Trackie | 8465 (web UI), 8466 (bundled Logto sign-in server), 8467 (bundled Logto admin console) |
 | Homedex | 8468 (web UI/API). Docker socket proxy has no published port — reached only over the internal discovery network. |
+| n8n OIDC | 8469 (web UI/API and webhooks). Init container has no published port — it only downloads the OIDC hook, then exits. |
 
-**Next new app starts at: 8469**
+**Next new app starts at: 8470**
 
 ## Rules
 
