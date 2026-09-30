@@ -1,0 +1,209 @@
+name: n8n-oidc
+
+services:
+  n8n-oidc-init:
+    image: alpine:3.20
+    container_name: n8n-oidc-init
+    restart: "no"
+    network_mode: bridge
+    command:
+      - sh
+      - -c
+      - >-
+        mkdir -p /n8n &&
+        wget -q -O /n8n/hooks.js https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/N8N-OIDC/hooks.js &&
+        echo "dca11f0d87c3b894a6194a7c47a31b1bb63aa5ad8b5b190341d3db80fab30160  /n8n/hooks.js" | sha256sum -c - &&
+        chown 1000:1000 /n8n /n8n/hooks.js &&
+        chmod 644 /n8n/hooks.js
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/n8n
+        target: /n8n
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 64M
+        reservations:
+          cpus: "0.00"
+          memory: 16M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/N8N-OIDC/icon.png
+    x-casaos:
+      id: com.hiraappstore.n8n-oidc
+      volumes:
+        - container: /n8n
+          description:
+            en_US: Same folder as n8n's data. Holds the checked OIDC hook file.
+
+  n8n-oidc:
+    image: n8nio/n8n:2.30.1
+    container_name: n8n-oidc
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    depends_on:
+      n8n-oidc-init:
+        condition: service_completed_successfully
+    environment:
+      - TZ=$TZ
+      - N8N_PROTOCOL=http
+      - N8N_SECURE_COOKIE=false
+      - EXTERNAL_HOOK_FILES=/home/node/.n8n/hooks.js
+      - EXTERNAL_FRONTEND_HOOKS_URLS=/assets/oidc-frontend-hook.js
+      - N8N_ADDITIONAL_NON_UI_ROUTES=auth
+      - OIDC_ISSUER_URL=CHANGEME_OIDC_ISSUER_URL
+      - OIDC_CLIENT_ID=CHANGEME_OIDC_CLIENT_ID
+      - OIDC_CLIENT_SECRET=CHANGEME_OIDC_CLIENT_SECRET
+      - OIDC_REDIRECT_URI=CHANGEME_OIDC_REDIRECT_URI
+    ports:
+      - target: 5678
+        published: "8469"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/n8n
+        target: /home/node/.n8n
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.00"
+          memory: 512M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/N8N-OIDC/icon.png
+    x-casaos:
+      id: com.hiraappstore.n8n-oidc
+      envs:
+        - container: TZ
+          description:
+            en_US: Timezone for n8n, for example Pacific/Auckland. Pre-filled from your Zima OS timezone.
+        - container: N8N_PROTOCOL
+          description:
+            en_US: Use http for a plain LAN address. Change to https if you open n8n through an HTTPS address.
+        - container: N8N_SECURE_COOKIE
+          description:
+            en_US: Keep false for http. Change to true if N8N_PROTOCOL is https.
+        - container: EXTERNAL_HOOK_FILES
+          description:
+            en_US: Path to the OIDC hook file. Do not change.
+        - container: EXTERNAL_FRONTEND_HOOKS_URLS
+          description:
+            en_US: Loads the SSO button on the sign-in page. Do not change.
+        - container: N8N_ADDITIONAL_NON_UI_ROUTES
+          description:
+            en_US: Lets the /auth/oidc routes work. Do not change.
+        - container: OIDC_ISSUER_URL
+          description:
+            en_US: The address of your login provider, for example https://auth.example.com. It must serve /.well-known/openid-configuration.
+        - container: OIDC_CLIENT_ID
+          description:
+            en_US: The Client ID your login provider gave you for n8n.
+        - container: OIDC_CLIENT_SECRET
+          description:
+            en_US: The Client Secret your login provider gave you for n8n. Paste the value from your provider. Do not make one up.
+        - container: OIDC_REDIRECT_URI
+          description:
+            en_US: Your n8n address plus /auth/oidc/callback, for example http://192.168.1.10:8469/auth/oidc/callback. Must match the redirect URI set in your login provider.
+      ports:
+        - container: "5678"
+          description:
+            en_US: n8n web UI and webhooks (published on host as 8469)
+      volumes:
+        - container: /home/node/.n8n
+          description:
+            en_US: n8n database, encryption settings, and the OIDC hook file.
+
+x-casaos:
+  id: com.hiraappstore.n8n-oidc
+  architectures:
+    - amd64
+    - arm64
+  main: n8n-oidc
+  author: HSinghHira
+  category: Productivity
+  developer: n8n GmbH (OIDC hook by Cameron Eagans)
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/N8N-OIDC/icon.png
+  # thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/N8N-OIDC/thumbnail.png
+  title:
+    en_US: n8n (OIDC)
+  tagline:
+    en_US: n8n workflow automation with single sign-on through any OIDC provider.
+  description:
+    en_US: >-
+      n8n with a bolt-on OIDC login, so you can sign in through Pocket ID,
+      Authentik, Keycloak or any other OIDC provider. It uses the community
+      [n8n-oidc](https://github.com/cweagans/n8n-oidc) hook. It is not
+      an official n8n feature.
+
+
+      **Features**
+
+
+      - "Sign in with SSO" button on the n8n sign-in page
+
+      - Accounts are created on first login
+
+      - The first person to sign in becomes the owner
+
+      - SQLite database and settings kept under /DATA/AppData/$AppID
+
+      - The hook file is downloaded and checked against a fixed SHA-256 hash on every start
+
+
+      **How to use?**
+
+      1. Open n8n from the Zima OS dashboard.
+
+      2. Click **Sign in with SSO** and log in with your provider.
+
+      3. Build your first workflow.
+
+      4. Change OIDC settings later in the app configuration.
+  tips:
+    before_install:
+      en_US: >-
+        1. In your login provider, make a new OIDC client for n8n.
+
+        2. Set its redirect URI to your n8n address plus `/auth/oidc/callback`.
+
+        3. Copy the Client ID and Client Secret.
+
+        4. Only allow people you trust to use this client. Everyone who signs in gets an n8n account.
+
+        5. Open the app configuration before you install.
+
+        6. In the n8n-oidc service, set `CHANGEME_OIDC_ISSUER_URL` to your login provider's address.
+
+        7. Set `CHANGEME_OIDC_CLIENT_ID` and `CHANGEME_OIDC_CLIENT_SECRET` to the two values you copied.
+
+        8. Set `CHANGEME_OIDC_REDIRECT_URI` to the redirect URI from step 2.
+
+        9. If you use an HTTPS address, set `N8N_PROTOCOL` to `https` and `N8N_SECURE_COOKIE` to `true`.
+
+        10. Start the installation.
+
+        11. Open n8n and click **Sign in with SSO**. The first person in becomes the owner.
+
+        12. You can change settings later in the app configuration.
+  index: /
+  port_map: "8469"
+  scheme: http
+  is_uncontrolled: false
+  version: "2.30.1"
+  update_at: "2026-09-30"
+  release_notes:
+    en_US: |-
+      - Initial version
+      - Pinned to n8n 2.30.1 for security fixes
+      - Based on the official Zima OS n8n app's settings
+      - The OIDC hook was last tested upstream on n8n 2.1.1
+  repo: "https://github.com/n8n-io/n8n"
+  support: "https://github.com/cweagans/n8n-oidc/issues"
+  docs: "https://github.com/cweagans/n8n-oidc#readme"
