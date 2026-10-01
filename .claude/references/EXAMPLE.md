@@ -23,10 +23,13 @@ services:
     stop_grace_period: 40s
     network_mode: bridge
     environment:
+      - TZ=$TZ
+      - APP_URL=http://localhost:$PORT
+      - APP_PORT=$PORT
       - ADMIN_EMAIL=CHANGEME
       - SECRET_KEY=8f3a1c9e2b4d6f0a1c3e5b7d9f1a3c5e
     ports:
-      - target: 3000
+      - target: 8462
         published: "8462"
         protocol: tcp
     volumes:
@@ -35,6 +38,12 @@ services:
         target: /data
         bind:
           create_host_path: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:$PORT/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     deploy:
       resources:
         limits:
@@ -48,6 +57,21 @@ services:
     x-casaos:
       id: com.hiraappstore.pixelnote
       envs:
+        - container: TZ
+          description:
+            en_US: >-
+              Your time zone. It is filled in from your ZimaOS time zone.
+              Leave it unless you need another.
+        - container: APP_URL
+          description:
+            en_US: >-
+              The address used to build share links. It starts as
+              localhost, which only works on this device. For other
+              devices, change `localhost` to your ZimaOS IP, like
+              http://192.168.1.50:8462.
+        - container: APP_PORT
+          description:
+            en_US: The port the web UI listens on. It is filled in for you. Leave it.
         - container: ADMIN_EMAIL
           description:
             en_US: The email address for the first admin account.
@@ -59,7 +83,7 @@ services:
               [randomkeygen.com](https://randomkeygen.com/) — before
               going live.
       ports:
-        - container: "3000"
+        - container: "8462"
           description:
             en_US: Web UI (published on host as 8462)
       volumes:
@@ -117,13 +141,16 @@ x-casaos:
            [randomkeygen.com](https://randomkeygen.com/) — before going
            live.
 
-        6. Start the PixelNote installation.
+        6. Find APP_URL in the pixelnote service. To use share links on
+           other devices, change localhost to your ZimaOS IP address.
 
-        7. Open PixelNote from the Zima OS dashboard.
+        7. Start the PixelNote installation.
 
-        8. Create your administrator account.
+        8. Open PixelNote from the Zima OS dashboard.
 
-        9. You can change settings later in Settings → Admin.
+        9. Create your administrator account.
+
+        10. You can change settings later in Settings → Admin.
   index: /
   port_map: "8462"
   scheme: http
@@ -139,7 +166,10 @@ x-casaos:
 ```
 
 Notice: no `#` comments anywhere except the commented-out `thumbnail`
-line — everything else lives in an `x-casaos` field.
+line — everything else lives in an `x-casaos` field. `TZ` is `$TZ`, the app
+URL is `http://localhost:$PORT`, the listen port is `$PORT`, and the
+container port equals the published port because the listen port is set
+by env var.
 
 ## 3. Icons (ARCHITECTURE.md §5)
 
@@ -163,4 +193,5 @@ port 8462 is recorded and non-colliding, `SECRET_KEY` is a generated value
 on the fixed list, icon URL points at this repo's jsdelivr mirror,
 `x-casaos.id` is present at both levels, `version`/`update_at`/
 `release_notes` all line up, the README row exists, there are no stray
-`#` comments, and `tips.before_install` reads at a 4th-grade level.
+`#` comments, `tips.before_install` reads at a 4th-grade level, and the
+dynamic variables (`$TZ`, `$PORT`) are used as `VARIABLES.md` says.

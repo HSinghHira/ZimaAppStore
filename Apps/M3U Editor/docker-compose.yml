@@ -1,0 +1,323 @@
+name: m3u-editor
+
+services:
+  m3u-editor:
+    image: sparkison/m3u-editor:latest
+    container_name: m3u-editor
+    restart: unless-stopped
+    stop_grace_period: 60s
+    networks:
+      - m3u_network
+    depends_on:
+      m3u-proxy:
+        condition: service_healthy
+      m3u-redis:
+        condition: service_healthy
+    environment:
+      - TZ=$TZ
+      - APP_URL=http://localhost:8470
+      - APP_PORT=36400
+      - ENABLE_POSTGRES=true
+      - PG_DATABASE=m3ue
+      - PG_USER=m3ue
+      - PG_PASSWORD=a0643250a93e74bf9c433499d78c7055237f9a0362c94fb2
+      - PG_PORT=5432
+      - DB_CONNECTION=pgsql
+      - DB_HOST=localhost
+      - DB_PORT=5432
+      - DB_DATABASE=m3ue
+      - DB_USERNAME=m3ue
+      - DB_PASSWORD=a0643250a93e74bf9c433499d78c7055237f9a0362c94fb2
+      - REDIS_ENABLED=false
+      - REDIS_SERVER_PORT=6379
+      - REDIS_HOST=m3u-redis
+      - REDIS_PASSWORD=cc1560b1b3f866f4b29d1f2794219925ec5f9d98f013c18e
+      - M3U_PROXY_ENABLED=false
+      - M3U_PROXY_PORT=38085
+      - M3U_PROXY_HOST=m3u-proxy
+      - M3U_PROXY_TOKEN=ab2bc2cc83b176ef0ec058da30a9719dbeef61691266201f17f8c7206d6c0e2a
+    ports:
+      - target: 36400
+        published: "8470"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /var/www/config
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/pgdata
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/storage
+        target: /var/www/html/storage/app/public
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:36400/up"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/M3U%20Editor/icon.png
+    x-casaos:
+      id: com.hiraappstore.m3u-editor
+      envs:
+        - container: TZ
+          description:
+            en_US: Your time zone. It is filled in from your ZimaOS time zone. Leave it unless you need another.
+        - container: APP_PORT
+          description:
+            en_US: The port the web UI listens inside the container. Leave it at 36400.
+        - container: APP_URL
+          description:
+            en_US: The address used to build playlist and EPG links. Use the published port 8470, not 36400. It starts as localhost, which only works on this device. For other devices, change `localhost` to your ZimaOS IP, like http://192.168.1.50:8470.
+        - container: PG_PASSWORD
+          description:
+            en_US: >-
+              Pre-filled with a random value. Replace it with your own —
+              generate one at [randomkeygen.com](https://randomkeygen.com/) —
+              before going live. Must match `DB_PASSWORD` in this service.
+        - container: DB_PASSWORD
+          description:
+            en_US: >-
+              Pre-filled with a random value. Must match `PG_PASSWORD` in
+              this service.
+        - container: REDIS_PASSWORD
+          description:
+            en_US: >-
+              Pre-filled with a random value. Replace it with your own —
+              generate one at [randomkeygen.com](https://randomkeygen.com/) —
+              before going live. Must match `REDIS_PASSWORD` in the
+              `m3u-proxy` service and the password in the `m3u-redis` command.
+        - container: M3U_PROXY_TOKEN
+          description:
+            en_US: >-
+              Pre-filled with a random value. Replace it with your own —
+              generate one at [randomkeygen.com](https://randomkeygen.com/) —
+              before going live. Must match `API_TOKEN` in the `m3u-proxy`
+              service.
+      ports:
+        - container: "36400"
+          description:
+            en_US: Web UI (published on host as 8470)
+      volumes:
+        - container: /var/www/config
+          description:
+            en_US: App settings and config.
+        - container: /var/lib/postgresql/data
+          description:
+            en_US: The built-in PostgreSQL database.
+        - container: /var/www/html/storage/app/public
+          description:
+            en_US: Uploaded logos and images.
+
+  m3u-proxy:
+    image: sparkison/m3u-proxy:latest
+    container_name: m3u-proxy
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - m3u_network
+    depends_on:
+      m3u-redis:
+        condition: service_healthy
+    environment:
+      - API_TOKEN=ab2bc2cc83b176ef0ec058da30a9719dbeef61691266201f17f8c7206d6c0e2a
+      - PORT=38085
+      - REDIS_ENABLED=true
+      - REDIS_PORT=6379
+      - REDIS_HOST=m3u-redis
+      - REDIS_PASSWORD=cc1560b1b3f866f4b29d1f2794219925ec5f9d98f013c18e
+      - REDIS_DB=6
+      - ENABLE_REDIS_POOLING=true
+      - LOG_LEVEL=INFO
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:38085/health?api_token=ab2bc2cc83b176ef0ec058da30a9719dbeef61691266201f17f8c7206d6c0e2a"]
+      interval: 30s
+      timeout: 2s
+      retries: 12
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/M3U%20Editor/icon.png
+    x-casaos:
+      id: com.hiraappstore.m3u-editor
+      envs:
+        - container: API_TOKEN
+          description:
+            en_US: >-
+              Pre-filled with a random value. Must match `M3U_PROXY_TOKEN` in
+              the `m3u-editor` service.
+        - container: REDIS_PASSWORD
+          description:
+            en_US: >-
+              Pre-filled with a random value. Must match `REDIS_PASSWORD` in
+              the `m3u-editor` service and the password in the `m3u-redis`
+              command.
+
+  m3u-redis:
+    image: redis:alpine3.22
+    container_name: m3u-redis
+    restart: unless-stopped
+    stop_grace_period: 30s
+    networks:
+      - m3u_network
+    command:
+      - redis-server
+      - --port
+      - "6379"
+      - --requirepass
+      - cc1560b1b3f866f4b29d1f2794219925ec5f9d98f013c18e
+      - --appendonly
+      - "no"
+      - --save
+      - ""
+      - --maxmemory
+      - 256mb
+      - --maxmemory-policy
+      - allkeys-lru
+      - --loglevel
+      - warning
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6379", "-a", "cc1560b1b3f866f4b29d1f2794219925ec5f9d98f013c18e", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 320M
+        reservations:
+          cpus: "0.00"
+          memory: 32M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/M3U%20Editor/icon.png
+    x-casaos:
+      id: com.hiraappstore.m3u-editor
+
+networks:
+  m3u_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.m3u-editor
+  architectures:
+    - amd64
+    - arm64
+  main: m3u-editor
+  author: HSinghHira
+  category: Media
+  developer: sparkison
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/M3U%20Editor/icon.png
+  # thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/M3U%20Editor/thumbnail.png
+  # screenshot_link:
+  #   - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/M3U%20Editor/thumbnail.png
+  title:
+    en_US: M3U Editor
+  tagline:
+    en_US: Manage IPTV playlists, EPG guides, and Xtream output in one place.
+  description:
+    en_US: >-
+      A full-featured IPTV editor with features like xTeVe or Threadfin. It
+      handles playlists, EPG data, and Xtream API output.
+
+
+      **Features**
+
+
+      - Works with m3u, m3u8, m3u+ and Xtream Codes API sources
+
+      - EPG support for XMLTV files, XMLTV URLs, and Schedules Direct
+
+      - Xtream API output and series management with .strm file sync
+
+      - Post processing with custom scripts, webhooks, and email
+
+      - Stream proxy with Redis pooling for smoother playback
+
+      - PostgreSQL built in for persistent application data
+
+
+      **How to use?**
+
+      1. Open M3U Editor from the Zima OS dashboard.
+
+      2. Sign in with username `admin` and password `admin`.
+
+      3. Change the admin password right away.
+
+      4. Add a playlist from your IPTV provider.
+
+      5. Add an EPG source to get a TV guide.
+
+      6. Copy your output playlist or Xtream link into Plex, Jellyfin, Emby, or any IPTV player.
+  tips:
+    before_install:
+      en_US: >-
+        1. Open the app configuration before starting the installation.
+
+
+        2. Find `TZ` in the `m3u-editor` service. It is already set to your ZimaOS time zone. Leave it.
+
+
+        3. These values are pre-filled with random text: `PG_PASSWORD`, `DB_PASSWORD`, `REDIS_PASSWORD`, and `M3U_PROXY_TOKEN`. Swap them for your own. Make one at [randomkeygen.com](https://randomkeygen.com/).
+
+
+        4. `PG_PASSWORD` and `DB_PASSWORD` must be the same.
+
+
+        5. `M3U_PROXY_TOKEN` must match `API_TOKEN` in the `m3u-proxy` service.
+
+
+        6. `REDIS_PASSWORD` must match in `m3u-editor` and `m3u-proxy`. It must also match the password in the `m3u-redis` command and healthcheck.
+
+
+        7. Use letters and numbers only in these values. Symbols can break things.
+
+
+        8. The database password is locked in on the first start. Changing it later will not work.
+
+
+        9. Find `APP_URL` in the `m3u-editor` service. To use playlist links on other devices, change `localhost` to your ZimaOS IP address.
+
+
+        10. Start the installation. Wait about two minutes before you open the app.
+
+
+        11. Open M3U Editor. Sign in with `admin` and `admin`.
+
+
+        12. Change the admin password. Add your playlist and EPG in the app.
+  index: /
+  port_map: "8470"
+  scheme: http
+  is_uncontrolled: false
+  release_notes:
+    en_US: |-
+      - Initial version
+      - Upstream only documents the latest tag for these images, so no version is pinned here.
+  repo: "https://github.com/m3ue/m3u-editor"
+  support: "https://github.com/m3ue/m3u-editor/issues"
+  docs: "https://sparkison.github.io/m3u-editor-docs/docs/about/getting-started/"

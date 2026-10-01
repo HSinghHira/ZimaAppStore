@@ -39,9 +39,13 @@ services:
     network_mode: bridge         # unless the app needs to share a network
                                   # namespace with a sibling service
     environment:
+      - TZ=$TZ                    # dynamic variables: see VARIABLES.md
+      - APP_URL=http://localhost:$PORT   # only if the app has a URL var
+      - APP_PORT=$PORT            # only if the listen port is env-set
       - SOME_VAR=CHANGEME        # see SECRETS.md — never real secrets
     ports:                       # omit entirely for internal-only services
-      - target: <container-port>
+      - target: <container-port>  # equals <host-port> if the listen port
+                                   # is set by $PORT; else upstream's port
         published: "<host-port>"  # from PORT_LEDGER.md, 4-digit 84xx only
         protocol: tcp
     volumes:
@@ -50,6 +54,12 @@ services:
         target: <container-data-path>
         bind:
           create_host_path: true
+    healthcheck:                  # include when upstream defines one;
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:$PORT/<health-path>"]
+      interval: 30s               # use $PORT on the main service only
+      timeout: 10s
+      retries: 5
+      start_period: 60s
     deploy:
       resources:
         limits:
@@ -79,6 +89,10 @@ services:
 Multi-container apps (DB, cache, relay, etc.) get one service block each,
 all under the same `services:` key, sharing the app's port sub-range as a
 contiguous block (see `PORT_LEDGER.md`).
+
+**Dynamic variables** (`$TZ`, `$PUID`, `$PGID`, `$PORT`) are required
+wherever `VARIABLES.md` says so. The `#` notes in the template above are
+for this reference only. They never go in a real manifest (§8).
 
 ## 3. Top-level `x-casaos:` block
 
@@ -163,8 +177,7 @@ version" to report — and explain why in `release_notes` instead (see §6).
 ## 4. Volumes and config
 
 - Data lives under `/DATA/AppData/$AppID` on the host, bind-mounted with
-  `create_host_path: true`. (Other variables such as `PUID`, `PGID`, `TZ`
-  are covered in `VARIABLES.md` — keep this `$AppID` path anyway.)
+  `create_host_path: true`.
 - Prefer environment-variable configuration over mounting a config *file*
   wherever the upstream image supports it. If the file doesn't already
   exist on the host, Docker silently creates an empty **directory** there

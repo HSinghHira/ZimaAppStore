@@ -32,7 +32,19 @@ the full rule if you need to double-check something.
 10. **Read `tips.before_install` back and confirm it's written in
     simple, 4th-grade-level language** — short sentences, no
     over-explaining.
-11. **If `PUID`/`PGID`/`TZ` are set**, confirm they are plain values (not
-    `CHANGEME_*`, not generated), have an `x-casaos.envs[].description`,
-    and that no shell-only variable (`$HOME`, `$USER`, etc.) is used as an
-    install-time value — see `VARIABLES.md`.
+11. **Confirm dynamic variables are used** (`VARIABLES.md`): `TZ=$TZ` with
+    no hardcoded time zone; `PUID`/`PGID` as `$PUID`/`$PGID` only if
+    upstream lists them; no `CHANGEME_*` placeholder for a URL, IP, port,
+    or time zone.
+12. **Confirm `$PORT` is applied consistently** on the main service: the
+    app-URL var is `http://localhost:$PORT`, any listen-port env var is
+    `$PORT`, `target` equals `published` when the listen port is
+    env-set, the healthcheck uses `$PORT`, and
+    `x-casaos.ports[].container` and `port_map` match. `published` is the
+    literal ledger number.
+13. **If an app URL starts as `localhost`** and the app builds links for
+    other devices, confirm the env description and `tips.before_install`
+    both tell the user to swap in their ZimaOS IP.
+14. **Confirm the reply tells the user** that `$PORT` = `port_map` is an
+    assumption to check on first install, and lists anything unverified
+    (image tags, architectures, bind-mount permissions).

@@ -36,6 +36,14 @@ Example description: `"Pre-filled with a random value. Replace it with
 your own — generate one at [randomkeygen.com](https://randomkeygen.com/) —
 before going live."`
 
+## What is not a placeholder
+
+Time zones, user/group IDs, ports, and the app's own URL are not
+placeholders and not secrets. They use dynamic variables
+(`TZ=$TZ`, `PUID=$PUID`, `PGID=$PGID`, `APP_URL=http://localhost:$PORT`).
+See `VARIABLES.md`. Never write `CHANGEME_ZIMAOS_IP` or a hardcoded time
+zone.
+
 ## Cross-service dependencies
 
 Passwords that must match across two services (e.g. a DB password shared
@@ -68,6 +76,12 @@ install-to-first-use sequence, not just pre-install prep:
 6. Where post-install config lives.
 7. Any one-way gotchas — e.g. env vars that only apply at DB init time and
    can't be changed later by editing the compose file.
+8. If an app URL env var starts as `localhost` and the app builds links
+   other devices open, one step telling the user to change `localhost` to
+   their ZimaOS IP (see `VARIABLES.md`).
+
+Don't add a step for `TZ=$TZ`. It fills in on its own. Add one for `TZ`
+only if the user would have a real reason to change it.
 
 **Write it like you're explaining it to a 4th grader** — short sentences,
 everyday words, one instruction per numbered step. Don't over-explain: no
