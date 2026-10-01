@@ -130,7 +130,10 @@ x-casaos:
   category: Productivity
   developer: n8n GmbH (OIDC hook by Cameron Eagans)
   icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/N8N-OIDC/icon.png
-  # thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/N8N-OIDC/thumbnail.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/N8N-OIDC/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/N8N-OIDC/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/N8N-OIDC/thumbnail-1.png
   title:
     en_US: n8n (OIDC)
   tagline:
