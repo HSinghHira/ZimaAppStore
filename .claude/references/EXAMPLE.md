@@ -77,11 +77,7 @@ x-casaos:
   category: Productivity
   developer: PixelNote Team
   icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/PixelNote/icon.png
-  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/PixelNote/thumbnail.png
-  screenshot-links:
-    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/PixelNote/thumbnail-1.png
-    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/PixelNote/thumbnail-2.png
-    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/PixelNote/thumbnail.png
+  # thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/PixelNote/thumbnail.png
   title:
     en_US: PixelNote
   tagline:

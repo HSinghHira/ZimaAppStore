@@ -4,8 +4,11 @@ Run through all of these before pushing. Each item points to the doc with
 the full rule if you need to double-check something.
 
 1. **Validate YAML** for every changed/new `docker-compose.yml`.
-2. **Confirm `PORT_LEDGER.md` is updated and non-colliding** — no port
-   above 65535, no 5-digit `840xx`-style typo.
+2. **Confirm the port ledger in the repo (`docs/adding-apps/PORT_LEDGER.md`)
+   is updated and non-colliding** — no port above 65535, no 5-digit
+   `840xx`-style typo. (This skill fetches the ledger live from GitHub at
+   the start of a session — see `SKILL.md` Step 0 — so re-check it wasn't
+   claimed by someone else in the meantime.)
 3. **Confirm no personal secrets anywhere in the diff.** Every
    cryptographic-secret var uses a freshly generated random value, not a
    `CHANGEME_*` placeholder, and has a description pointing the installer
@@ -29,3 +32,7 @@ the full rule if you need to double-check something.
 10. **Read `tips.before_install` back and confirm it's written in
     simple, 4th-grade-level language** — short sentences, no
     over-explaining.
+11. **If `PUID`/`PGID`/`TZ` are set**, confirm they are plain values (not
+    `CHANGEME_*`, not generated), have an `x-casaos.envs[].description`,
+    and that no shell-only variable (`$HOME`, `$USER`, etc.) is used as an
+    install-time value — see `VARIABLES.md`.

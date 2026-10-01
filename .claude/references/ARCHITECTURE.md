@@ -163,7 +163,8 @@ version" to report — and explain why in `release_notes` instead (see §6).
 ## 4. Volumes and config
 
 - Data lives under `/DATA/AppData/$AppID` on the host, bind-mounted with
-  `create_host_path: true`.
+  `create_host_path: true`. (Other variables such as `PUID`, `PGID`, `TZ`
+  are covered in `VARIABLES.md` — keep this `$AppID` path anyway.)
 - Prefer environment-variable configuration over mounting a config *file*
   wherever the upstream image supports it. If the file doesn't already
   exist on the host, Docker silently creates an empty **directory** there
