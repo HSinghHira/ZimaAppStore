@@ -15,7 +15,7 @@ services:
         condition: service_healthy
     environment:
       - TZ=$TZ
-      - APP_URL=http://localhost:8470
+      - APP_URL=http://localhost:36400
       - APP_PORT=36400
       - ENABLE_POSTGRES=true
       - PG_DATABASE=m3ue
@@ -38,7 +38,7 @@ services:
       - M3U_PROXY_TOKEN=ab2bc2cc83b176ef0ec058da30a9719dbeef61691266201f17f8c7206d6c0e2a
     ports:
       - target: 36400
-        published: "8470"
+        published: "36400"
         protocol: tcp
     volumes:
       - type: bind
@@ -83,7 +83,7 @@ services:
             en_US: The port the web UI listens inside the container. Leave it at 36400.
         - container: APP_URL
           description:
-            en_US: The address used to build playlist and EPG links. Use the published port 8470, not 36400. It starts as localhost, which only works on this device. For other devices, change `localhost` to your ZimaOS IP, like http://192.168.1.50:8470.
+            en_US: The address used to build playlist and EPG links. Use the published port 8470, not 36400. It starts as localhost, which only works on this device. For other devices, change `localhost` to your ZimaOS IP, like http://192.168.1.50:36400.
         - container: PG_PASSWORD
           description:
             en_US: >-
@@ -112,7 +112,7 @@ services:
       ports:
         - container: "36400"
           description:
-            en_US: Web UI (published on host as 8470)
+            en_US: Web UI (published on host as 36400)
       volumes:
         - container: /var/www/config
           description:
@@ -311,7 +311,7 @@ x-casaos:
 
         12. Change the admin password. Add your playlist and EPG in the app.
   index: /
-  port_map: "8470"
+  port_map: "36400"
   scheme: http
   is_uncontrolled: false
   release_notes:

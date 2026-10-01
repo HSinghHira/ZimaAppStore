@@ -50,9 +50,9 @@ order apps were added:
 | Trackie | 8465 (web UI), 8466 (bundled Logto sign-in server), 8467 (bundled Logto admin console) |
 | Homedex | 8468 (web UI/API). Docker socket proxy has no published port — reached only over the internal discovery network. |
 | n8n OIDC | 8469 (web UI/API and webhooks). Init container has no published port — it only downloads the OIDC hook, then exits. |
-| M3U Editor | 8470 (web UI). m3u-proxy and Redis have no published port — reached only over the internal m3u_network. |
+| M3U Editor | 36400 (web UI). m3u-proxy and Redis have no published port — reached only over the internal m3u_network. |
 
-**Next new app starts at: 8471**
+**Next new app starts at: 8470**
 
 ## Rules
 
