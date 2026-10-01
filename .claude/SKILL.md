@@ -17,7 +17,7 @@ The port ledger changes constantly, so it is **not** bundled in this
 skill. Before doing anything else, fetch the live version from GitHub:
 
 ```
-https://raw.githubusercontent.com/HSinghHira/ZimaAppStore/main/docs/adding-apps/PORT_LEDGER.md
+https://raw.githubusercontent.com/HSinghHira/ZimaAppStore/refs/heads/main/.claude/references/PORT_LEDGER.md
 ```
 
 Use this fetched table as the source of truth for the next unused port —
