@@ -3,7 +3,7 @@ name: cloudreve
 services:
   cloudreve:
 
-    image: ghcr.io/dvorinka/cloudreve:latest
+    image: cloudreve/cloudreve:latest
     container_name: cloudreve
     restart: unless-stopped
     stop_grace_period: 40s

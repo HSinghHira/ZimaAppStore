@@ -1,0 +1,283 @@
+name: cloudreve-pro
+
+services:
+  cloudreve-pro:
+    image: ghcr.io/dvorinka/cloudreve:latest
+    container_name: cloudreve-pro
+    restart: unless-stopped
+    stop_grace_period: 40s
+    depends_on:
+      cloudreve-pro-postgres:
+        condition: service_healthy
+      cloudreve-pro-redis:
+        condition: service_healthy
+    environment:
+      - CR_CONF_Database.Type=postgres
+      - CR_CONF_Database.Host=cloudreve-pro-postgres
+      - CR_CONF_Database.Port=5432
+      - CR_CONF_Database.User=cloudreve
+      - CR_CONF_Database.Password=9e67a1c701d1b0c0418f9f5164ca6aa2a8a9577cead3c0f2
+      - CR_CONF_Database.Name=cloudreve
+      - CR_CONF_Redis.Server=cloudreve-pro-redis:6379
+    ports:
+      - target: 5212
+        published: "8471"
+        protocol: tcp
+      - target: 6888
+        published: "8472"
+        protocol: tcp
+      - target: 6888
+        published: "8472"
+        protocol: udp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /cloudreve/data
+        bind:
+          create_host_path: true
+    networks:
+      - cloudreve_pro_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/CloudrevePro/icon.png
+    x-casaos:
+      id: com.hiraappstore.cloudreve-pro
+      envs:
+        - container: CR_CONF_Database.Password
+          description:
+            en_US: >-
+              Database password. Pre-filled with a random value. Must match
+              POSTGRES_PASSWORD in the cloudreve-pro-postgres service.
+              Replace it with your own before first start — generate one at
+              [randomkeygen.com](https://randomkeygen.com/).
+      ports:
+        - container: "5212"
+          description:
+            en_US: Web UI and API (published on host as 8471)
+        - container: "6888"
+          description:
+            en_US: >-
+              Aria2 remote-download port, tcp+udp (published on host as
+              8472). Only used if you enable remote downloads.
+      volumes:
+        - container: /cloudreve/data
+          description:
+            en_US: >-
+              conf.ini, avatars, the master encryption key (if enabled),
+              and any files uploaded under the Local storage policy
+
+  cloudreve-pro-postgres:
+    image: postgres:17
+    container_name: cloudreve-pro-postgres
+    restart: unless-stopped
+    stop_grace_period: 60s
+    environment:
+      - POSTGRES_USER=cloudreve
+      - POSTGRES_DB=cloudreve
+      - POSTGRES_PASSWORD=9e67a1c701d1b0c0418f9f5164ca6aa2a8a9577cead3c0f2
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cloudreve -d cloudreve"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    networks:
+      - cloudreve_pro_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/CloudrevePro/icon.png
+    x-casaos:
+      id: com.hiraappstore.cloudreve-pro
+      envs:
+        - container: POSTGRES_PASSWORD
+          description:
+            en_US: >-
+              Database password. Pre-filled with a random value. Must match
+              CR_CONF_Database.Password in the cloudreve-pro service.
+              Replace it with your own before first start — generate one at
+              [randomkeygen.com](https://randomkeygen.com/).
+      volumes:
+        - container: /var/lib/postgresql/data
+          description:
+            en_US: Postgres data directory — all Cloudreve Pro metadata lives here
+
+  cloudreve-pro-redis:
+    image: redis:7-alpine
+    container_name: cloudreve-pro-redis
+    restart: unless-stopped
+    stop_grace_period: 40s
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/redis
+        target: /data
+        bind:
+          create_host_path: true
+    networks:
+      - cloudreve_pro_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 128M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/CloudrevePro/icon.png
+    x-casaos:
+      id: com.hiraappstore.cloudreve-pro
+      volumes:
+        - container: /data
+          description:
+            en_US: Redis persistence (session/cache/queue data)
+
+networks:
+  cloudreve_pro_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.cloudreve-pro
+  architectures:
+    - amd64
+    - arm64
+  main: cloudreve-pro
+  author: HSinghHira
+  category: Productivity
+  developer: Dvorinka
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/CloudrevePro/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/CloudrevePro/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/CloudrevePro/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/CloudrevePro/screenshot-2.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/CloudrevePro/screenshot-3.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/CloudrevePro/screenshot-4.png
+  title:
+    en_US: Cloudreve Pro
+  tagline:
+    en_US: Self-hosted file management and cloud storage, Pro build
+  description:
+    en_US: >-
+      Cloudreve Pro is a self-hosted file management and sharing platform —
+      think a private Dropbox or Google Drive that you fully control, built
+      from the Dvorinka Cloudreve image. It runs side by side with the
+      regular Cloudreve app.
+
+
+      **Features**
+
+
+      - Drag-and-drop uploads, in-browser previews, and shareable public
+        links with optional passwords and expiration.
+
+
+      - Native WebDAV support for mounting it as a network drive on
+        Windows, macOS, or Linux.
+
+
+      - Multiple storage backends, such as Local and S3-compatible,
+        assignable per user group.
+
+
+      - Optional Aria2 integration for remote downloads straight to your
+        storage.
+
+
+      - PostgreSQL for application data and Redis for caching, both
+        bundled and pre-wired.
+
+
+      - Separate storage under /DATA/AppData/$AppID, so it never touches
+        the regular Cloudreve app's data.
+
+
+      **How to use?**
+
+      1. Open Cloudreve Pro from the Zima OS dashboard.
+
+      2. Register an account — the first account created becomes the
+         administrator.
+
+      3. Start uploading files and creating folders under the default
+         Local storage policy.
+
+      4. Optional: connect an S3-compatible bucket or other remote backend
+         from the admin panel.
+
+      5. Optional: enable WebDAV in your user settings, or enable Aria2
+         remote downloads in the admin panel (uses the published 8472
+         port).
+
+      6. Further settings are all configured later through the in-app
+         Admin Panel, no compose file edits needed.
+  tips:
+    before_install:
+      en_US: >-
+        1. Open the app settings before you install.
+
+
+        2. Find the database password in two places. It is
+        CR_CONF_Database.Password in the cloudreve-pro service. It is
+        POSTGRES_PASSWORD in the cloudreve-pro-postgres service.
+
+
+        3. Both are pre-filled with the same random password. You can swap
+        in your own from [randomkeygen.com](https://randomkeygen.com/).
+
+
+        4. If you change one, change the other to match. A mismatch gives a
+        database error.
+
+
+        5. Start the install and wait a minute.
+
+
+        6. Open Cloudreve Pro from the Zima OS dashboard.
+
+
+        7. Register an account. The first account becomes the admin, so
+        make yours first.
+
+
+        8. All other settings live in the Admin Panel.
+
+
+        9. Do not change the database password after the first start. The
+        database keeps the first one. Changing it later locks Cloudreve Pro
+        out.
+  index: /
+  port_map: "8471"
+  scheme: http
+  is_uncontrolled: false
+  release_notes:
+    en_US: |-
+      - Initial version
+      - Uses the floating latest tag because the image has no pinned versions, so no version number is shown
+  website: "https://github.com/Dvorinka/cloudreve"
+  repo: "https://github.com/Dvorinka/cloudreve"
+  support: "https://github.com/Dvorinka/cloudreve/issues"
+  docs: "https://docs.cloudreve.org/en/overview/deploy/docker-compose"
