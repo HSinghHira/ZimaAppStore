@@ -1,0 +1,126 @@
+name: fluxdown
+
+services:
+  fluxdown-server:
+    image: ghcr.io/zerx-lab/fluxdown-server:latest
+    container_name: fluxdown-server
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    ports:
+      - target: 17800
+        published: "8470"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/Downloads
+        target: /root/Downloads
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/FluxDown/icon.png
+    x-casaos:
+      id: com.hiraappstore.fluxdown
+      ports:
+        - container: "17800"
+          description:
+            en_US: Web UI, API and MCP endpoint (published on host as 8470)
+      volumes:
+        - container: /data
+          description:
+            en_US: Database, logs and your access key.
+        - container: /root/Downloads
+          description:
+            en_US: Default folder for finished downloads. Stored in the Downloads folder on ZimaOS.
+
+x-casaos:
+  id: com.hiraappstore.fluxdown
+  architectures:
+    - amd64
+    - arm64
+  main: fluxdown-server
+  author: HSinghHira
+  category: Others
+  developer: zerx-lab
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/FluxDown/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/FluxDown/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/FluxDown/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/FluxDown/thumbnail-1.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/FluxDown/thumbnail-2.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/FluxDown/thumbnail-3.png
+  title:
+    en_US: FluxDown
+  tagline:
+    en_US: Fast multi-protocol download manager with a web UI.
+  description:
+    en_US: >-
+      A fast, self-hosted download manager powered by a Rust engine. It
+      handles HTTP/HTTPS, FTP, BitTorrent, HLS and more, with resume and
+      speed control.
+
+
+      **Features**
+
+
+      - Multi-protocol downloads with smart segmentation and resume
+
+      - Web UI, REST API and aria2-compatible JSON-RPC
+
+      - Built-in MCP endpoint so AI agents can manage downloads
+
+      - Settings and database kept in /DATA/AppData/$AppID
+
+
+      **How to use?**
+
+      1. Open FluxDown from the Zima OS dashboard.
+
+      2. Follow the setup wizard and create your access key.
+
+      3. Add a link or magnet and start downloading.
+
+      4. Find finished files in the Downloads folder on ZimaOS.
+  tips:
+    before_install:
+      en_US: >-
+        1. Start the FluxDown installation.
+
+
+        2. Open FluxDown from the Zima OS dashboard.
+
+
+        3. Follow the setup wizard.
+
+
+        4. Make an access key with 8 or more letters and numbers.
+
+
+        5. Save your key. You need it to log in.
+
+
+        6. Find your finished files in the Downloads folder.
+  index: /
+  port_map: "8470"
+  scheme: http
+  is_uncontrolled: false
+  release_notes:
+    en_US: |-
+      - Uses the latest tag. Upstream releases do not match the published
+        image tags, so no version is tracked here.
+  repo: "https://github.com/zerx-lab/FluxDown"
+  support: "https://github.com/zerx-lab/FluxDown/issues"
+  docs: "https://github.com/zerx-lab/FluxDown"

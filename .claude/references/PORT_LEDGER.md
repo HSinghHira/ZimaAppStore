@@ -51,8 +51,10 @@ order apps were added:
 | Homedex | 8468 (web UI/API). Docker socket proxy has no published port — reached only over the internal discovery network. |
 | n8n OIDC | 8469 (web UI/API and webhooks). Init container has no published port — it only downloads the OIDC hook, then exits. |
 | M3U Editor | 36400 (web UI). m3u-proxy and Redis have no published port — reached only over the internal m3u_network. |
+| FluxDown | 8470 (web UI/API/MCP) |
+| Cloudreve Pro | 8471 (web UI/API), 8472 (Aria2 remote-download port, tcp+udp) |
 
-**Next new app starts at: 8470**
+**Next new app starts at: 8473**
 
 ## Rules
 

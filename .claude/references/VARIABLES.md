@@ -65,8 +65,8 @@ environment:
   - APP_URL=http://localhost:$PORT
   - APP_PORT=$PORT
 ports:
-  - target: 8470
-    published: "8470"
+  - target: 36400
+    published: "36400"
     protocol: tcp
 healthcheck:
   test: ["CMD", "curl", "-f", "http://127.0.0.1:$PORT/up"]
