@@ -1,0 +1,39 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Productivity",
+  "developer": "Dvorinka",
+  "thumbnail": "/apps/com.hiraappstore.cloudreve-pro/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.cloudreve-pro/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.cloudreve-pro/assets/screenshot-2.webp",
+    "/apps/com.hiraappstore.cloudreve-pro/assets/screenshot-3.webp",
+    "/apps/com.hiraappstore.cloudreve-pro/assets/screenshot-4.webp"
+  ],
+  "tagline": "Self-hosted file management and cloud storage, Pro build",
+  "description": "Cloudreve Pro is a self-hosted file management and sharing platform — think a private Dropbox or Google Drive that you fully control, built from the Dvorinka Cloudreve image. It runs side by side with the regular Cloudreve app.\n\n**Features**\n\n- Drag-and-drop uploads, in-browser previews, and shareable public\n  links with optional passwords and expiration.\n\n\n- Native WebDAV support for mounting it as a network drive on\n  Windows, macOS, or Linux.\n\n\n- Multiple storage backends, such as Local and S3-compatible,\n  assignable per user group.\n\n\n- Optional Aria2 integration for remote downloads straight to your\n  storage.\n\n\n- PostgreSQL for application data and Redis for caching, both\n  bundled and pre-wired.\n\n\n- Separate storage under /DATA/AppData/$AppID, so it never touches\n  the regular Cloudreve app's data.\n\n\n**How to use?**\n1. Open Cloudreve Pro from the Zima OS dashboard.\n2. Register an account — the first account created becomes the\n   administrator.\n\n3. Start uploading files and creating folders under the default\n   Local storage policy.\n\n4. Optional: connect an S3-compatible bucket or other remote backend\n   from the admin panel.\n\n5. Optional: enable WebDAV in your user settings, or enable Aria2\n   remote downloads in the admin panel (uses the published 8472\n   port).\n\n6. Further settings are all configured later through the in-app\n   Admin Panel, no compose file edits needed.",
+  "tips": {
+    "before_install": "1. Open the app settings before you install.\n\n2. Find the database password in two places. It is CR_CONF_Database.Password in the cloudreve-pro service. It is POSTGRES_PASSWORD in the cloudreve-pro-postgres service.\n\n3. Both are pre-filled with the same random password. You can swap in your own from [randomkeygen.com](https://randomkeygen.com/).\n\n4. If you change one, change the other to match. A mismatch gives a database error.\n\n5. Start the install and wait a minute.\n\n6. Open Cloudreve Pro from the Zima OS dashboard.\n\n7. Register an account. The first account becomes the admin, so make yours first.\n\n8. All other settings live in the Admin Panel.\n\n9. Do not change the database password after the first start. The database keeps the first one. Changing it later locks Cloudreve Pro out."
+  },
+  "is_uncontrolled": false,
+  "website": "https://github.com/Dvorinka/cloudreve",
+  "repo": "https://github.com/Dvorinka/cloudreve",
+  "support": "https://github.com/Dvorinka/cloudreve/issues",
+  "docs": "https://docs.cloudreve.org/en/overview/deploy/docker-compose",
+  "title": "Cloudreve Pro",
+  "release_note": "- Initial version\n- Uses the floating latest tag because the image has no pinned versions, so no version number is shown",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.cloudreve-pro",
+  "version": "",
+  "categories": [
+    "productivity"
+  ],
+  "min_memory": 469762048,
+  "min_image_size": {
+    "amd64": 764079298,
+    "arm64": 744864405
+  }
+}

@@ -1,0 +1,47 @@
+name: autoxpose
+
+services:
+  autoxpose:
+    image: mostafawahied/autoxpose:0.5.2@sha256:70168c3efd2d2bb87ec6a13489a7cd1f655cffd2a5422a1754114d3512557c7c
+    container_name: autoxpose
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    environment:
+      - SERVER_IP=CHANGEME
+      - LAN_IP=CHANGEME
+      - LOG_LEVEL=info
+    ports:
+      - target: 3000
+        published: "8464"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /app/packages/backend/data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        bind:
+          create_host_path: false
+        read_only: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+x-casaos:
+  id: com.hiraappstore.autoxpose
+  main: autoxpose
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.autoxpose/assets/icon.png
+  title:
+    en_US: AutoXpose
+  index: /
+  port_map: "8464"
+  scheme: http
+  version: "0.5.2"

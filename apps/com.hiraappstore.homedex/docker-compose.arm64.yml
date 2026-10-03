@@ -1,0 +1,97 @@
+name: homedex
+
+services:
+  docker-socket-proxy:
+    image: tecnativa/docker-socket-proxy:v0.4.2@sha256:864554ad193d7bfa24275dc5a39d17ed9ed95af3549223877bf23ebe33f179f3
+    container_name: docker-socket-proxy
+    restart: unless-stopped
+    stop_grace_period: 40s
+    environment:
+      - CONTAINERS=1
+      - IMAGES=1
+      - INFO=1
+      - NETWORKS=1
+      - VERSION=1
+      - POST=0
+      - ALLOW_START=0
+      - ALLOW_STOP=0
+      - ALLOW_RESTARTS=0
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
+    read_only: true
+    tmpfs:
+      - /run
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - discovery
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 128M
+        reservations:
+          cpus: "0.00"
+          memory: 32M
+  homedex:
+    image: ghcr.io/harshshah0203/homedex:0.2.5@sha256:11663a2512f1ce24f0bd2eae6ba5298c318f8e019bb1c65e1c2bb90e9eb45ce2
+    container_name: homedex
+    restart: unless-stopped
+    stop_grace_period: 40s
+    user: "0:0"
+    depends_on:
+      - docker-socket-proxy
+    environment:
+      - HOMEDEX_DATA_DIR=/data
+      - HOMEDEX_LISTEN=:7377
+      - HOMEDEX_ADMIN_PASSWORD=bdbfd9c44fa3ac856d04e403f3e22f95
+    ports:
+      - target: 7377
+        published: "8468"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /data
+        bind:
+          create_host_path: true
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - app
+      - discovery
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+networks:
+  app:
+    internal: false
+  discovery:
+    internal: true
+
+x-casaos:
+  id: com.hiraappstore.homedex
+  main: homedex
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.homedex/assets/icon.png
+  title:
+    en_US: Homedex
+  index: /
+  port_map: "8468"
+  scheme: http
+  version: "0.2.5"

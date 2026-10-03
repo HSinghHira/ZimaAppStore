@@ -1,0 +1,31 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Media",
+  "developer": "sparkison",
+  "tagline": "Manage IPTV playlists, EPG guides, and Xtream output in one place.",
+  "description": "A full-featured IPTV editor with features like xTeVe or Threadfin. It handles playlists, EPG data, and Xtream API output.\n\n**Features**\n\n- Works with m3u, m3u8, m3u+ and Xtream Codes API sources\n- EPG support for XMLTV files, XMLTV URLs, and Schedules Direct\n- Xtream API output and series management with .strm file sync\n- Post processing with custom scripts, webhooks, and email\n- Stream proxy with Redis pooling for smoother playback\n- PostgreSQL built in for persistent application data\n\n**How to use?**\n1. Open M3U Editor from the Zima OS dashboard.\n2. Sign in with username `admin` and password `admin`.\n3. Change the admin password right away.\n4. Add a playlist from your IPTV provider.\n5. Add an EPG source to get a TV guide.\n6. Copy your output playlist or Xtream link into Plex, Jellyfin, Emby, or any IPTV player.",
+  "tips": {
+    "before_install": "1. Open the app configuration before starting the installation.\n\n2. Find `TZ` in the `m3u-editor` service. It is already set to your ZimaOS time zone. Leave it.\n\n3. These values are pre-filled with random text: `PG_PASSWORD`, `DB_PASSWORD`, `REDIS_PASSWORD`, and `M3U_PROXY_TOKEN`. Swap them for your own. Make one at [randomkeygen.com](https://randomkeygen.com/).\n\n4. `PG_PASSWORD` and `DB_PASSWORD` must be the same.\n\n5. `M3U_PROXY_TOKEN` must match `API_TOKEN` in the `m3u-proxy` service.\n\n6. `REDIS_PASSWORD` must match in `m3u-editor` and `m3u-proxy`. It must also match the password in the `m3u-redis` command and healthcheck.\n\n7. Use letters and numbers only in these values. Symbols can break things.\n\n8. The database password is locked in on the first start. Changing it later will not work.\n\n9. Find `APP_URL` in the `m3u-editor` service. To use playlist links on other devices, change `localhost` to your ZimaOS IP address.\n\n10. Start the installation. Wait about two minutes before you open the app.\n\n11. Open M3U Editor. Sign in with `admin` and `admin`.\n\n12. Change the admin password. Add your playlist and EPG in the app."
+  },
+  "is_uncontrolled": false,
+  "repo": "https://github.com/m3ue/m3u-editor",
+  "support": "https://github.com/m3ue/m3u-editor/issues",
+  "docs": "https://sparkison.github.io/m3u-editor-docs/docs/about/getting-started/",
+  "title": "M3U Editor",
+  "release_note": "- Initial version\n- Upstream only documents the latest tag for these images, so no version is pinned here.",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.m3u-editor",
+  "version": "",
+  "categories": [
+    "media"
+  ],
+  "min_memory": 436207616,
+  "min_image_size": {
+    "amd64": 746053507,
+    "arm64": 645396861
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "architectures": [
+    "amd64"
+  ],
+  "author": "HSinghHira",
+  "category": "Productivity",
+  "developer": "dimartarmizi",
+  "thumbnail": "/apps/com.hiraappstore.omnicloud/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.omnicloud/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.omnicloud/assets/thumbnail-1.webp",
+    "/apps/com.hiraappstore.omnicloud/assets/thumbnail-2.webp",
+    "/apps/com.hiraappstore.omnicloud/assets/thumbnail-3.webp"
+  ],
+  "tagline": "One workspace for every cloud drive you own.",
+  "description": "OmniCloud pulls Google Drive, OneDrive, Dropbox, Yandex Disk, MEGA, pCloud, and S3-compatible storage into one consistent file workspace, so you don't need a separate app for every provider.\n\n**Features**\n\n- Browse, upload, download, rename, and delete files across every\n  connected provider from one file explorer\n\n- Home, My Drive, Recent, Starred, Shared with Me, and Quota views\n- Real-time upload progress over WebSocket, with drag-and-drop and\n  folder uploads\n\n- Automatic upload account allocation (round robin, weighted round\n  robin, least used, most free, or manual priority)\n\n- Scheduled background sync keeps file metadata current across all\n  connected accounts\n\n- Local mode for single-user setups or hosted mode for multi-user\n  logins with sessions\n\n- File metadata mirrored into SQLite, with encrypted provider tokens\n  stored under /app/data\n\n\n**How to use?**\n\n1. Open OmniCloud from the Zima OS dashboard.\n2. If running in hosted mode, create your administrator account on\n   first load. In local mode, no login is needed.\n\n3. Go to Quota to add a cloud account.\n4. Pick a provider. Google Drive, OneDrive, Dropbox, and Yandex Disk\n   use a sign-in popup. MEGA and pCloud ask for an email and\n   password. S3-compatible storage asks for an endpoint, bucket,\n   access key, and secret key.\n\n5. Once an account is connected, open My Drive to browse, upload, or\n   download files across every connected provider.\n\n6. Change upload distribution under Quota's allocation settings, and\n   change language or theme under Settings, both without rebuilding\n   the container.",
+  "tips": {
+    "before_install": "1. Open the api service settings before installing.\n\n2. Find GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, ONEDRIVE_CLIENT_ID,\n   ONEDRIVE_CLIENT_SECRET, DROPBOX_CLIENT_ID, DROPBOX_CLIENT_SECRET,\n   YANDEX_CLIENT_ID, and YANDEX_CLIENT_SECRET in the api service.\n\n3. You only need to fill in the ones for the providers you plan to\n   use. Get each value from that provider's developer console.\n\n4. Find OMNICLOUD_SECRET_HALF and AUTH_SECRET in the api service.\n   Both are pre-filled with a value shared by every install.\n\n5. Replace both with your own values before going live. Generate\n   new ones at randomkeygen.com.\n\n6. CORS_ORIGIN, FRONTEND_URL and the redirect URIs default to this\n   server's IP on port 8442. If you open OmniCloud through a domain\n   or reverse proxy, change them to match that address.\n\n7. Start the OmniCloud installation.\n\n8. Open OmniCloud from the Zima OS dashboard.\n\n9. If you set APP_MODE to hosted, create your administrator\n   account on first load.\n\n10. Go to Quota to connect your first cloud storage account.\n\n11. Important: OMNICLOUD_SECRET_HALF is used to encrypt saved\n    logins. Changing it later locks you out of accounts you\n    already connected."
+  },
+  "is_uncontrolled": false,
+  "docs": "https://github.com/dimartarmizi/OmniCloud/tree/main/docs",
+  "support": "https://github.com/dimartarmizi/OmniCloud/issues",
+  "title": "OmniCloud",
+  "release_note": "- Initial version.\n- Upstream publishes no pre-built Docker image, so the api and web images are built from the OmniCloud source and published to GHCR.\n- amd64 only for now.",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.omnicloud",
+  "version": "",
+  "categories": [
+    "productivity"
+  ],
+  "min_memory": 201326592,
+  "min_image_size": {
+    "amd64": 130267032
+  }
+}

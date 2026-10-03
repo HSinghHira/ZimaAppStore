@@ -1,0 +1,38 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Others",
+  "developer": "zerx-lab",
+  "thumbnail": "/apps/com.hiraappstore.fluxdown/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.fluxdown/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.fluxdown/assets/thumbnail-1.webp",
+    "/apps/com.hiraappstore.fluxdown/assets/thumbnail-2.webp",
+    "/apps/com.hiraappstore.fluxdown/assets/thumbnail-3.webp"
+  ],
+  "tagline": "Fast multi-protocol download manager with a web UI.",
+  "description": "A fast, self-hosted download manager powered by a Rust engine. It handles HTTP/HTTPS, FTP, BitTorrent, HLS and more, with resume and speed control.\n\n**Features**\n\n- Multi-protocol downloads with smart segmentation and resume\n- Web UI, REST API and aria2-compatible JSON-RPC\n- Built-in MCP endpoint so AI agents can manage downloads\n- Settings and database kept in /DATA/AppData/$AppID\n\n**How to use?**\n1. Open FluxDown from the Zima OS dashboard.\n2. Follow the setup wizard and create your access key.\n3. Add a link or magnet and start downloading.\n4. Find finished files in the Downloads folder on ZimaOS.",
+  "tips": {
+    "before_install": "1. Start the FluxDown installation.\n\n2. Open FluxDown from the Zima OS dashboard.\n\n3. Follow the setup wizard.\n\n4. Make an access key with 8 or more letters and numbers.\n\n5. Save your key. You need it to log in.\n\n6. Find your finished files in the Downloads folder."
+  },
+  "is_uncontrolled": false,
+  "repo": "https://github.com/zerx-lab/FluxDown",
+  "support": "https://github.com/zerx-lab/FluxDown/issues",
+  "docs": "https://github.com/zerx-lab/FluxDown",
+  "title": "FluxDown",
+  "release_note": "- Uses the latest tag. Upstream releases do not match the published\n  image tags, so no version is tracked here.",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.fluxdown",
+  "version": "",
+  "categories": [
+    "others"
+  ],
+  "min_memory": 134217728,
+  "min_image_size": {
+    "amd64": 60697416,
+    "arm64": 59327129
+  }
+}

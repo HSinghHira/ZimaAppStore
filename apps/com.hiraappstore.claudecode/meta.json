@@ -1,0 +1,37 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Developer",
+  "developer": "worph",
+  "thumbnail": "/apps/com.hiraappstore.claudecode/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.claudecode/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.claudecode/assets/thumbnail-1.webp"
+  ],
+  "tagline": "A browser-based terminal for Anthropic's Claude Code CLI, with an optional API for programmatic access.",
+  "description": "Run Claude Code — Anthropic's AI coding CLI — in a persistent, browser-based terminal. Think of it as a coding assistant you can reach from any device, always sitting in the same workspace where you left it.\n\n**Features**\n\n- Web-based terminal to Claude Code via ttyd, with a login page\n- Session persists across browser tabs and reconnects via dtach, so\n  closing the tab doesn't kill your Claude session\n\n- Optional MCP JSON-RPC API for other Claude/automation instances to\n  send it prompts (off by default — see the MCP_ENABLED variable)\n\n- Optional OpenAI-compatible /v1/chat/completions endpoint that reuses\n  the same login\n\n- Persistent storage for your project files and for Claude's login\n  state and history under /DATA/AppData/$AppID\n\n- Multi-architecture image (amd64 and arm64)\n\n**How to use?**\n\n1. Open Claude Code from the Zima OS dashboard.\n2. You'll land on the login page — enter the AUTH_PASSWORD value from\n   the app's environment settings.\n\n3. You're now in a live terminal running the `claude` CLI in\n   /home/claude/workspace.\n\n4. If you left ANTHROPIC_API_KEY blank, follow the one-time OAuth link\n   Claude Code prints to sign in with your Pro/Max subscription\n   instead.\n\n5. Work normally — closing the tab won't end your session; reopening\n   the app reattaches you to the same one until it times out after\n   CLAUDE_SESSION_TTL seconds of inactivity.\n\n6. To let another automation client send it prompts over the network,\n   set MCP_ENABLED to true and see the project's MCP docs — understand\n   the trade-off noted on that variable first.",
+  "tips": {
+    "before_install": "1. Open the app's environment settings before you start the\n   install.\n\n\n2. Find ANTHROPIC_API_KEY. If you have an Anthropic API key, put it\n   there. If not, leave it as is and you'll sign in with your\n   Claude subscription later.\n\n\n3. Find AUTH_PASSWORD. It already has a random password filled in.\n\n4. Replace it with your own password — you can make one up, or\n   generate one at randomkeygen.com. This password logs you into\n   the web terminal and also works as the API key for the MCP\n   feature.\n\n\n5. Leave MCP_ENABLED set to false unless you plan to connect\n   another automation tool to this container. Turning it on also\n   tells other containers on the network your AUTH_PASSWORD.\n\n\n6. Start the Claude Code installation.\n\n7. Open Claude Code from the Zima OS dashboard.\n\n8. Log in with the AUTH_PASSWORD you set.\n\n9. Your files live in the workspace folder shown in the app's\n   storage settings. Back that up like any other project folder.\n\n\n10. Important: this app's own login page only works if you put a\n    proxy that checks it in front of the app. Without one, treat\n    the app's address as trusted-network-only, the same as any\n    terminal you wouldn't want a stranger to stumble onto."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-09-06",
+  "repo": "https://github.com/worph/claude-code-container",
+  "support": "https://github.com/worph/claude-code-container/issues",
+  "docs": "https://github.com/worph/claude-code-container/tree/main/docs",
+  "title": "Claude Code",
+  "release_note": "- Initial version, pinned to ghcr.io/worph/claude-code-container:1.0.26.\n- MCP automation endpoint (/mcp) is disabled by default (MCP_ENABLED=false); the login page still runs. Enabling it also starts a UDP auto-discovery beacon that hands AUTH_PASSWORD to any container on the same Docker network.\n- Only the web-terminal port (8080, published as 8443) is exposed. The container's login page needs an external forward-auth-capable proxy in front of it to actually block unauthenticated visitors; none is bundled here, so treat the published port as trusted-network-only until you add one.",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.claudecode",
+  "version": "1.0.26",
+  "categories": [
+    "developer"
+  ],
+  "min_memory": 536870912,
+  "min_image_size": {
+    "amd64": 297133391,
+    "arm64": 293855991
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Networking",
+  "developer": "mostafa-wahied",
+  "thumbnail": "/apps/com.hiraappstore.portracker/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.portracker/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.portracker/assets/thumbnail-1.webp"
+  ],
+  "tagline": "Live, self-hosted port monitoring and discovery for your homelab.",
+  "description": "portracker automatically scans your host and Docker containers to build a live, accurate map of every port in use, so messy spreadsheets and surprise port conflicts stop happening.\n\n**Features**\n\n- Automatic port discovery for both host system ports and Docker\n  containers, with clear separation between internal and published\n  ports\n\n- Peer-to-peer monitoring — add other portracker instances as\n  peers to see every server, container, and VM from one dashboard\n\n- Optional built-in authentication with a first-run setup wizard;\n  portracker does not support OIDC or any external identity\n  provider yet, only its own username and password login\n\n- Lightweight single-container app with an embedded SQLite\n  database — no external database required\n\n\n**How to use?**\n1. Open portracker from the Zima OS dashboard. 2. Since authentication is turned on, complete the setup wizard\n   and create your admin username and password.\n3. portracker starts scanning right away — no further setup is\n   needed to see host and Docker ports.\n4. Add other portracker instances as peers from the Settings gear\n   icon to monitor multiple machines from one screen.\n5. Caching, UDP scanning, and TrueNAS integration can all be\n   tweaked later through the container's environment variables.",
+  "tips": {
+    "before_install": "1. Find SESSION_SECRET in the portracker service.\n2. Replace it with your own — generate one at\n   [randomkeygen.com](https://randomkeygen.com/) — before going\n   live.\n\n3. Start the portracker installation.\n4. Open portracker from the Zima OS dashboard.\n5. You will see a login screen because ENABLE_AUTH is turned\n   on.\n\n6. Follow the setup wizard to create your admin username and\n   password.\n\n7. If you ever forget your password, look up portracker's\n   RECOVERY_MODE setting in its own docs to reset it."
+  },
+  "is_uncontrolled": false,
+  "repo": "https://github.com/mostafa-wahied/portracker",
+  "support": "https://github.com/mostafa-wahied/portracker/issues",
+  "docs": "https://github.com/mostafa-wahied/portracker#readme",
+  "title": "portracker",
+  "release_note": "- Initial version\n- Upstream only publishes a floating `latest` tag, so no pinned\n  version is tracked here",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.portracker",
+  "version": "",
+  "categories": [
+    "networking"
+  ],
+  "min_memory": 134217728,
+  "min_image_size": {
+    "amd64": 188445156,
+    "arm64": 167870016
+  }
+}

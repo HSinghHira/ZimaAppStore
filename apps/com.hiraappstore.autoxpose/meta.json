@@ -1,0 +1,36 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Networking",
+  "developer": "mostafa-wahied",
+  "thumbnail": "/apps/com.hiraappstore.autoxpose/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.autoxpose/assets/thumbnail.webp"
+  ],
+  "tagline": "Label a container, and AutoXpose builds the DNS record and reverse proxy for it.",
+  "description": "AutoXpose watches your Docker containers and, when it finds one with an autoxpose label, automatically creates the DNS record and configures your reverse proxy with SSL — no manual setup required.\n\n**Features**\n\n- Scans running containers for autoxpose labels and lists what it finds\n- Creates and removes DNS records, with propagation checks, across\n  Cloudflare, Netlify, DigitalOcean, or Porkbun\n\n- Configures Nginx Proxy Manager or Caddy as the reverse proxy, with\n  automatic HTTPS/scheme detection\n\n- Optional auto-expose mode (`autoxpose.enable=auto`) skips the manual\n  \"Expose\" click entirely\n\n- Finds and cleans up orphaned DNS records and proxy hosts left behind\n  by removed containers\n\n- Single container with an embedded SQLite database under\n  /DATA/AppData/$AppID — no external database needed\n\n\n**How to use?**\n1. Open AutoXpose from the Zima OS dashboard.\n2. Go to Settings and add a DNS provider (Cloudflare, Netlify,\n   DigitalOcean, or Porkbun) and a proxy provider (Nginx Proxy Manager\n   or Caddy).\n\n3. Add the labels `autoxpose.enable=true` (or `auto`) and, optionally,\n   `autoxpose.subdomain=myapp` to any container you want to expose,\n   then recreate that container.\n\n4. Open AutoXpose again — the container shows up under Discovered\n   Services. Click \"Expose\" if you used `enable=true`.\n\n5. DNS provider tokens, proxy credentials, SERVER_IP, and LAN_IP can\n   all be changed later from Settings without rebuilding the container.",
+  "tips": {
+    "before_install": "1. Open the app configuration before starting the installation.\n2. Add SERVER_IP variable, means your Public IP.\n3. Add LAN_IP variable, means your Private IP.\n4. Start the AutoXpose installation.\n5. Open AutoXpose from the Zima OS dashboard.\n6. Go to Settings and add your DNS provider and proxy provider.\n7. Add an autoxpose.enable label to any container you want exposed,\n   then recreate that container so the label takes effect.\n\n8. You can change SERVER_IP, LAN_IP, and provider settings later\n    from Settings."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-09-27",
+  "repo": "https://github.com/mostafa-wahied/autoxpose",
+  "support": "https://github.com/mostafa-wahied/autoxpose/issues",
+  "docs": "https://github.com/mostafa-wahied/autoxpose/tree/main/README.md",
+  "title": "AutoXpose",
+  "release_note": "- Initial version",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.autoxpose",
+  "version": "0.5.2",
+  "categories": [
+    "networking"
+  ],
+  "min_memory": 134217728,
+  "min_image_size": {
+    "amd64": 73769458,
+    "arm64": 74317757
+  }
+}

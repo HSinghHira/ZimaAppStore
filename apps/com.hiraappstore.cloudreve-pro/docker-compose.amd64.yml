@@ -1,0 +1,117 @@
+name: cloudreve-pro
+
+services:
+  cloudreve-pro:
+    image: ghcr.io/dvorinka/cloudreve:latest@sha256:ff4b29d3febf1faf6f1cb061c4b103b088a3f88e245c908a6343bf609361d5e5
+    container_name: cloudreve-pro
+    restart: unless-stopped
+    stop_grace_period: 40s
+    depends_on:
+      cloudreve-pro-postgres:
+        condition: service_healthy
+      cloudreve-pro-redis:
+        condition: service_healthy
+    environment:
+      - CR_CONF_Database.Type=postgres
+      - CR_CONF_Database.Host=cloudreve-pro-postgres
+      - CR_CONF_Database.Port=5432
+      - CR_CONF_Database.User=cloudreve
+      - CR_CONF_Database.Password=9e67a1c701d1b0c0418f9f5164ca6aa2a8a9577cead3c0f2
+      - CR_CONF_Database.Name=cloudreve
+      - CR_CONF_Redis.Server=cloudreve-pro-redis:6379
+    ports:
+      - target: 5212
+        published: "8471"
+        protocol: tcp
+      - target: 6888
+        published: "8472"
+        protocol: tcp
+      - target: 6888
+        published: "8472"
+        protocol: udp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /cloudreve/data
+        bind:
+          create_host_path: true
+    networks:
+      - cloudreve_pro_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+  cloudreve-pro-postgres:
+    image: postgres:17@sha256:e31e3d5327d1806f6177827c9710643e4f35f7ab3f14d26d05332753d3e95ee0
+    container_name: cloudreve-pro-postgres
+    restart: unless-stopped
+    stop_grace_period: 60s
+    environment:
+      - POSTGRES_USER=cloudreve
+      - POSTGRES_DB=cloudreve
+      - POSTGRES_PASSWORD=9e67a1c701d1b0c0418f9f5164ca6aa2a8a9577cead3c0f2
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cloudreve -d cloudreve"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    networks:
+      - cloudreve_pro_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+  cloudreve-pro-redis:
+    image: redis:7-alpine@sha256:ca0acbb137c1dc3339c8b147a58fd6f42775d4599327b50e7b116c23de501af2
+    container_name: cloudreve-pro-redis
+    restart: unless-stopped
+    stop_grace_period: 40s
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/redis
+        target: /data
+        bind:
+          create_host_path: true
+    networks:
+      - cloudreve_pro_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 128M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+networks:
+  cloudreve_pro_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.cloudreve-pro
+  main: cloudreve-pro
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.cloudreve-pro/assets/icon.png
+  title:
+    en_US: Cloudreve Pro
+  index: /
+  port_map: "8471"
+  scheme: http
