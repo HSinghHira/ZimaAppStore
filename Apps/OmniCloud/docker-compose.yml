@@ -1,103 +1,89 @@
+name: omnicloud
+
 networks:
   omnicloud_network:
     name: omnicloud
     driver: bridge
-    ipam: {}
-    external: false
+
 services:
   api:
-    build:
-      context: https://github.com/dimartarmizi/OmniCloud.git
-      dockerfile: backend/Dockerfile
-    command: null
+    image: ghcr.io/hsinghhira/omnicloud-api:sha-e87fb59
     container_name: omnicloud-api
-    deploy:
-      resources:
-        limits:
-          memory: 512MB
-          cpus: "1.00"
-        reservations:
-          memory: 128MB
-          cpus: "0.10"
-      placement: {}
-    entrypoint: null
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - omnicloud_network
     environment:
       APP_MODE: local
       AUTH_COOKIE_NAME: omnicloud_session
       AUTH_SECRET: 7d06de2aca264ad1ff0a1727ec98983c95b751d9bba1958e7edacfa69445c8be
       AUTH_SESSION_TTL_HOURS: "336"
-      CORS_ORIGIN: http://[IP_ADDRESS:PORT]
+      CORS_ORIGIN: http://$public_ip:8442
       DATABASE_PATH: /app/data/omnicloud.db
       DROPBOX_CLIENT_ID: CHANGEME_DROPBOX_CLIENT_ID
       DROPBOX_CLIENT_SECRET: CHANGEME_DROPBOX_CLIENT_SECRET
-      DROPBOX_REDIRECT_URI: http://[IP_ADDRESS:PORT]/api/accounts/dropbox/callback
-      FRONTEND_URL: http://[IP_ADDRESS:PORT]
+      DROPBOX_REDIRECT_URI: http://$public_ip:8442/api/accounts/dropbox/callback
+      FRONTEND_URL: http://$public_ip:8442
       GOOGLE_CLIENT_ID: CHANGEME_GOOGLE_CLIENT_ID
       GOOGLE_CLIENT_SECRET: CHANGEME_GOOGLE_CLIENT_SECRET
-      GOOGLE_REDIRECT_URI: http://[IP_ADDRESS:PORT]/api/accounts/google/callback
+      GOOGLE_REDIRECT_URI: http://$public_ip:8442/api/accounts/google/callback
       OMNICLOUD_SECRET_HALF: ff9752efae2afb79ed1c07706eb84ce6e38b39e7a386c44e14702e5a2b3332d5
       ONEDRIVE_CLIENT_ID: CHANGEME_ONEDRIVE_CLIENT_ID
       ONEDRIVE_CLIENT_SECRET: CHANGEME_ONEDRIVE_CLIENT_SECRET
-      ONEDRIVE_REDIRECT_URI: http://[IP_ADDRESS:PORT]/api/accounts/onedrive/callback
+      ONEDRIVE_REDIRECT_URI: http://$public_ip:8442/api/accounts/onedrive/callback
       ONEDRIVE_TENANT_ID: common
       PORT: "8787"
       SYNC_INTERVAL_MINUTES: "5"
       YANDEX_CLIENT_ID: CHANGEME_YANDEX_CLIENT_ID
       YANDEX_CLIENT_SECRET: CHANGEME_YANDEX_CLIENT_SECRET
-      YANDEX_REDIRECT_URI: http://[IP_ADDRESS:PORT]/api/accounts/yandex/callback
-    image: ghcr.io/hsinghhira/omnicloud-api:sha-e87fb59
-    labels:
-      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/OmniCloud/icon.png
-    networks:
-      - omnicloud_network
-    restart: unless-stopped
-    stop_grace_period: 40s
+      YANDEX_REDIRECT_URI: http://$public_ip:8442/api/accounts/yandex/callback
     volumes:
       - type: bind
-        source: /DATA/AppData/omnicloud/data
+        source: /DATA/AppData/$AppID/data
         target: /app/data
         bind:
           create_host_path: true
-  web:
-    build:
-      context: https://github.com/dimartarmizi/OmniCloud.git
-      dockerfile: frontend/Dockerfile
-      args:
-        VITE_API_BASE_URL: /api
-        VITE_WS_BASE_URL: /ws/uploads
-    command: null
-    container_name: omnicloud-web
-    depends_on:
-      api:
-        condition: service_started
-        required: true
     deploy:
       resources:
         limits:
-          memory: 256MB
-          cpus: "0.50"
+          memory: 512M
+          cpus: "1.00"
         reservations:
-          memory: 64MB
-          cpus: "0.05"
-      placement: {}
-    entrypoint: null
-    image: ghcr.io/hsinghhira/omnicloud-web:sha-e87fb59
+          memory: 128M
+          cpus: "0.10"
     labels:
       icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/OmniCloud/icon.png
+
+  web:
+    image: ghcr.io/hsinghhira/omnicloud-web:sha-e87fb59
+    container_name: omnicloud-web
+    restart: unless-stopped
+    stop_grace_period: 40s
+    depends_on:
+      api:
+        condition: service_started
     networks:
       - omnicloud_network
     ports:
       - target: 80
         published: "8442"
         protocol: tcp
-    restart: unless-stopped
-    stop_grace_period: 40s
-    volumes: []
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.50"
+        reservations:
+          memory: 64M
+          cpus: "0.05"
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/OmniCloud/icon.png
+
 x-casaos:
   id: com.hiraappstore.omnicloud
   architectures:
     - amd64
-    - arm64
+  main: web
   author: HSinghHira
   category: Productivity
   developer: dimartarmizi
@@ -108,7 +94,10 @@ x-casaos:
     - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/OmniCloud/thumbnail-1.png
     - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/OmniCloud/thumbnail-2.png
     - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/OmniCloud/thumbnail-3.png
-
+  title:
+    en_US: OmniCloud
+  tagline:
+    en_US: One workspace for every cloud drive you own.
   description:
     en_US: >-
       OmniCloud pulls Google Drive, OneDrive, Dropbox, Yandex Disk, MEGA,
@@ -133,7 +122,7 @@ x-casaos:
       - Scheduled background sync keeps file metadata current across all
         connected accounts
 
-      - local mode for single-user setups or hosted mode for multi-user
+      - Local mode for single-user setups or hosted mode for multi-user
         logins with sessions
 
       - File metadata mirrored into SQLite, with encrypted provider tokens
@@ -161,56 +150,52 @@ x-casaos:
       6. Change upload distribution under Quota's allocation settings, and
          change language or theme under Settings, both without rebuilding
          the container.
-  docs: https://github.com/dimartarmizi/OmniCloud/tree/main/docs
-  hostname: ""
+  tips:
+    before_install:
+      en_US: |-
+        1. Open the api service settings before installing.
+
+        2. Find GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, ONEDRIVE_CLIENT_ID,
+           ONEDRIVE_CLIENT_SECRET, DROPBOX_CLIENT_ID, DROPBOX_CLIENT_SECRET,
+           YANDEX_CLIENT_ID, and YANDEX_CLIENT_SECRET in the api service.
+
+        3. You only need to fill in the ones for the providers you plan to
+           use. Get each value from that provider's developer console.
+
+        4. Find OMNICLOUD_SECRET_HALF and AUTH_SECRET in the api service.
+           Both are pre-filled with a value shared by every install.
+
+        5. Replace both with your own values before going live. Generate
+           new ones at randomkeygen.com.
+
+        6. CORS_ORIGIN, FRONTEND_URL and the redirect URIs default to this
+           server's IP on port 8442. If you open OmniCloud through a domain
+           or reverse proxy, change them to match that address.
+
+        7. Start the OmniCloud installation.
+
+        8. Open OmniCloud from the Zima OS dashboard.
+
+        9. If you set APP_MODE to hosted, create your administrator
+           account on first load.
+
+        10. Go to Quota to connect your first cloud storage account.
+
+        11. Important: OMNICLOUD_SECRET_HALF is used to encrypt saved
+            logins. Changing it later locks you out of accounts you
+            already connected.
   index: /
-  is_uncontrolled: false
-  main: web
   port_map: "8442"
+  scheme: http
+  is_uncontrolled: false
+  store_app_id: omnicloud
+  docs: https://github.com/dimartarmizi/OmniCloud/tree/main/docs
+  support: https://github.com/dimartarmizi/OmniCloud/issues
   release_notes:
     en_US: >-
       - Initial version.
 
       - Upstream publishes no pre-built Docker image, so the api and web
-      services build from the OmniCloud GitHub source instead of pulling a
-      version tag.
-  scheme: http
-  store_app_id: omnicloud
-  support: https://github.com/dimartarmizi/OmniCloud/issues
-  tagline:
-    en_US: One workspace for every cloud drive you own.
-  tips:
-    before_install:
-      en_US: |-
-        1. This app builds itself from the OmniCloud source code, so the
-           first install can take a few minutes.
+      images are built from the OmniCloud source and published to GHCR.
 
-        2. Open the api service settings before installing.
-        3. Find GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, ONEDRIVE_CLIENT_ID,
-           ONEDRIVE_CLIENT_SECRET, DROPBOX_CLIENT_ID, DROPBOX_CLIENT_SECRET,
-           YANDEX_CLIENT_ID, and YANDEX_CLIENT_SECRET in the api service.
-
-        4. You only need to fill in the ones for the providers you plan to
-           use. Get each value from that provider's developer console.
-
-        5. Find OMNICLOUD_SECRET_HALF and AUTH_SECRET in the api service.
-           Both are pre-filled with a random value.
-
-        6. Replace both with your own values before going live. Generate
-           new ones at randomkeygen.com.
-
-        7. Make sure CORS_ORIGIN and FRONTEND_URL both match the address
-           you use to open OmniCloud, including the port.
-
-        8. Start the OmniCloud installation.
-        9. Open OmniCloud from the Zima OS dashboard.
-        10. If you set APP_MODE to hosted, create your administrator
-            account on first load.
-
-        11. Go to Quota to connect your first cloud storage account.
-        12. Important: OMNICLOUD_SECRET_HALF is used to encrypt saved
-            logins. Changing it later locks you out of accounts you
-            already connected.
-  title:
-    custom: OmniCloud
-    en_US: OmniCloud
+      - amd64 only for now.
