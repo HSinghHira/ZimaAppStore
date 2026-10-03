@@ -1,0 +1,209 @@
+name: ntfy
+
+services:
+  ntfy:
+    image: binwiederhier/ntfy:latest
+    container_name: ntfy
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    init: true
+    command: serve
+    environment:
+      TZ: $TZ
+      NTFY_BASE_URL: "http://localhost:8473"
+      NTFY_BEHIND_PROXY: "true"
+      NTFY_CACHE_FILE: "/var/lib/ntfy/cache.db"
+      NTFY_AUTH_FILE: "/var/lib/ntfy/auth.db"
+      NTFY_AUTH_DEFAULT_ACCESS: "deny-all"
+      NTFY_ENABLE_LOGIN: "true"
+      NTFY_REQUIRE_LOGIN: "true"
+      NTFY_UPSTREAM_BASE_URL: "https://ntfy.sh"
+      NTFY_AUTH_USERS: "admin:$$2b$$10$$1C8wtZx6f6Fkm8W07PXZyObBN9OY1GlOAGbOA79M4yV1oKjf5kR5S:admin"
+    ports:
+      - target: 80
+        published: "8473"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /var/lib/ntfy
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --tries=1 http://127.0.0.1:80/v1/health -O - | grep -Eo '\"healthy\"\\s*:\\s*true' || exit 1"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/NTFY/icon.png
+    x-casaos:
+      id: com.hiraappstore.ntfy
+      envs:
+        - container: TZ
+          description:
+            en_US: >-
+              Your time zone. It is filled in from your ZimaOS time zone.
+              Leave it unless you need another.
+        - container: NTFY_BASE_URL
+          description:
+            en_US: >-
+              The web address of your ntfy server. It starts as localhost,
+              which only works on this device. For other devices, change
+              `localhost` to your ZimaOS IP, like http://192.168.1.50:8473.
+              If you use a public address, put it here, like
+              https://ntfy.example.com.
+        - container: NTFY_BEHIND_PROXY
+          description:
+            en_US: >-
+              Set to true when ntfy sits behind a reverse proxy. It makes
+              ntfy read the real visitor address.
+        - container: NTFY_CACHE_FILE
+          description:
+            en_US: Where ntfy keeps its saved messages.
+        - container: NTFY_AUTH_FILE
+          description:
+            en_US: Where ntfy keeps its users and passwords.
+        - container: NTFY_AUTH_DEFAULT_ACCESS
+          description:
+            en_US: >-
+              Set to deny-all, so only signed-in users can read or send.
+              Use read-write to let anyone use your server.
+        - container: NTFY_ENABLE_LOGIN
+          description:
+            en_US: Shows a sign-in page in the web app.
+        - container: NTFY_REQUIRE_LOGIN
+          description:
+            en_US: Set to true, so the web app asks everyone to sign in first.
+        - container: NTFY_UPSTREAM_BASE_URL
+          description:
+            en_US: >-
+              Lets iPhone apps get instant alerts through ntfy.sh. Only a
+              hidden message ID is sent, never your message. Remove it to
+              turn this off.
+        - container: NTFY_AUTH_USERS
+          description:
+            en_US: >-
+              The admin account, as name:password-hash:role. It starts as
+              admin with the password admin. Replace the hash with your own
+              before using ntfy for anything private. Make a hash with
+              `ntfy user hash` or at
+              [bcrypt-generator.com](https://bcrypt-generator.com/). Write
+              every `$` in the hash as `$$`. Add more users with a comma
+              between them.
+      ports:
+        - container: "80"
+          description:
+            en_US: Web app and API (published on host as 8473)
+      volumes:
+        - container: /var/lib/ntfy
+          description:
+            en_US: Saved messages and the user database.
+
+x-casaos:
+  id: com.hiraappstore.ntfy
+  architectures:
+    - amd64
+    - arm64
+  main: ntfy
+  author: HSinghHira
+  category: Productivity
+  developer: Philipp Heckel
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/NTFY/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/NTFY/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/NTFY/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/NTFY/thumbnail-1.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/NTFY/thumbnail-2.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/NTFY/thumbnail-3.png
+  title:
+    en_US: ntfy
+  tagline:
+    en_US: Send push notifications to your phone or desktop with simple HTTP requests.
+  description:
+    en_US: >-
+      A simple, self-hosted notification service. Send alerts from any
+      script or app to your phone or desktop with a plain PUT or POST.
+
+
+      **Features**
+
+
+      - Publish and subscribe to topics over HTTP
+
+
+      - Android, iOS and web apps for receiving notifications
+
+
+      - Users and access rules, locked down by default
+
+
+      - Messages and users saved under /DATA/AppData/$AppID
+
+
+      **How to use?**
+
+      1. Open ntfy from the Zima OS dashboard.
+
+      2. Sign in with the default login: **admin** / **admin**.
+
+      3. Subscribe to a topic.
+
+      4. Send a test message with `curl -u admin:admin -d "Hello" http://YOUR-ZIMAOS-IP:8473/mytopic`.
+
+      5. Add the same server and topic in the ntfy phone app.
+  tips:
+    before_install:
+      en_US: >-
+        1. Open the app configuration before starting the installation.
+
+
+        2. The default login is **admin** / **admin**.
+
+
+        3. Find NTFY_AUTH_USERS in the ntfy service.
+
+
+        4. Replace the hash with your own so the password is not admin. Make one at [bcrypt-generator.com](https://bcrypt-generator.com/).
+
+
+        5. Write every `$` in the hash as `$$`.
+
+
+        6. Find NTFY_BASE_URL in the ntfy service.
+
+
+        7. Change localhost to your ZimaOS IP address, so your phone can reach ntfy.
+
+
+        8. If you have a public address like https://ntfy.example.com, use that instead.
+
+
+        9. Start the ntfy installation.
+
+
+        10. Open ntfy from the Zima OS dashboard and sign in.
+
+
+        11. Change the password in NTFY_AUTH_USERS, not in the app. The app resets it when ntfy restarts.
+  index: /
+  port_map: "8473"
+  scheme: http
+  is_uncontrolled: false
+  version: "2.28.0"
+  update_at: "2026-10-04"
+  release_notes:
+    en_US: |-
+      - Initial version
+  repo: "https://github.com/binwiederhier/ntfy"
+  support: "https://github.com/binwiederhier/ntfy/issues"
+  docs: "https://docs.ntfy.sh/"

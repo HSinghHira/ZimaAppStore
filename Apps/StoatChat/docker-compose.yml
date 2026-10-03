@@ -188,7 +188,7 @@ services:
             en_US: Stores internal RabbitMQ data.
 
   minio:
-    image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z
+    image: pgsty/minio:latest
     container_name: stoatchat-minio
     restart: unless-stopped
     stop_grace_period: 60s
@@ -237,7 +237,7 @@ services:
             en_US: Stores uploaded files and media.
 
   createbuckets:
-    image: pgsty/mc:RELEASE.2026-09-16T00-00-00Z
+    image: pgsty/mc:latest
     container_name: stoatchat-createbuckets
     restart: "no"
     stop_grace_period: 30s
