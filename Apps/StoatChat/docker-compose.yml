@@ -188,7 +188,7 @@ services:
             en_US: Stores internal RabbitMQ data.
 
   minio:
-    image: minio/minio:latest
+    image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z
     container_name: stoatchat-minio
     restart: unless-stopped
     stop_grace_period: 60s
@@ -237,7 +237,7 @@ services:
             en_US: Stores uploaded files and media.
 
   createbuckets:
-    image: minio/mc:latest
+    image: pgsty/mc:RELEASE.2026-09-16T00-00-00Z
     container_name: stoatchat-createbuckets
     restart: "no"
     stop_grace_period: 30s
@@ -248,9 +248,9 @@ services:
       - /bin/sh
       - -c
       - |
-        until /usr/bin/mc alias set minio http://minio:9000 minioautumn minioautumn; do sleep 2; done
-        until /usr/bin/mc ready minio; do sleep 2; done
-        /usr/bin/mc mb --ignore-existing minio/revolt-uploads
+        until mc alias set minio http://minio:9000 minioautumn minioautumn; do sleep 2; done
+        until mc ready minio; do sleep 2; done
+        mc mb --ignore-existing minio/revolt-uploads
     deploy:
       resources:
         limits:
@@ -685,8 +685,8 @@ x-casaos:
       **Features**
 
 
-      - Includes MongoDB, KeyDB, RabbitMQ, MinIO, Caddy, LiveKit, and all
-        required Stoat services
+      - Includes MongoDB, KeyDB, RabbitMQ, MinIO (Silo), Caddy, LiveKit, and
+        all required Stoat services
 
       - Real-time servers, channels, direct messages, file uploads, and
         media
@@ -769,9 +769,13 @@ x-casaos:
   scheme: http
   is_uncontrolled: false
   version: "0.13.8"
-  update_at: "2026-08-22"
+  update_at: "2026-10-03"
   release_notes:
     en_US: |-
+      - Replaced the archived minio/minio and minio/mc images with the
+        community-maintained Silo fork (pgsty/minio and pgsty/mc), pinned
+        to release tags. Silo keeps the same S3 API, environment
+        variables, and on-disk format, so existing data is unaffected
       - Removed the init container and every dynamically-created bind
         mount for Revolt.toml, livekit.yml, and Caddyfile — CasaOS creates
         every service's bind mounts up front, not strictly in depends_on
