@@ -1,0 +1,752 @@
+name: appflowy
+
+networks:
+  appflowy_network:
+    name: appflowy_network
+    driver: bridge
+
+services:
+  appflowy:
+    image: nginx:1.27-alpine
+    container_name: appflowy
+    restart: unless-stopped
+    stop_grace_period: 40s
+    command:
+      - /bin/sh
+      - -c
+      - |
+        tr '@' '\044' > /etc/nginx/nginx.conf <<'NGINXCONF'
+        events {
+          worker_connections 1024;
+        }
+
+        http {
+          resolver 127.0.0.11 valid=10s;
+
+          map @http_upgrade @connection_upgrade {
+            default upgrade;
+            '' close;
+          }
+
+          server {
+            listen 80;
+            client_max_body_size 10M;
+            underscores_in_headers on;
+
+            set @appflowy_cloud_backend "http://appflowy_cloud:8000";
+            set @gotrue_backend "http://gotrue:9999";
+            set @admin_frontend_backend "http://admin_frontend:3000";
+            set @appflowy_web_backend "http://appflowy_web:80";
+            set @minio_console_backend "http://minio:9001";
+            set @minio_api_backend "http://minio:9000";
+            set @minio_host "minio:9000";
+
+            location /gotrue/ {
+              proxy_pass @gotrue_backend;
+              rewrite ^/gotrue(/.*)@ @1 break;
+              proxy_set_header Host @http_host;
+              proxy_pass_request_headers on;
+            }
+
+            location /ws {
+              proxy_pass @appflowy_cloud_backend;
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade @http_upgrade;
+              proxy_set_header Connection "Upgrade";
+              proxy_set_header Host @host;
+              proxy_set_header X-Real-IP @remote_addr;
+              proxy_set_header X-Forwarded-For @proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto @scheme;
+              proxy_read_timeout 86400s;
+            }
+
+            location /api {
+              proxy_pass @appflowy_cloud_backend;
+              proxy_set_header X-Request-Id @request_id;
+              proxy_set_header Host @host;
+
+              location ~* ^/api/workspace/([a-zA-Z0-9_-]+)/publish@ {
+                proxy_pass @appflowy_cloud_backend;
+                proxy_request_buffering off;
+                client_max_body_size 256M;
+              }
+
+              location /api/import {
+                proxy_pass @appflowy_cloud_backend;
+                proxy_set_header X-Request-Id @request_id;
+                proxy_set_header Host @host;
+                proxy_read_timeout 600s;
+                proxy_connect_timeout 600s;
+                proxy_send_timeout 600s;
+                proxy_request_buffering off;
+                proxy_buffering off;
+                proxy_cache off;
+                client_max_body_size 2G;
+              }
+            }
+
+            location /minio/ {
+              proxy_pass @minio_console_backend;
+              rewrite ^/minio/(.*) /@1 break;
+              proxy_set_header Host @http_host;
+              proxy_set_header X-Real-IP @remote_addr;
+              proxy_set_header X-Forwarded-For @proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto @scheme;
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade @http_upgrade;
+              proxy_set_header Connection "upgrade";
+              chunked_transfer_encoding off;
+            }
+
+            location /minio-api/ {
+              proxy_pass @minio_api_backend;
+              proxy_set_header Host @minio_host;
+              proxy_set_header X-Real-IP @remote_addr;
+              proxy_set_header X-Forwarded-For @proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto @scheme;
+              rewrite ^/minio-api/(.*) /@1 break;
+              proxy_connect_timeout 300s;
+              proxy_read_timeout 600s;
+              proxy_send_timeout 600s;
+              proxy_request_buffering off;
+              proxy_http_version 1.1;
+              proxy_set_header Connection "";
+              chunked_transfer_encoding off;
+              client_max_body_size 0;
+            }
+
+            location /console {
+              proxy_pass @admin_frontend_backend;
+              proxy_set_header X-Forwarded-Host @http_host;
+              proxy_set_header Host @host;
+              proxy_set_header X-Forwarded-For @proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto @scheme;
+              proxy_set_header X-Real-IP @remote_addr;
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade @http_upgrade;
+              proxy_set_header Connection 'upgrade';
+              proxy_cache_bypass @http_upgrade;
+            }
+
+            location / {
+              proxy_pass @appflowy_web_backend;
+              proxy_set_header X-Scheme @scheme;
+              proxy_set_header Host @host;
+            }
+          }
+        }
+        NGINXCONF
+        exec nginx -g 'daemon off;'
+    ports:
+      - target: 80
+        published: "8474"
+        protocol: tcp
+    networks:
+      - appflowy_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 32M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/AppFlowy/icon.png
+    x-casaos:
+      id: com.hiraappstore.appflowy
+      ports:
+        - container: "80"
+          description:
+            en_US: The AppFlowy web page (published on host as 8474)
+
+  appflowy_cloud:
+    image: appflowyinc/appflowy_cloud:latest
+    container_name: appflowy-cloud
+    restart: unless-stopped
+    stop_grace_period: 40s
+    depends_on:
+      gotrue:
+        condition: service_healthy
+    environment:
+      APPFLOWY_ENVIRONMENT: production
+      APPFLOWY_ACCESS_CONTROL: "true"
+      AI_ENABLED: "false"
+      APPFLOWY_BASE_URL: http://localhost:$PORT
+      APPFLOWY_WEB_URL: http://localhost:$PORT
+      APPFLOWY_GOTRUE_BASE_URL: http://gotrue:9999
+      APPFLOWY_GOTRUE_JWT_SECRET: 3f5abdbeb91b033f1387138016c735cd139bcbfdca93af21b37e2f57f11440ae
+      APPFLOWY_DATABASE_URL: postgres://postgres:55855c6b9ee3f5363161ca48fb04ffba6690812af2388a77@postgres:5432/postgres
+      APPFLOWY_REDIS_URI: redis://redis:6379
+      APPFLOWY_S3_USE_MINIO: "true"
+      APPFLOWY_S3_CREATE_BUCKET: "true"
+      APPFLOWY_S3_BUCKET: appflowy
+      APPFLOWY_S3_MINIO_URL: http://minio:9000
+      APPFLOWY_S3_PRESIGNED_URL_ENDPOINT: http://localhost:$PORT/minio-api
+      APPFLOWY_S3_ACCESS_KEY: 786956f745322cff
+      APPFLOWY_S3_SECRET_KEY: e9b848a948d04237194062e8d630bf84e27dbd684d4cddc4
+      APPFLOWY_SEARCH_SERVICE_URL: http://appflowy_search:4002
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - curl --fail http://127.0.0.1:8000/api/health || exit 1
+      timeout: 5s
+      interval: 5s
+      retries: 12
+    networks:
+      - appflowy_network
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 1G
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/AppFlowy/icon.png
+    x-casaos:
+      id: com.hiraappstore.appflowy
+      envs:
+        - container: APPFLOWY_BASE_URL
+          description:
+            en_US: The address you use to open AppFlowy. Change it to an https address to use it from other devices.
+        - container: APPFLOWY_WEB_URL
+          description:
+            en_US: Same address as APPFLOWY_BASE_URL.
+        - container: APPFLOWY_S3_PRESIGNED_URL_ENDPOINT
+          description:
+            en_US: Your AppFlowy address followed by /minio-api.
+        - container: APPFLOWY_GOTRUE_JWT_SECRET
+          description:
+            en_US: Pre-filled with a random value. Must match GOTRUE_JWT_SECRET in the gotrue service. Replace it with your own (generate one at [randomkeygen.com](https://randomkeygen.com/)) before going live.
+        - container: APPFLOWY_DATABASE_URL
+          description:
+            en_US: The password in this link must match POSTGRES_PASSWORD in the postgres service.
+        - container: APPFLOWY_S3_ACCESS_KEY
+          description:
+            en_US: Must match MINIO_ROOT_USER in the minio service.
+        - container: APPFLOWY_S3_SECRET_KEY
+          description:
+            en_US: Must match MINIO_ROOT_PASSWORD in the minio service.
+
+  appflowy_worker:
+    image: appflowyinc/appflowy_worker:latest
+    container_name: appflowy-worker
+    restart: unless-stopped
+    stop_grace_period: 40s
+    depends_on:
+      appflowy_cloud:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      APPFLOWY_ENVIRONMENT: production
+      APPFLOWY_WORKER_ENVIRONMENT: production
+      APPFLOWY_WORKER_DATABASE_NAME: postgres
+      APPFLOWY_WORKER_DATABASE_URL: postgres://postgres:55855c6b9ee3f5363161ca48fb04ffba6690812af2388a77@postgres:5432/postgres
+      APPFLOWY_WORKER_REDIS_URL: redis://redis:6379
+      APPFLOWY_S3_USE_MINIO: "true"
+      APPFLOWY_S3_BUCKET: appflowy
+      APPFLOWY_S3_MINIO_URL: http://minio:9000
+      APPFLOWY_S3_ACCESS_KEY: 786956f745322cff
+      APPFLOWY_S3_SECRET_KEY: e9b848a948d04237194062e8d630bf84e27dbd684d4cddc4
+    networks:
+      - appflowy_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/AppFlowy/icon.png
+    x-casaos:
+      id: com.hiraappstore.appflowy
+      envs:
+        - container: APPFLOWY_WORKER_DATABASE_URL
+          description:
+            en_US: The password in this link must match POSTGRES_PASSWORD in the postgres service.
+        - container: APPFLOWY_S3_ACCESS_KEY
+          description:
+            en_US: Must match MINIO_ROOT_USER in the minio service.
+        - container: APPFLOWY_S3_SECRET_KEY
+          description:
+            en_US: Must match MINIO_ROOT_PASSWORD in the minio service.
+
+  appflowy_search:
+    image: appflowyinc/appflowy_search:latest
+    container_name: appflowy-search
+    restart: unless-stopped
+    stop_grace_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      APPFLOWY_GOTRUE_JWT_SECRET: 3f5abdbeb91b033f1387138016c735cd139bcbfdca93af21b37e2f57f11440ae
+      APPFLOWY_SEARCH_DATABASE_URL: postgres://postgres:55855c6b9ee3f5363161ca48fb04ffba6690812af2388a77@postgres:5432/postgres
+      APPFLOWY_SEARCH_REDIS_URL: redis://redis:6379
+      APPFLOWY_SEARCH_HOST: "[::]"
+      APPFLOWY_SEARCH_PORT: "4002"
+      APPFLOWY_BACKGROUND_INDEXER_ENABLED: "true"
+      APPFLOWY_INDEXER_DATABASE_ENABLED: "false"
+      APPFLOWY_KEYWORD_SEARCH_ENABLED: "true"
+      APPFLOWY_KEYWORD_WORKER_ENABLED: "true"
+      APPFLOWY_KEYWORD_INDEX_DIR: /var/lib/appflowy/keyword_index
+      APPFLOWY_S3_USE_MINIO: "true"
+      APPFLOWY_S3_BUCKET: appflowy
+      APPFLOWY_S3_MINIO_URL: http://minio:9000
+      APPFLOWY_S3_ACCESS_KEY: 786956f745322cff
+      APPFLOWY_S3_SECRET_KEY: e9b848a948d04237194062e8d630bf84e27dbd684d4cddc4
+    healthcheck:
+      test:
+        - CMD
+        - bash
+        - -ec
+        - >
+          exec 3<>/dev/tcp/127.0.0.1/4002
+
+          printf 'GET /health HTTP/1.1\r\nHost: localhost\r\nConnection:
+          close\r\n\r\n' >&3
+
+          head -n 1 <&3 | grep -q ' 200 '
+      timeout: 5s
+      interval: 5s
+      retries: 12
+      start_period: 40s
+    networks:
+      - appflowy_network
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/keyword_index
+        target: /var/lib/appflowy/keyword_index
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1G
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/AppFlowy/icon.png
+    x-casaos:
+      id: com.hiraappstore.appflowy
+      envs:
+        - container: APPFLOWY_GOTRUE_JWT_SECRET
+          description:
+            en_US: Must match GOTRUE_JWT_SECRET in the gotrue service.
+        - container: APPFLOWY_SEARCH_DATABASE_URL
+          description:
+            en_US: The password in this link must match POSTGRES_PASSWORD in the postgres service.
+        - container: APPFLOWY_S3_ACCESS_KEY
+          description:
+            en_US: Must match MINIO_ROOT_USER in the minio service.
+        - container: APPFLOWY_S3_SECRET_KEY
+          description:
+            en_US: Must match MINIO_ROOT_PASSWORD in the minio service.
+      volumes:
+        - container: /var/lib/appflowy/keyword_index
+          description:
+            en_US: The search index.
+
+  appflowy_web:
+    image: appflowyinc/appflowy_web:latest
+    container_name: appflowy-web
+    restart: unless-stopped
+    stop_grace_period: 40s
+    depends_on:
+      appflowy_cloud:
+        condition: service_healthy
+    environment:
+      APPFLOWY_BASE_URL: http://localhost:$PORT
+      APPFLOWY_GOTRUE_BASE_URL: http://localhost:$PORT/gotrue
+      APPFLOWY_WS_BASE_URL: ws://localhost:$PORT/ws/v2
+    networks:
+      - appflowy_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 32M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/AppFlowy/icon.png
+    x-casaos:
+      id: com.hiraappstore.appflowy
+      envs:
+        - container: APPFLOWY_BASE_URL
+          description:
+            en_US: Same address as APPFLOWY_BASE_URL in the appflowy_cloud service.
+        - container: APPFLOWY_GOTRUE_BASE_URL
+          description:
+            en_US: Your AppFlowy address followed by /gotrue.
+        - container: APPFLOWY_WS_BASE_URL
+          description:
+            en_US: Your AppFlowy address followed by /ws/v2. Use ws:// for http and wss:// for https.
+
+  admin_frontend:
+    image: appflowyinc/admin_frontend:latest
+    container_name: appflowy-admin-frontend
+    restart: unless-stopped
+    stop_grace_period: 40s
+    depends_on:
+      appflowy_cloud:
+        condition: service_healthy
+      gotrue:
+        condition: service_healthy
+    environment:
+      APPFLOWY_BASE_URL: http://appflowy_cloud:8000
+      APPFLOWY_GOTRUE_BASE_URL: http://gotrue:9999
+    networks:
+      - appflowy_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 32M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/AppFlowy/icon.png
+    x-casaos:
+      id: com.hiraappstore.appflowy
+
+  gotrue:
+    image: appflowyinc/gotrue:latest
+    container_name: appflowy-gotrue
+    restart: unless-stopped
+    stop_grace_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: "9999"
+      API_EXTERNAL_URL: http://localhost:$PORT/gotrue
+      DATABASE_URL: postgres://postgres:55855c6b9ee3f5363161ca48fb04ffba6690812af2388a77@postgres:5432/postgres?search_path=auth
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_SITE_URL: appflowy-flutter://
+      GOTRUE_URI_ALLOW_LIST: "**"
+      GOTRUE_JWT_SECRET: 3f5abdbeb91b033f1387138016c735cd139bcbfdca93af21b37e2f57f11440ae
+      GOTRUE_JWT_EXP: "604800"
+      GOTRUE_JWT_ADMIN_GROUP_NAME: supabase_admin
+      GOTRUE_ADMIN_EMAIL: CHANGEME_EMAIL
+      GOTRUE_ADMIN_PASSWORD: a31987eb5efc2259b4717a79
+      GOTRUE_DISABLE_SIGNUP: "false"
+      GOTRUE_MAILER_AUTOCONFIRM: "true"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - curl --fail http://127.0.0.1:9999/health || exit 1
+      timeout: 5s
+      interval: 5s
+      retries: 12
+      start_period: 40s
+    networks:
+      - appflowy_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 32M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/AppFlowy/icon.png
+    x-casaos:
+      id: com.hiraappstore.appflowy
+      envs:
+        - container: API_EXTERNAL_URL
+          description:
+            en_US: Your AppFlowy address followed by /gotrue.
+        - container: DATABASE_URL
+          description:
+            en_US: The password in this link must match POSTGRES_PASSWORD in the postgres service.
+        - container: GOTRUE_JWT_SECRET
+          description:
+            en_US: Pre-filled with a random value. Must match APPFLOWY_GOTRUE_JWT_SECRET in the appflowy_cloud and appflowy_search services. Replace it with your own (generate one at [randomkeygen.com](https://randomkeygen.com/)) before going live.
+        - container: GOTRUE_ADMIN_EMAIL
+          description:
+            en_US: Your email. You use it to sign in as admin.
+        - container: GOTRUE_ADMIN_PASSWORD
+          description:
+            en_US: Pre-filled with a random value. Write it down, or replace it with your own (generate one at [randomkeygen.com](https://randomkeygen.com/)).
+        - container: GOTRUE_DISABLE_SIGNUP
+          description:
+            en_US: Set to true to stop new people from signing up.
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: appflowy-postgres
+    restart: unless-stopped
+    stop_grace_period: 1m0s
+    environment:
+      POSTGRES_PASSWORD: 55855c6b9ee3f5363161ca48fb04ffba6690812af2388a77
+    healthcheck:
+      test:
+        - CMD
+        - pg_isready
+        - -U
+        - postgres
+      timeout: 5s
+      interval: 5s
+      retries: 12
+    networks:
+      - appflowy_network
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 1G
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/AppFlowy/icon.png
+    x-casaos:
+      id: com.hiraappstore.appflowy
+      envs:
+        - container: POSTGRES_PASSWORD
+          description:
+            en_US: Pre-filled with a random value. Only works on the first start. Must match the password in the database links of the appflowy_cloud, appflowy_worker, appflowy_search, and gotrue services.
+      volumes:
+        - container: /var/lib/postgresql/data
+          description:
+            en_US: Your AppFlowy database.
+
+  redis:
+    image: redis:7-alpine
+    container_name: appflowy-redis
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - appflowy_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 32M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/AppFlowy/icon.png
+    x-casaos:
+      id: com.hiraappstore.appflowy
+
+  minio:
+    image: pgsty/silo:RELEASE.2026-09-16T00-00-00Z
+    container_name: appflowy-minio
+    restart: unless-stopped
+    stop_grace_period: 40s
+    command:
+      - server
+      - /data
+      - --console-address
+      - :9001
+    environment:
+      MINIO_ROOT_USER: 786956f745322cff
+      MINIO_ROOT_PASSWORD: e9b848a948d04237194062e8d630bf84e27dbd684d4cddc4
+      MINIO_BROWSER_REDIRECT_URL: http://localhost:$PORT/minio
+    healthcheck:
+      test:
+        - CMD
+        - silo
+        - healthcheck
+        - ready
+      timeout: 20s
+      interval: 30s
+      retries: 3
+    networks:
+      - appflowy_network
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/minio
+        target: /data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/AppFlowy/icon.png
+    x-casaos:
+      id: com.hiraappstore.appflowy
+      envs:
+        - container: MINIO_ROOT_USER
+          description:
+            en_US: Pre-filled with a random value. Only works on the first start. Must match APPFLOWY_S3_ACCESS_KEY in the appflowy_cloud, appflowy_worker, and appflowy_search services.
+        - container: MINIO_ROOT_PASSWORD
+          description:
+            en_US: Pre-filled with a random value. Only works on the first start. Must match APPFLOWY_S3_SECRET_KEY in the appflowy_cloud, appflowy_worker, and appflowy_search services.
+        - container: MINIO_BROWSER_REDIRECT_URL
+          description:
+            en_US: Your AppFlowy address followed by /minio.
+      volumes:
+        - container: /data
+          description:
+            en_US: Your uploaded files.
+
+x-casaos:
+  architectures:
+    - amd64
+    - arm64
+  author: HSinghHira
+  category: Productivity
+  eveloper: mostafa-wahied
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/AppFlowy/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/AppFlowy/thumbnail.png
+  description:
+    en_US: >-
+      AppFlowy is an open-source workspace for notes, wikis, databases, and
+      projects. This app runs your own AppFlowy server, so your data stays on
+      your ZimaOS box.
+
+
+      **Features**
+
+
+      - Docs, wikis, databases, and project boards in one place
+
+
+      - Live editing with other people
+
+
+      - Web page plus desktop and phone apps that can connect to your server
+
+
+      - Search across your pages
+
+
+      - Sign-in service, PostgreSQL with pgvector, Redis, and Silo (a MinIO
+      fork) file storage, all included
+
+
+      - AI is off. The AppFlowy AI service is not part of this app.
+
+
+      - Email is off. Invite links are not sent by email.
+
+
+      **How to use?**
+
+      1. Open AppFlowy from the Zima OS dashboard.
+
+      2. Sign in with your admin email and password, or create a new account.
+
+      3. Make a workspace and add your first page.
+
+      4. Invite people from the workspace settings.
+
+      5. Open `/console` on the same address to use the admin console.
+  developer: AppFlowy-IO
+  docs: https://github.com/AppFlowy-IO/AppFlowy-Cloud/blob/main/doc/DEPLOYMENT.md
+  hostname: ""
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/AppFlowy/icon.png
+  id: com.hiraappstore.appflowy
+  index: /
+  is_uncontrolled: false
+  main: appflowy
+  port_map: "8474"
+  release_notes:
+    en_US: >-
+      - Removed the email service and all email settings
+
+      - Removed settings AppFlowy fills in by itself
+
+      - AppFlowy publishes only floating tags (`latest`) for its server images,
+      so no version is tracked here
+
+      - The AppFlowy AI service is left out and AI is turned off
+
+      - File storage uses pgsty/silo, a community MinIO fork, pinned to
+      RELEASE.2026-09-16T00-00-00Z, because MinIO no longer publishes images
+  repo: https://github.com/AppFlowy-IO/AppFlowy-Cloud
+  scheme: http
+  store_app_id: compose-5d6a8cca7a79ec86
+  support: https://github.com/AppFlowy-IO/AppFlowy-Cloud/issues
+  tagline:
+    en_US: An open-source AI workspace for docs, wikis, and projects that you host
+      yourself.
+  tips:
+    before_install:
+      en_US: >-
+        1. Open the app configuration before you install.
+
+
+        2. Find `GOTRUE_ADMIN_EMAIL` in the `gotrue` service. Set it to your
+        email.
+
+
+        3. Find `GOTRUE_ADMIN_PASSWORD` in the `gotrue` service. It is random.
+        Write it down, or use your own from
+        [randomkeygen.com](https://randomkeygen.com/).
+
+
+        4. The links start with `http://localhost:8474`. That only works on the
+        ZimaOS box itself.
+
+
+        5. To use AppFlowy on other devices, you need an `https://` address.
+        For example, a Cloudflare tunnel.
+
+
+        6. Put that address in `APPFLOWY_BASE_URL` and `APPFLOWY_WEB_URL` in
+        `appflowy_cloud`. Put it in `APPFLOWY_S3_PRESIGNED_URL_ENDPOINT` too,
+        and add `/minio-api` at the end.
+
+
+        7. Put it in `API_EXTERNAL_URL` in `gotrue`, and add `/gotrue` at the
+        end.
+
+
+        8. In `appflowy_web`, set `APPFLOWY_BASE_URL` to the address. Add
+        `/gotrue` for `APPFLOWY_GOTRUE_BASE_URL`. Add `/ws/v2` for
+        `APPFLOWY_WS_BASE_URL`, and start it with `wss://`.
+
+
+        9. In `minio`, put it in `MINIO_BROWSER_REDIRECT_URL`, and add `/minio`
+        at the end.
+
+
+        10. Other passwords are random. Leave them alone unless you know what
+        you are doing. If you change one, change its match in the other
+        services too.
+
+
+        11. The database and file passwords only work on the first start. Do not
+        change them later.
+
+
+        12. Start the install. Wait a few minutes. The database starts first.
+
+
+        13. Open AppFlowy from the Zima OS dashboard. Sign in with your admin
+        email and password.
+
+
+        14. Anyone who can open the page can sign up. To stop that, set
+        `GOTRUE_DISABLE_SIGNUP` to true in the `gotrue` service.
+  title:
+    custom: AppFlowy
+    en_US: AppFlowy
