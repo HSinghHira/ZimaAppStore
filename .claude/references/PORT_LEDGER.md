@@ -54,8 +54,9 @@ order apps were added:
 | FluxDown | 8470 (web UI/API/MCP) |
 | Cloudreve Pro | 8471 (web UI/API), 8472 (Aria2 remote-download port, tcp+udp) |
 | ntfy | 8473 (web UI/API) |
+| AppFlowy | 8474 (web UI/API, via the nginx gateway), 8475 (admin console, open /console), 8476 (Mailpit web UI) |
 
-**Next new app starts at: 8474**
+**Next new app starts at: 8477**
 
 ## Rules
 
