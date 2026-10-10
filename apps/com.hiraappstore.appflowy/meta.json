@@ -1,0 +1,32 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Productivity",
+  "developer": "AppFlowy-IO",
+  "tagline": "Open-source Notion alternative. Notes, docs, wikis and projects that you own.",
+  "description": "AppFlowy is an open-source workspace for notes, docs, wikis and projects. This is the self-hosted AppFlowy Cloud, so your data stays on your own ZimaOS box.\n\n**Features**\n\n- Docs, databases, boards, calendars and wikis in one workspace\n- Real-time sync and teamwork across web, desktop and mobile apps\n- Workspaces, members, guests and sharing with access control\n- Publish pages to the web\n- Built-in keyword search\n- PostgreSQL with pgvector, Redis and MinIO file storage included\n- Admin console to manage users and workspaces\n\n- Bundled Mailpit catches all email (invites, password resets), so no\n  SMTP setup is needed\n\n\n**How to use?**\n1. Open AppFlowy from the Zima OS dashboard.\n2. Sign up with your email and password.\n3. Create your first workspace and page.\n4. To use the AppFlowy desktop or mobile app, choose the self-hosted\n   server option and enter your AppFlowy address.\n\n5. Manage users in the admin console on port 8475 (open `/console`).\n   Sign in with the admin email and password you set.\n\n6. Read the email AppFlowy sends (invites, password resets) in Mailpit\n   on port 8476.\n\n7. Change settings later in the app configuration.",
+  "tips": {
+    "before_install": "1. Open the app configuration before you install.\n\n2. Find GOTRUE_ADMIN_EMAIL in the appflowy_gotrue service.\n\n3. Set it to your own email.\n\n4. Find GOTRUE_ADMIN_PASSWORD in the appflowy_gotrue service.\n\n5. Replace it with your own password — generate one at\n   [randomkeygen.com](https://randomkeygen.com/).\n\n\n6. Find GOTRUE_JWT_SECRET in the appflowy_gotrue service.\n\n7. Replace it with your own key — generate one at\n   [randomkeygen.com](https://randomkeygen.com/).\n\n\n8. Put the same key in APPFLOWY_GOTRUE_JWT_SECRET in the\n   appflowy_cloud and appflowy_search services.\n\n\n9. The database and file storage passwords are already random.\n   Leave them as they are.\n\n\n10. They are only used inside the app. If you change one, change it\n    in every service that uses it.\n\n\n11. Find the URLs that start with http://localhost:8474 or\n    ws://localhost:8474. They are in appflowy_web, appflowy_cloud,\n    appflowy_gotrue, appflowy_admin and appflowy-minio.\n\n\n12. To use AppFlowy on other devices, change localhost to your ZimaOS\n    IP address in all of them.\n\n\n13. Email goes to the bundled Mailpit. You do not need to set up\n    email.\n\n\n14. To send real email instead, change the SMTP values in\n    appflowy_gotrue, appflowy_cloud and appflowy_worker.\n\n\n15. Sign-up works without confirming email. To require it, set\n    GOTRUE_MAILER_AUTOCONFIRM to false.\n\n\n16. Start the AppFlowy installation.\n\n17. Wait about two minutes for all parts to start.\n\n18. Open AppFlowy from the Zima OS dashboard.\n\n19. Sign up and create your first workspace.\n\n20. Read AppFlowy email at http://your-zimaos-ip:8476 (Mailpit).\n\n21. Open the admin console at http://your-zimaos-ip:8475/console.\n    Sign in with your admin email and password.\n\n\n22. POSTGRES_PASSWORD only works the first time the database starts.\n    You can not change it later."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-10-07",
+  "repo": "https://github.com/AppFlowy-IO/AppFlowy-Cloud",
+  "support": "https://github.com/AppFlowy-IO/AppFlowy-Cloud/issues",
+  "docs": "https://github.com/AppFlowy-IO/AppFlowy-Cloud/tree/main/doc",
+  "title": "AppFlowy",
+  "release_note": "- Initial version\n- appflowy_cloud 0.19.2, appflowy_web 0.19.8, appflowy_worker 0.18.8, appflowy_search 0.18.8, gotrue 0.18.8, admin_frontend 0.18.1\n- File storage uses Silo (pgsty/silo), the community fork of MinIO, because MinIO no longer publishes open-source images\n- Added bundled Mailpit for email, with its own port (8476)\n- Admin console also has its own port (8475)\n- AI service and pgAdmin are not included",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.appflowy",
+  "version": "0.19.2",
+  "categories": [
+    "productivity"
+  ],
+  "min_memory": 637534208,
+  "min_image_size": {
+    "amd64": 772274049,
+    "arm64": 765569122
+  }
+}

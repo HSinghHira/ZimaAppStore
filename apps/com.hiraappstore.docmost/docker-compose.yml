@@ -1,0 +1,107 @@
+name: docmost
+
+services:
+  docmost-db:
+    image: postgres:16.13-alpine
+    container_name: docmost-db
+    restart: unless-stopped
+    stop_grace_period: 60s
+    environment:
+      - POSTGRES_DB=docmost
+      - POSTGRES_USER=docmost
+      - POSTGRES_PASSWORD=061a18c45f8ee5848136ed4bd365a9df31469a60
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U docmost -d docmost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      - type: bind
+        source: /DATA/AppData/docmost/pgdata
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 512M
+        reservations:
+          cpus: "0.10"
+          memory: 256M
+  docmost-redis:
+    image: redis:7.2.13-alpine
+    container_name: docmost-redis
+    restart: unless-stopped
+    stop_grace_period: 30s
+    volumes:
+      - type: bind
+        source: /DATA/AppData/docmost/redis
+        target: /data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+        reservations:
+          cpus: "0.05"
+          memory: 128M
+  docmost:
+    image: docmost/docmost:latest
+    container_name: docmost
+    restart: unless-stopped
+    stop_grace_period: 30s
+    depends_on:
+      docmost-db:
+        condition: service_healthy
+      docmost-redis:
+        condition: service_started
+    environment:
+      - APP_URL=CHANGEME_APP_URL
+      - APP_SECRET=fcdd696d2ffb6e6e69f1c1f3ec0c836744b287418ca7cd1490c83e447109504c
+      - PORT=3000
+      - DATABASE_URL=postgresql://docmost:061a18c45f8ee5848136ed4bd365a9df31469a60@docmost-db:5432/docmost?schema=public
+      - REDIS_URL=redis://docmost-redis:6379
+      - MAIL_DRIVER=smtp
+      - MAIL_FROM_ADDRESS=CHANGEME_MAIL_FROM_ADDRESS
+      - MAIL_FROM_NAME=Docmost
+      - SMTP_HOST=CHANGEME_SMTP_HOST
+      - SMTP_PORT=587
+      - SMTP_USERNAME=CHANGEME_SMTP_USERNAME
+      - SMTP_PASSWORD=CHANGEME_SMTP_PASSWORD
+    ports:
+      - target: 3000
+        published: "8444"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/docmost/storage
+        target: /app/data/storage
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.20"
+          memory: 512M
+networks:
+  default:
+    name: docmost-network
+
+x-casaos:
+  id: com.hiraappstore.docmost
+  main: docmost
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.docmost/assets/icon.png
+  title:
+    en_US: Docmost
+  index: /
+  port_map: "8444"
+  scheme: http
+  version: "0.70.3"

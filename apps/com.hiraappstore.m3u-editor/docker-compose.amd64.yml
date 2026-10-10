@@ -1,0 +1,156 @@
+name: m3u-editor
+
+services:
+  m3u-editor:
+    image: sparkison/m3u-editor:latest@sha256:b140bf57fee4d9a03759efd6f27ed14c488cbf6ba76998f55ccc6947b2e3b906
+    container_name: m3u-editor
+    restart: unless-stopped
+    stop_grace_period: 60s
+    networks:
+      - m3u_network
+    depends_on:
+      m3u-proxy:
+        condition: service_healthy
+      m3u-redis:
+        condition: service_healthy
+    environment:
+      - TZ=$TZ
+      - APP_URL=http://localhost:36400
+      - APP_PORT=36400
+      - ENABLE_POSTGRES=true
+      - PG_DATABASE=m3ue
+      - PG_USER=m3ue
+      - PG_PASSWORD=a0643250a93e74bf9c433499d78c7055237f9a0362c94fb2
+      - PG_PORT=5432
+      - DB_CONNECTION=pgsql
+      - DB_HOST=localhost
+      - DB_PORT=5432
+      - DB_DATABASE=m3ue
+      - DB_USERNAME=m3ue
+      - DB_PASSWORD=a0643250a93e74bf9c433499d78c7055237f9a0362c94fb2
+      - REDIS_ENABLED=false
+      - REDIS_SERVER_PORT=6379
+      - REDIS_HOST=m3u-redis
+      - REDIS_PASSWORD=cc1560b1b3f866f4b29d1f2794219925ec5f9d98f013c18e
+      - M3U_PROXY_ENABLED=false
+      - M3U_PROXY_PORT=38085
+      - M3U_PROXY_HOST=m3u-proxy
+      - M3U_PROXY_TOKEN=ab2bc2cc83b176ef0ec058da30a9719dbeef61691266201f17f8c7206d6c0e2a
+    ports:
+      - target: 36400
+        published: "36400"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /var/www/config
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/pgdata
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/storage
+        target: /var/www/html/storage/app/public
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:36400/up"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+  m3u-proxy:
+    image: sparkison/m3u-proxy:latest@sha256:957f31bd0aa17f018f070e01d01828f9a961773b2f0da285a70226c75bd3502f
+    container_name: m3u-proxy
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - m3u_network
+    depends_on:
+      m3u-redis:
+        condition: service_healthy
+    environment:
+      - API_TOKEN=ab2bc2cc83b176ef0ec058da30a9719dbeef61691266201f17f8c7206d6c0e2a
+      - PORT=38085
+      - REDIS_ENABLED=true
+      - REDIS_PORT=6379
+      - REDIS_HOST=m3u-redis
+      - REDIS_PASSWORD=cc1560b1b3f866f4b29d1f2794219925ec5f9d98f013c18e
+      - REDIS_DB=6
+      - ENABLE_REDIS_POOLING=true
+      - LOG_LEVEL=INFO
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:38085/health?api_token=ab2bc2cc83b176ef0ec058da30a9719dbeef61691266201f17f8c7206d6c0e2a"]
+      interval: 30s
+      timeout: 2s
+      retries: 12
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+  m3u-redis:
+    image: redis:alpine3.22@sha256:6707254cbe1104c5f0c17dca232d97f9ad6b308d6f653b81236741ed5b528c03
+    container_name: m3u-redis
+    restart: unless-stopped
+    stop_grace_period: 30s
+    networks:
+      - m3u_network
+    command:
+      - redis-server
+      - --port
+      - "6379"
+      - --requirepass
+      - cc1560b1b3f866f4b29d1f2794219925ec5f9d98f013c18e
+      - --appendonly
+      - "no"
+      - --save
+      - ""
+      - --maxmemory
+      - 256mb
+      - --maxmemory-policy
+      - allkeys-lru
+      - --loglevel
+      - warning
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6379", "-a", "cc1560b1b3f866f4b29d1f2794219925ec5f9d98f013c18e", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 320M
+        reservations:
+          cpus: "0.00"
+          memory: 32M
+networks:
+  m3u_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.m3u-editor
+  main: m3u-editor
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.m3u-editor/assets/icon.png
+  title:
+    en_US: M3U Editor
+  index: /
+  port_map: "36400"
+  scheme: http

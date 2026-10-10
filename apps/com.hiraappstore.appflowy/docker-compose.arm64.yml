@@ -1,0 +1,554 @@
+name: appflowy
+
+services:
+  appflowy:
+    image: nginx:1.27-alpine@sha256:63ffc0d1f14e4082b832c6a42e606e9a0384a526f16ddd720af7c1f018f2f7c4
+    container_name: appflowy
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - appflowy_network
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        cat > /tmp/nginx.tpl <<'NGINX'
+        events {
+            worker_connections 1024;
+        }
+
+        http {
+            resolver 127.0.0.11 valid=10s;
+
+            server {
+                listen 80;
+                client_max_body_size 10M;
+                underscores_in_headers on;
+
+                set @appflowy_cloud_backend "http://appflowy_cloud:8000";
+                set @gotrue_backend "http://appflowy_gotrue:9999";
+                set @admin_frontend_backend "http://appflowy_admin:3000";
+                set @appflowy_web_backend "http://appflowy_web:80";
+                set @minio_backend "http://appflowy-minio:9001";
+                set @minio_api_backend "http://appflowy-minio:9000";
+                set @minio_internal_host "appflowy-minio:9000";
+
+                location /gotrue/ {
+                    proxy_pass @gotrue_backend;
+                    rewrite ^/gotrue(/.*)@ @1 break;
+                    proxy_set_header Host @http_host;
+                    proxy_pass_request_headers on;
+                }
+
+                location /ws {
+                    proxy_pass @appflowy_cloud_backend;
+                    proxy_http_version 1.1;
+                    proxy_set_header Upgrade @http_upgrade;
+                    proxy_set_header Connection "Upgrade";
+                    proxy_set_header Host @host;
+                    proxy_set_header X-Real-IP @remote_addr;
+                    proxy_set_header X-Forwarded-For @proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto @scheme;
+                    proxy_read_timeout 86400s;
+                }
+
+                location /api {
+                    proxy_pass @appflowy_cloud_backend;
+                    proxy_set_header X-Request-Id @request_id;
+                    proxy_set_header Host @http_host;
+
+                    location ~* ^/api/workspace/([a-zA-Z0-9_-]+)/publish@ {
+                        proxy_pass @appflowy_cloud_backend;
+                        proxy_request_buffering off;
+                        client_max_body_size 256M;
+                    }
+
+                    location /api/chat {
+                        proxy_pass @appflowy_cloud_backend;
+                        proxy_http_version 1.1;
+                        proxy_set_header Connection "";
+                        chunked_transfer_encoding on;
+                        proxy_buffering off;
+                        proxy_cache off;
+                        proxy_read_timeout 600s;
+                        proxy_connect_timeout 600s;
+                        proxy_send_timeout 600s;
+                    }
+
+                    location /api/import {
+                        proxy_pass @appflowy_cloud_backend;
+                        proxy_set_header X-Request-Id @request_id;
+                        proxy_set_header Host @http_host;
+                        proxy_read_timeout 600s;
+                        proxy_connect_timeout 600s;
+                        proxy_send_timeout 600s;
+                        proxy_request_buffering off;
+                        proxy_buffering off;
+                        proxy_cache off;
+                        client_max_body_size 2G;
+                    }
+                }
+
+                location /minio/ {
+                    proxy_pass @minio_backend;
+                    rewrite ^/minio/(.*) /@1 break;
+                    proxy_set_header Host @http_host;
+                    proxy_set_header X-Real-IP @remote_addr;
+                    proxy_set_header X-Forwarded-For @proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto @scheme;
+                    proxy_set_header X-NginX-Proxy true;
+                    real_ip_header X-Real-IP;
+                    proxy_connect_timeout 300s;
+                    proxy_http_version 1.1;
+                    proxy_set_header Upgrade @http_upgrade;
+                    proxy_set_header Connection "upgrade";
+                    chunked_transfer_encoding off;
+                }
+
+                location /minio-api/ {
+                    proxy_pass @minio_api_backend;
+                    proxy_set_header Host @minio_internal_host;
+                    proxy_set_header X-Real-IP @remote_addr;
+                    proxy_set_header X-Forwarded-For @proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto @scheme;
+                    rewrite ^/minio-api/(.*) /@1 break;
+                    proxy_connect_timeout 300s;
+                    proxy_read_timeout 600s;
+                    proxy_send_timeout 600s;
+                    proxy_request_buffering off;
+                    proxy_http_version 1.1;
+                    proxy_set_header Connection "";
+                    chunked_transfer_encoding off;
+                    client_max_body_size 0;
+                }
+
+                location /console {
+                    proxy_pass @admin_frontend_backend;
+                    proxy_set_header X-Forwarded-Host @http_host;
+                    proxy_set_header Host @http_host;
+                    proxy_set_header X-Forwarded-For @proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto @scheme;
+                    proxy_set_header X-Real-IP @remote_addr;
+                    proxy_set_header X-Scheme @scheme;
+                    proxy_http_version 1.1;
+                    proxy_set_header Upgrade @http_upgrade;
+                    proxy_set_header Connection 'upgrade';
+                    proxy_cache_bypass @http_upgrade;
+                }
+
+                location / {
+                    proxy_pass @appflowy_web_backend;
+                    proxy_set_header X-Scheme @scheme;
+                    proxy_set_header Host @host;
+                }
+            }
+        }
+        NGINX
+        tr '@' '\044' < /tmp/nginx.tpl > /etc/nginx/nginx.conf
+        exec nginx -g 'daemon off;'
+    environment:
+      - TZ=$TZ
+    ports:
+      - target: 80
+        published: "8474"
+        protocol: tcp
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    depends_on:
+      appflowy_cloud:
+        condition: service_healthy
+      appflowy_web:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 128M
+        reservations:
+          cpus: "0.00"
+          memory: 16M
+  appflowy_postgres:
+    image: pgvector/pgvector:pg16@sha256:a45475a5bc7882f19e9ca17d49b67f665fa04d500350de2c47af325662445aec
+    container_name: appflowy_postgres
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - appflowy_network
+    environment:
+      - TZ=$TZ
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=c071c04aac47c72fcd02a95b76023428
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres", "-p", "5432"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+  appflowy_redis:
+    image: redis:7-alpine@sha256:1f09a89a207d794a8c61d9edfc26e7c58427de10ccef7c5d18d638df79a63b85
+    container_name: appflowy_redis
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - appflowy_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 32M
+  appflowy-minio:
+    image: pgsty/silo:RELEASE.2026-09-16T00-00-00Z@sha256:1ff329e4507f742a8437f1773d43cf6adb0131477074dd45c770d1a1db19e99c
+    container_name: appflowy-minio
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - appflowy_network
+    command: server /data --console-address ":9001"
+    environment:
+      - TZ=$TZ
+      - MINIO_BROWSER_REDIRECT_URL=http://localhost:8474/minio
+      - MINIO_ROOT_USER=ceff4446885acabea202
+      - MINIO_ROOT_PASSWORD=7bf5ce865c92f4734308bc2195171150064f588b
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/minio
+        target: /data
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+  appflowy-mailpit:
+    image: axllent/mailpit:v1.31.4@sha256:67004e8b8b9fc5cf4ac80ebd14b42d58178cdeb7b4df32edbd35bff49f416411
+    container_name: appflowy-mailpit
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - appflowy_network
+    environment:
+      - MP_SMTP_AUTH_ACCEPT_ANY=1
+      - MP_SMTP_AUTH_ALLOW_INSECURE=1
+    ports:
+      - target: 8025
+        published: "8476"
+        protocol: tcp
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+        reservations:
+          cpus: "0.00"
+          memory: 32M
+  appflowy_gotrue:
+    image: appflowyinc/gotrue:0.18.8@sha256:9fc98d2ba22defca686d769b24ff49aff1bdc40a10b1cedbb92cf6170335e1d6
+    container_name: appflowy_gotrue
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - appflowy_network
+    environment:
+      - GOTRUE_ADMIN_EMAIL=CHANGEME@example.com
+      - GOTRUE_ADMIN_PASSWORD=3ea0c0136aedd38b96c2dc5b
+      - GOTRUE_DISABLE_SIGNUP=false
+      - GOTRUE_SITE_URL=appflowy-flutter://
+      - GOTRUE_URI_ALLOW_LIST=**
+      - GOTRUE_JWT_SECRET=a16bebe0b371b4ee7ce33c1526f1ab829ed7bd88e29432312885335d1b33e139
+      - GOTRUE_JWT_EXP=604800
+      - GOTRUE_JWT_ADMIN_GROUP_NAME=supabase_admin
+      - GOTRUE_DB_DRIVER=postgres
+      - API_EXTERNAL_URL=http://localhost:8474/gotrue
+      - DATABASE_URL=postgres://postgres:c071c04aac47c72fcd02a95b76023428@appflowy_postgres:5432/postgres?search_path=auth
+      - PORT=9999
+      - GOTRUE_SMTP_HOST=appflowy-mailpit
+      - GOTRUE_SMTP_PORT=1025
+      - GOTRUE_SMTP_USER=
+      - GOTRUE_SMTP_PASS=
+      - GOTRUE_SMTP_ADMIN_EMAIL=noreply@appflowy.local
+      - GOTRUE_MAILER_URLPATHS_CONFIRMATION=/gotrue/verify
+      - GOTRUE_MAILER_URLPATHS_INVITE=/gotrue/verify
+      - GOTRUE_MAILER_URLPATHS_RECOVERY=/gotrue/verify
+      - GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE=/gotrue/verify
+      - GOTRUE_SMTP_MAX_FREQUENCY=1ns
+      - GOTRUE_RATE_LIMIT_EMAIL_SENT=100
+      - GOTRUE_MAILER_AUTOCONFIRM=true
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://127.0.0.1:9999/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+    depends_on:
+      appflowy_postgres:
+        condition: service_healthy
+      appflowy-mailpit:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 32M
+  appflowy_cloud:
+    image: appflowyinc/appflowy_cloud:0.19.2@sha256:73329806e82d4a0fc8795047432e6b8bc7c4ad6b7f25b566cb98aafeac0e319d
+    container_name: appflowy_cloud
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - appflowy_network
+    environment:
+      - RUST_LOG=info
+      - APPFLOWY_ENVIRONMENT=production
+      - APPFLOWY_DATABASE_URL=postgres://postgres:c071c04aac47c72fcd02a95b76023428@appflowy_postgres:5432/postgres
+      - APPFLOWY_REDIS_URI=redis://appflowy_redis:6379
+      - APPFLOWY_GOTRUE_JWT_SECRET=a16bebe0b371b4ee7ce33c1526f1ab829ed7bd88e29432312885335d1b33e139
+      - APPFLOWY_GOTRUE_BASE_URL=http://appflowy_gotrue:9999
+      - APPFLOWY_S3_CREATE_BUCKET=true
+      - APPFLOWY_S3_USE_MINIO=true
+      - APPFLOWY_S3_MINIO_URL=http://appflowy-minio:9000
+      - APPFLOWY_S3_ACCESS_KEY=ceff4446885acabea202
+      - APPFLOWY_S3_SECRET_KEY=7bf5ce865c92f4734308bc2195171150064f588b
+      - APPFLOWY_S3_BUCKET=appflowy
+      - APPFLOWY_S3_PRESIGNED_URL_ENDPOINT=http://localhost:8474/minio-api
+      - APPFLOWY_MAILER_SMTP_HOST=appflowy-mailpit
+      - APPFLOWY_MAILER_SMTP_PORT=1025
+      - APPFLOWY_MAILER_SMTP_USERNAME=
+      - APPFLOWY_MAILER_SMTP_EMAIL=noreply@appflowy.local
+      - APPFLOWY_MAILER_SMTP_PASSWORD=
+      - APPFLOWY_MAILER_SMTP_TLS_KIND=none
+      - APPFLOWY_ACCESS_CONTROL=true
+      - APPFLOWY_DATABASE_MAX_CONNECTIONS=40
+      - APPFLOWY_WEB_URL=http://localhost:8474
+      - APPFLOWY_BASE_URL=http://localhost:8474
+      - APPFLOWY_SEARCH_SERVICE_URL=http://appflowy_search:4002
+      - APPFLOWY_SEARCH_REQUEST_TIMEOUT_SECS=10
+      - AI_ENABLED=false
+      - SIGNUP_WHITELIST_ENABLED=false
+      - GUEST_INVITES_REQUIRE_ADMIN_APPROVAL=false
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://127.0.0.1:8000/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+    depends_on:
+      appflowy_gotrue:
+        condition: service_healthy
+      appflowy_redis:
+        condition: service_healthy
+      appflowy-minio:
+        condition: service_started
+      appflowy-mailpit:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+  appflowy_admin:
+    image: appflowyinc/admin_frontend:0.18.1@sha256:096f5a88dc6533a85a979f94c0bb2b5474b7a21a73e00a71d8c62b128df15a77
+    container_name: appflowy_admin
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - appflowy_network
+    environment:
+      - APPFLOWY_GOTRUE_BASE_URL=http://appflowy_gotrue:9999
+      - APPFLOWY_BASE_URL=http://localhost:8474
+    ports:
+      - target: 3000
+        published: "8475"
+        protocol: tcp
+    depends_on:
+      appflowy_gotrue:
+        condition: service_healthy
+      appflowy_cloud:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 32M
+  appflowy_worker:
+    image: appflowyinc/appflowy_worker:0.18.8@sha256:8d6b69a7aaa0c926c5aa0007c2dfdbd3dee7aa385ed5ab7eb599986238a21ba7
+    container_name: appflowy_worker
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - appflowy_network
+    environment:
+      - RUST_LOG=info
+      - APPFLOWY_ENVIRONMENT=production
+      - APPFLOWY_WORKER_ENVIRONMENT=production
+      - APPFLOWY_WORKER_REDIS_URL=redis://appflowy_redis:6379
+      - APPFLOWY_WORKER_DATABASE_URL=postgres://postgres:c071c04aac47c72fcd02a95b76023428@appflowy_postgres:5432/postgres
+      - APPFLOWY_WORKER_DATABASE_NAME=postgres
+      - APPFLOWY_WORKER_IMPORT_TICK_INTERVAL=30
+      - APPFLOWY_S3_USE_MINIO=true
+      - APPFLOWY_S3_MINIO_URL=http://appflowy-minio:9000
+      - APPFLOWY_S3_ACCESS_KEY=ceff4446885acabea202
+      - APPFLOWY_S3_SECRET_KEY=7bf5ce865c92f4734308bc2195171150064f588b
+      - APPFLOWY_S3_BUCKET=appflowy
+      - APPFLOWY_MAILER_SMTP_HOST=appflowy-mailpit
+      - APPFLOWY_MAILER_SMTP_PORT=1025
+      - APPFLOWY_MAILER_SMTP_USERNAME=
+      - APPFLOWY_MAILER_SMTP_EMAIL=noreply@appflowy.local
+      - APPFLOWY_MAILER_SMTP_PASSWORD=
+      - APPFLOWY_MAILER_SMTP_TLS_KIND=none
+    depends_on:
+      appflowy_postgres:
+        condition: service_healthy
+      appflowy_cloud:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+  appflowy_search:
+    image: appflowyinc/appflowy_search:0.18.8@sha256:cf24230a695a526036fa880badf12a4325cdef8ecec1cc92784ad3bef300beb7
+    container_name: appflowy_search
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - appflowy_network
+    environment:
+      - RUST_LOG=info
+      - APPFLOWY_SEARCH_HOST=[::]
+      - APPFLOWY_SEARCH_PORT=4002
+      - APPFLOWY_SEARCH_DATABASE_URL=postgres://postgres:c071c04aac47c72fcd02a95b76023428@appflowy_postgres:5432/postgres
+      - APPFLOWY_SEARCH_REDIS_URL=redis://appflowy_redis:6379
+      - APPFLOWY_S3_USE_MINIO=true
+      - APPFLOWY_S3_MINIO_URL=http://appflowy-minio:9000
+      - APPFLOWY_S3_ACCESS_KEY=ceff4446885acabea202
+      - APPFLOWY_S3_SECRET_KEY=7bf5ce865c92f4734308bc2195171150064f588b
+      - APPFLOWY_S3_BUCKET=appflowy
+      - APPFLOWY_BACKGROUND_INDEXER_ENABLED=true
+      - APPFLOWY_INDEXER_DATABASE_ENABLED=false
+      - APPFLOWY_KEYWORD_SEARCH_ENABLED=true
+      - APPFLOWY_KEYWORD_WORKER_ENABLED=true
+      - APPFLOWY_KEYWORD_INDEX_MAP_SIZE_BYTES=2147483648
+      - APPFLOWY_KEYWORD_INDEX_DIR=/var/lib/appflowy/keyword_index
+      - APPFLOWY_GOTRUE_JWT_SECRET=a16bebe0b371b4ee7ce33c1526f1ab829ed7bd88e29432312885335d1b33e139
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/search
+        target: /var/lib/appflowy/keyword_index
+        bind:
+          create_host_path: true
+    healthcheck:
+      test:
+        - CMD
+        - bash
+        - -ec
+        - |
+          exec 3<>/dev/tcp/127.0.0.1/4002
+          printf 'GET /health HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3
+          head -n 1 <&3 | grep -q ' 200 '
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+    depends_on:
+      appflowy_postgres:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+  appflowy_web:
+    image: appflowyinc/appflowy_web:0.19.8@sha256:26938e8a02a55fb44de063cea58b7ccd201f5b9561a1aeddf25196fd5f3b775a
+    container_name: appflowy_web
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - appflowy_network
+    environment:
+      - APPFLOWY_BASE_URL=http://localhost:8474
+      - APPFLOWY_GOTRUE_BASE_URL=http://localhost:8474/gotrue
+      - APPFLOWY_WS_BASE_URL=ws://localhost:8474/ws/v2
+    depends_on:
+      appflowy_cloud:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 128M
+        reservations:
+          cpus: "0.00"
+          memory: 16M
+networks:
+  appflowy_network:
+    name: appflowy_network
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.appflowy
+  main: appflowy
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.appflowy/assets/icon.png
+  title:
+    en_US: AppFlowy
+  index: /
+  port_map: "8474"
+  scheme: http
+  version: "0.19.2"

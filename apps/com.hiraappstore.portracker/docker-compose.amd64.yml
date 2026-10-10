@@ -1,0 +1,49 @@
+name: portracker
+
+services:
+  portracker:
+    image: mostafawahied/portracker:latest@sha256:941045c6437febb67fcf14ef4791c75b7e3020e3226bc7ff37420611656268fa
+    container_name: portracker
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    pid: "host"
+    cap_add:
+      - SYS_PTRACE
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    environment:
+      - ENABLE_AUTH=true
+      - SESSION_SECRET=8f3a1c9e2b4d6f0a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b3d5f7a
+    ports:
+      - target: 4999
+        published: "8462"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+x-casaos:
+  id: com.hiraappstore.portracker
+  main: portracker
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.portracker/assets/icon.png
+  title:
+    en_US: portracker
+  index: /
+  port_map: "8462"
+  scheme: http

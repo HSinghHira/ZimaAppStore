@@ -1,0 +1,38 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "AI",
+  "developer": "gelbuilding",
+  "thumbnail": "/apps/com.hiraappstore.zimabraince/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.zimabraince/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.zimabraince/assets/thumbnail-1.webp",
+    "/apps/com.hiraappstore.zimabraince/assets/thumbnail-2.webp"
+  ],
+  "tagline": "Local, verifier-first diagnostic assistant for ZimaOS",
+  "description": "ZimaBrain CE is a local diagnostic assistant that reads real evidence from your ZimaOS box — disks, containers, mounts, and network state — before it ever tells you what's wrong or what to run next.\n\n**Features**\n\n- Verifier-first engine: checks real system evidence before answering,\n  instead of guessing\n\n- Layered diagnostics covering Docker daemon state, container health,\n  bind mounts, disk health and inventory, filesystem usage, network\n  exposure, SMB shares, and permissions/ownership\n\n- Built-in knowledge of official ZimaOS manuals, verified app install\n  guides, and a third-party app store index\n\n- Safe-command guidance that avoids destructive fixes unless the\n  evidence clearly supports them\n\n- Persistent storage for generated reports and diagnostic history under\n  /DATA/AppData/$AppID\n\n\n**How to use?**\n\n1. Open ZimaBrain CE from the Zima OS dashboard.\n2. Log in with the password you set in ZIMABRAIN_PASSWORD.\n3. Look at the top badge and layer map to confirm the app started\n   correctly.\n\n4. Ask ZimaBrain CE a question about your system, or pick a\n   diagnostic layer (disks, containers, network, and so on) to run.\n\n5. Review the evidence-based answer and any suggested safe commands\n   before running anything yourself.\n\n6. Revisit past reports and trend history any time from the app's\n   dashboard.",
+  "tips": {
+    "before_install": "1. ZimaBrain CE needs deep access to your ZimaOS box to work. It\n   uses a privileged container, the host's process list, and a\n   read-only connection to Docker so it can check real evidence.\n\n\n2. Only install this on a machine you trust, and keep it on your\n   private LAN.\n\n3. Start the ZimaBrain CE installation.\n\n4. Wait about 20 seconds for the health check to pass before you\n   open the app.\n\n5. Open ZimaBrain CE from the Zima OS dashboard.\n6. You can change the timezone later using the TZ setting. Reports\n    and data live in /DATA/AppData/$AppID on your ZimaOS box."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-09-06",
+  "repo": "https://github.com/Jacko88888/zimabrain-ce",
+  "support": "https://github.com/Jacko88888/zimabrain-ce/issues",
+  "docs": "https://github.com/Jacko88888/zimabrain-ce/tree/main/docs",
+  "title": "ZimaBrain CE",
+  "release_note": "- Initial listing of ZimaBrain CE\n- Image is pinned to the 1.6.0-beta tag; upstream has not yet published a stable, non-beta tag\n- Published on host port 8441 per the store's port ledger; the app's own default port 8601 is kept as the container-internal port",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.zimabraince",
+  "version": "1.6.0-beta",
+  "categories": [
+    "ai"
+  ],
+  "min_memory": 134217728,
+  "min_image_size": {
+    "amd64": 200482827,
+    "arm64": 200482827
+  }
+}

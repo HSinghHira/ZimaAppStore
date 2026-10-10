@@ -1,0 +1,79 @@
+name: n8n-oidc
+
+services:
+  n8n-oidc-init:
+    image: alpine:3.20@sha256:c64c687cbea9300178b30c95835354e34c4e4febc4badfe27102879de0483b5e
+    container_name: n8n-oidc-init
+    restart: "no"
+    network_mode: bridge
+    command:
+      - sh
+      - -c
+      - >-
+        mkdir -p /n8n &&
+        wget -q -O /n8n/hooks.js https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/N8N-OIDC/hooks.js &&
+        echo "dca11f0d87c3b894a6194a7c47a31b1bb63aa5ad8b5b190341d3db80fab30160  /n8n/hooks.js" | sha256sum -c - &&
+        chown 1000:1000 /n8n /n8n/hooks.js &&
+        chmod 644 /n8n/hooks.js
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/n8n
+        target: /n8n
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 64M
+        reservations:
+          cpus: "0.00"
+          memory: 16M
+  n8n-oidc:
+    image: n8nio/n8n:2.30.1@sha256:7b707d0f26ffd382ed4a6481ab92a76d7f0bace702e0ae5d8ed497f6af3359ea
+    container_name: n8n-oidc
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    depends_on:
+      n8n-oidc-init:
+        condition: service_completed_successfully
+    environment:
+      - TZ=$TZ
+      - N8N_PROTOCOL=http
+      - N8N_SECURE_COOKIE=false
+      - EXTERNAL_HOOK_FILES=/home/node/.n8n/hooks.js
+      - EXTERNAL_FRONTEND_HOOKS_URLS=/assets/oidc-frontend-hook.js
+      - N8N_ADDITIONAL_NON_UI_ROUTES=auth
+      - OIDC_ISSUER_URL=CHANGEME_OIDC_ISSUER_URL
+      - OIDC_CLIENT_ID=CHANGEME_OIDC_CLIENT_ID
+      - OIDC_CLIENT_SECRET=CHANGEME_OIDC_CLIENT_SECRET
+      - OIDC_REDIRECT_URI=CHANGEME_OIDC_REDIRECT_URI
+    ports:
+      - target: 5678
+        published: "8469"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/n8n
+        target: /home/node/.n8n
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.00"
+          memory: 512M
+x-casaos:
+  id: com.hiraappstore.n8n-oidc
+  main: n8n-oidc
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.n8n-oidc/assets/icon.png
+  title:
+    en_US: n8n (OIDC)
+  index: /
+  port_map: "8469"
+  scheme: http
+  version: "2.30.1"

@@ -1,0 +1,39 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Productivity",
+  "developer": "Philipp Heckel",
+  "thumbnail": "/apps/com.hiraappstore.ntfy/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.ntfy/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.ntfy/assets/thumbnail-1.webp",
+    "/apps/com.hiraappstore.ntfy/assets/thumbnail-2.webp",
+    "/apps/com.hiraappstore.ntfy/assets/thumbnail-3.webp"
+  ],
+  "tagline": "Send push notifications to your phone or desktop with simple HTTP requests.",
+  "description": "A simple, self-hosted notification service. Send alerts from any script or app to your phone or desktop with a plain PUT or POST.\n\n**Features**\n\n- Publish and subscribe to topics over HTTP\n\n- Android, iOS and web apps for receiving notifications\n\n- Users and access rules, locked down by default\n\n- Messages and users saved under /DATA/AppData/$AppID\n\n**How to use?**\n1. Open ntfy from the Zima OS dashboard.\n2. Sign in with the default login: **admin** / **admin**.\n3. Subscribe to a topic.\n4. Send a test message with `curl -u admin:admin -d \"Hello\" http://YOUR-ZIMAOS-IP:8473/mytopic`.\n5. Add the same server and topic in the ntfy phone app.",
+  "tips": {
+    "before_install": "1. Open the app configuration before starting the installation.\n\n2. The default login is **admin** / **admin**.\n\n3. Find NTFY_AUTH_USERS in the ntfy service.\n\n4. Replace the hash with your own so the password is not admin. Make one at [bcrypt-generator.com](https://bcrypt-generator.com/).\n\n5. Write every `$` in the hash as `$$`.\n\n6. Find NTFY_BASE_URL in the ntfy service.\n\n7. Change localhost to your ZimaOS IP address, so your phone can reach ntfy.\n\n8. If you have a public address like https://ntfy.example.com, use that instead.\n\n9. Start the ntfy installation.\n\n10. Open ntfy from the Zima OS dashboard and sign in.\n\n11. Change the password in NTFY_AUTH_USERS, not in the app. The app resets it when ntfy restarts."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-10-04",
+  "repo": "https://github.com/binwiederhier/ntfy",
+  "support": "https://github.com/binwiederhier/ntfy/issues",
+  "docs": "https://docs.ntfy.sh/",
+  "title": "ntfy",
+  "release_note": "- Initial version",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.ntfy",
+  "version": "2.28.0",
+  "categories": [
+    "productivity"
+  ],
+  "min_memory": 67108864,
+  "min_image_size": {
+    "amd64": 36499133,
+    "arm64": 35254191
+  }
+}

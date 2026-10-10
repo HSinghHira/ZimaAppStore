@@ -1,0 +1,41 @@
+name: fluxdown
+
+services:
+  fluxdown-server:
+    image: ghcr.io/zerx-lab/fluxdown-server:latest@sha256:bfc1cbb5b12a8caae22da1a64c150ed531a0ded1c75f914ec561dd42dca4c721
+    container_name: fluxdown-server
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    ports:
+      - target: 17800
+        published: "8470"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/Downloads
+        target: /root/Downloads
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+x-casaos:
+  id: com.hiraappstore.fluxdown
+  main: fluxdown-server
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.fluxdown/assets/icon.png
+  title:
+    en_US: FluxDown
+  index: /
+  port_map: "8470"
+  scheme: http
