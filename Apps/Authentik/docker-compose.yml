@@ -1,0 +1,387 @@
+name: authentik
+
+services:
+  authentik:
+    image: ghcr.io/goauthentik/server:2026.8.3
+    container_name: authentik
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - authentik_network
+    command: server
+    shm_size: 512mb
+    environment:
+      - AUTHENTIK_SECRET_KEY=STkL+58FPXT0OPB0LGuzATya9//7vPNuU6wD5Ndpwz+PzEdjyIG9ajkpUtJ5rRClfiJb5JPtaK3UABc3
+      - AUTHENTIK_POSTGRESQL__HOST=authentik_postgres
+      - AUTHENTIK_POSTGRESQL__NAME=authentik
+      - AUTHENTIK_POSTGRESQL__USER=authentik
+      - AUTHENTIK_POSTGRESQL__PASSWORD=760be9799de6e360957395bce99dcf12a7521de8032e3874
+    ports:
+      - target: 9000
+        published: "8477"
+        protocol: tcp
+      - target: 9443
+        published: "8478"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/custom-templates
+        target: /templates
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD", "ak", "healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    depends_on:
+      authentik_postgres:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Authentik/icon.png
+    x-casaos:
+      id: com.hiraappstore.authentik
+      envs:
+        - container: AUTHENTIK_SECRET_KEY
+          description:
+            en_US: >-
+              The key that signs your sessions and tokens. Pre-filled with a
+              random value. It must match `AUTHENTIK_SECRET_KEY` in
+              `authentik_worker`. Replace it with your own — generate one at
+              [randomkeygen.com](https://randomkeygen.com/) — before going
+              live. Do not change it after you add users.
+        - container: AUTHENTIK_POSTGRESQL__HOST
+          description:
+            en_US: The database server name. Leave it.
+        - container: AUTHENTIK_POSTGRESQL__NAME
+          description:
+            en_US: The database name. It must match `POSTGRES_DB` in `authentik_postgres`.
+        - container: AUTHENTIK_POSTGRESQL__USER
+          description:
+            en_US: The database user. It must match `POSTGRES_USER` in `authentik_postgres`.
+        - container: AUTHENTIK_POSTGRESQL__PASSWORD
+          description:
+            en_US: >-
+              The database password. Pre-filled with a random value. It must
+              match `POSTGRES_PASSWORD` in `authentik_postgres` and
+              `AUTHENTIK_POSTGRESQL__PASSWORD` in `authentik_worker`.
+              Replace it with your own — generate one at
+              [randomkeygen.com](https://randomkeygen.com/) — before the
+              first start.
+      ports:
+        - container: "9000"
+          description:
+            en_US: authentik web page and API over HTTP (published on host as 8477)
+        - container: "9443"
+          description:
+            en_US: authentik web page and API over HTTPS with a self-signed certificate (published on host as 8478)
+      volumes:
+        - container: /data
+          description:
+            en_US: Uploaded icons, backgrounds and other media.
+        - container: /templates
+          description:
+            en_US: Your own email templates.
+
+  authentik_worker:
+    image: ghcr.io/goauthentik/server:2026.8.3
+    container_name: authentik_worker
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - authentik_network
+    command: worker
+    user: root
+    shm_size: 512mb
+    environment:
+      - AUTHENTIK_SECRET_KEY=STkL+58FPXT0OPB0LGuzATya9//7vPNuU6wD5Ndpwz+PzEdjyIG9ajkpUtJ5rRClfiJb5JPtaK3UABc3
+      - AUTHENTIK_POSTGRESQL__HOST=authentik_postgres
+      - AUTHENTIK_POSTGRESQL__NAME=authentik
+      - AUTHENTIK_POSTGRESQL__USER=authentik
+      - AUTHENTIK_POSTGRESQL__PASSWORD=760be9799de6e360957395bce99dcf12a7521de8032e3874
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/certs
+        target: /certs
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/custom-templates
+        target: /templates
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD", "ak", "healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    depends_on:
+      authentik_postgres:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Authentik/icon.png
+    x-casaos:
+      id: com.hiraappstore.authentik
+      envs:
+        - container: AUTHENTIK_SECRET_KEY
+          description:
+            en_US: >-
+              The key that signs your sessions and tokens. It must match
+              `AUTHENTIK_SECRET_KEY` in `authentik`.
+        - container: AUTHENTIK_POSTGRESQL__HOST
+          description:
+            en_US: The database server name. Leave it.
+        - container: AUTHENTIK_POSTGRESQL__NAME
+          description:
+            en_US: The database name. It must match `POSTGRES_DB` in `authentik_postgres`.
+        - container: AUTHENTIK_POSTGRESQL__USER
+          description:
+            en_US: The database user. It must match `POSTGRES_USER` in `authentik_postgres`.
+        - container: AUTHENTIK_POSTGRESQL__PASSWORD
+          description:
+            en_US: >-
+              The database password. It must match `POSTGRES_PASSWORD` in
+              `authentik_postgres` and `AUTHENTIK_POSTGRESQL__PASSWORD` in
+              `authentik`.
+      volumes:
+        - container: /var/run/docker.sock
+          description:
+            en_US: >-
+              Lets authentik start and stop its own helper containers
+              (outposts). This gives the worker full control of Docker on
+              this device. Remove this volume if you do not use outposts.
+        - container: /data
+          description:
+            en_US: Uploaded icons, backgrounds and other media.
+        - container: /certs
+          description:
+            en_US: Certificates you add for signing and encryption.
+        - container: /templates
+          description:
+            en_US: Your own email templates.
+
+  authentik_postgres:
+    image: postgres:16-alpine
+    container_name: authentik_postgres
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - authentik_network
+    environment:
+      - TZ=$TZ
+      - POSTGRES_DB=authentik
+      - POSTGRES_USER=authentik
+      - POSTGRES_PASSWORD=760be9799de6e360957395bce99dcf12a7521de8032e3874
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d authentik -U authentik"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Authentik/icon.png
+    x-casaos:
+      id: com.hiraappstore.authentik
+      envs:
+        - container: TZ
+          description:
+            en_US: >-
+              Your time zone. It is filled in from your ZimaOS time zone.
+              Leave it unless you need another.
+        - container: POSTGRES_DB
+          description:
+            en_US: >-
+              The database name. It is set once, the first time the database
+              starts. It must match `AUTHENTIK_POSTGRESQL__NAME` in
+              `authentik` and `authentik_worker`.
+        - container: POSTGRES_USER
+          description:
+            en_US: >-
+              The database user. It is set once, the first time the database
+              starts. It must match `AUTHENTIK_POSTGRESQL__USER` in
+              `authentik` and `authentik_worker`.
+        - container: POSTGRES_PASSWORD
+          description:
+            en_US: >-
+              The database password. Pre-filled with a random value. It is
+              set once, the first time the database starts. It must match
+              `AUTHENTIK_POSTGRESQL__PASSWORD` in `authentik` and
+              `authentik_worker`. Replace it with your own — generate one
+              at [randomkeygen.com](https://randomkeygen.com/) — before the
+              first start.
+      volumes:
+        - container: /var/lib/postgresql/data
+          description:
+            en_US: The authentik database (users, apps, flows, settings).
+
+networks:
+  authentik_network:
+    name: authentik_network
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.authentik
+  architectures:
+    - amd64
+    - arm64
+  main: authentik
+  author: HSinghHira
+  category: Networking
+  developer: authentik
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Authentik/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Authentik/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Authentik/thumbnail.png
+  title:
+    en_US: authentik
+  tagline:
+    en_US: Open-source identity provider. Single sign-on with OIDC, SAML, LDAP and more.
+  description:
+    en_US: >-
+      authentik is an open-source identity provider and single sign-on
+      platform. It lets your users sign in once and reach all your
+      self-hosted apps, with full control over flows, policies and users.
+
+
+      **Features**
+
+
+      - Single sign-on with OIDC, OAuth 2.0, SAML 2.0, LDAP and RADIUS
+
+      - Sign in with Google, GitHub, Discord and other social logins, or
+        bring another OIDC or SAML provider
+
+      - Flows and stages for sign-in, sign-up, recovery and multi-factor login
+
+      - Policies to decide who can open which app
+
+      - Proxy outposts to protect apps that have no sign-in of their own
+
+      - PostgreSQL included, with no extra cache service needed
+
+
+      **How to use?**
+
+      1. Open authentik from the Zima OS dashboard.
+
+      2. Set a password for the `akadmin` administrator account.
+
+      3. Open the admin interface and create your users and groups.
+
+      4. Add an application and a provider (OIDC or SAML) for each app you
+         want to protect.
+
+      5. Copy the provider details into the app you are connecting.
+
+      6. Change settings later in the app configuration or in the admin
+         interface.
+  tips:
+    before_install:
+      en_US: >-
+        1. Open the app configuration before you install.
+
+
+        2. Find AUTHENTIK_SECRET_KEY in the authentik service.
+
+
+        3. Replace it with your own key — generate one at
+           [randomkeygen.com](https://randomkeygen.com/).
+
+
+        4. Put the same key in AUTHENTIK_SECRET_KEY in the
+           authentik_worker service.
+
+
+        5. The database password is already random. Leave it, or replace it
+           with your own.
+
+
+        6. If you replace it, use the same password in POSTGRES_PASSWORD
+           and in AUTHENTIK_POSTGRESQL__PASSWORD in all three services.
+
+
+        7. Start the authentik installation.
+
+
+        8. Wait about two minutes for all parts to start.
+
+
+        9. Open http://your-zimaos-ip:8477/if/flow/initial-setup/ and set
+           a password for the akadmin user.
+
+
+        10. Do not change AUTHENTIK_SECRET_KEY after you add users. Everyone
+            would be signed out.
+
+
+        11. POSTGRES_PASSWORD only works the first time the database starts.
+            You can not change it later.
+
+
+        12. The worker can control Docker on this device. If you do not use
+            outposts, remove the docker.sock volume from authentik_worker.
+
+
+        13. Use the same ZimaOS IP and port when you connect other apps.
+            Put authentik behind your own domain and HTTPS before you
+            share it outside your home.
+  index: /
+  port_map: "8477"
+  scheme: http
+  is_uncontrolled: false
+  version: "2026.8.3"
+  update_at: "2026-10-10"
+  release_notes:
+    en_US: |-
+      - Initial version
+      - authentik 2026.8.3 with PostgreSQL 16
+      - No Redis needed, authentik stores everything in PostgreSQL
+      - HTTPS port 8478 uses a self-signed certificate
+  repo: "https://github.com/goauthentik/authentik"
+  support: "https://github.com/goauthentik/authentik/issues"
+  docs: "https://docs.goauthentik.io/"

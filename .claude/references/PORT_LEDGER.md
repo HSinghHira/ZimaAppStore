@@ -55,8 +55,9 @@ order apps were added:
 | Cloudreve Pro | 8471 (web UI/API), 8472 (Aria2 remote-download port, tcp+udp) |
 | ntfy | 8473 (web UI/API) |
 | AppFlowy | 8474 (web UI/API, via the nginx gateway), 8475 (admin console, open /console), 8476 (Mailpit web UI) |
+| Authentik | 8477 (web UI/API, HTTP), 8478 (web UI/API, HTTPS with a self-signed certificate) |
 
-**Next new app starts at: 8477**
+**Next new app starts at: 8479**
 
 ## Rules
 
