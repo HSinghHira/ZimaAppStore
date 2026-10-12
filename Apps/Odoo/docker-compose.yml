@@ -1,0 +1,266 @@
+name: odoo
+
+services:
+  odoo:
+    image: odoo:20.0
+    container_name: odoo
+    restart: unless-stopped
+    stop_grace_period: 40s
+    command: ["odoo", "--http-interface=0.0.0.0"]
+    networks:
+      - odoo_network
+    depends_on:
+      odoo-db:
+        condition: service_healthy
+    environment:
+      - TZ=$TZ
+      - HOST=odoo-db
+      - PORT=5432
+      - USER=odoo
+      - PASSWORD=fc31404056b54c31b68aea9ff081b61f
+    ports:
+      - target: 8069
+        published: "8479"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /var/lib/odoo
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/addons
+        target: /mnt/extra-addons
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8069/web/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.00"
+          memory: 512M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Odoo/icon.png
+    x-casaos:
+      id: com.hiraappstore.odoo
+      envs:
+        - container: TZ
+          description:
+            en_US: >-
+              Your time zone. It is filled in from your ZimaOS time zone.
+              Leave it unless you need another.
+        - container: HOST
+          description:
+            en_US: >-
+              The name of the database container. Leave it as odoo-db.
+        - container: PORT
+          description:
+            en_US: >-
+              The port of the database. Leave it as 5432.
+        - container: USER
+          description:
+            en_US: >-
+              The database user. It must match POSTGRES_USER in the odoo-db
+              service. Leave it as odoo.
+        - container: PASSWORD
+          description:
+            en_US: >-
+              The database password. Pre-filled with a random value. It must
+              match POSTGRES_PASSWORD in the odoo-db service. Replace it
+              with your own, in both services, before the first start.
+              Generate one at [randomkeygen.com](https://randomkeygen.com/).
+      ports:
+        - container: "8069"
+          description:
+            en_US: Web UI (published on host as 8479)
+      volumes:
+        - container: /var/lib/odoo
+          description:
+            en_US: Odoo file store, such as attachments and sessions.
+        - container: /mnt/extra-addons
+          description:
+            en_US: Put your own Odoo add-on modules here.
+
+  odoo-db:
+    image: postgres:16
+    container_name: odoo-db
+    restart: unless-stopped
+    stop_grace_period: 60s
+    networks:
+      - odoo_network
+    environment:
+      - TZ=$TZ
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=fc31404056b54c31b68aea9ff081b61f
+      - POSTGRES_DB=postgres
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/db
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+    x-casaos:
+      id: com.hiraappstore.odoo
+      envs:
+        - container: TZ
+          description:
+            en_US: >-
+              Your time zone. It is filled in from your ZimaOS time zone.
+              Leave it unless you need another.
+        - container: POSTGRES_USER
+          description:
+            en_US: >-
+              The database user. It must match USER in the odoo service.
+              Leave it as odoo.
+        - container: POSTGRES_PASSWORD
+          description:
+            en_US: >-
+              Pre-filled with a random value. It must match PASSWORD in the
+              odoo service. It only works on the first start. Replace it
+              with your own, in both services, before the first start.
+              Generate one at [randomkeygen.com](https://randomkeygen.com/).
+        - container: POSTGRES_DB
+          description:
+            en_US: >-
+              The first database. Odoo needs it to be called postgres.
+              Leave it as is.
+        - container: PGDATA
+          description:
+            en_US: >-
+              The folder where the database keeps its files. Leave it as is.
+      volumes:
+        - container: /var/lib/postgresql/data
+          description:
+            en_US: The PostgreSQL database files. All your Odoo data lives here.
+
+networks:
+  odoo_network:
+    name: odoo_network
+
+x-casaos:
+  id: com.hiraappstore.odoo
+  architectures:
+    - amd64
+    - arm64
+  main: odoo
+  author: HSinghHira
+  category: Productivity
+  developer: Odoo S.A.
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Odoo/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Odoo/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Odoo/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Odoo/thumbnail-1.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Odoo/thumbnail-2.png
+  title:
+    en_US: Odoo
+  tagline:
+    en_US: All-in-one open source business apps, from CRM and sales to accounting and inventory.
+  description:
+    en_US: >-
+      Odoo is a suite of open source business apps that run your company in
+      one place, including CRM, sales, accounting, inventory, projects, and
+      a website builder.
+
+
+      **Features**
+
+
+      - CRM, sales, invoicing, accounting, inventory, and purchasing apps
+
+      - Website, eCommerce, and project management apps
+
+      - Install only the apps you need and add more later
+
+      - Custom add-on modules through the add-ons folder
+
+      - PostgreSQL database stored under /DATA/AppData/$AppID
+
+
+      **How to use?**
+
+      1. Open Odoo from the Zima OS dashboard.
+
+      2. On the first screen, create a database. Enter a database name, your
+         email, and a password for your admin account. If it asks for a
+         master password, write it down.
+
+      3. Sign in and pick the apps you want to install.
+
+      4. Put your own add-on modules in the add-ons folder, then update the
+         app list in Odoo.
+
+      5. Manage databases later at the /web/database/manager page.
+  tips:
+    before_install:
+      en_US: >-
+        1. Open the app configuration before starting the installation.
+
+
+        2. Find PASSWORD in the odoo service. It is filled with a random
+        value.
+
+
+        3. Find POSTGRES_PASSWORD in the odoo-db service. It must be the
+        same as PASSWORD.
+
+
+        4. To use your own, put the same value in both. Make one at
+        [randomkeygen.com](https://randomkeygen.com/).
+
+
+        5. Start the Odoo installation.
+
+
+        6. Wait about two minutes for the first start.
+
+
+        7. Open Odoo from the Zima OS dashboard.
+
+
+        8. Odoo may ask you to make a master password. Write it down. You
+        need it to make and delete databases.
+
+
+        9. Create your database and your admin account.
+
+
+        10. The database password only works on the first start. To change
+        it later, you must change it inside the database too.
+  index: /
+  port_map: "8479"
+  scheme: http
+  is_uncontrolled: false
+  version: "20.0"
+  update_at: "2026-10-12"
+  release_notes:
+    en_US: |-
+      - Initial version
+      - Uses the 20.0 tag, which Odoo rebuilds often with fixes
+      - Includes a PostgreSQL 16 database in its own container
+  repo: "https://github.com/odoo/odoo"
+  support: "https://github.com/odoo/odoo/issues"
+  docs: "https://www.odoo.com/documentation/20.0/"
