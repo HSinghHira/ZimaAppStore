@@ -1,0 +1,202 @@
+name: immerle
+
+services:
+  immerle:
+    image: ghcr.io/immerle/immerle:latest
+    container_name: immerle
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    environment:
+      - PORT=4533
+      - DATABASE_DRIVER=sqlite
+      - DATABASE_DSN=/data/immerle.db
+      - LIBRARY_DATA_DIR=/data
+      - LIBRARY_PATHS=/music
+      - AUTH_REQUIRE_SETUP_TOKEN=false
+      - LOG_LEVEL=info
+    ports:
+      - target: 4533
+        published: "8480"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/Media/Music
+        target: /music
+        read_only: true
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:4533/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Immerle/icon.png
+    x-casaos:
+      id: com.hiraappstore.immerle
+      envs:
+        - container: PORT
+          description:
+            en_US: >-
+              The port Immerle listens on inside the container. Leave it as
+              4533.
+        - container: DATABASE_DRIVER
+          description:
+            en_US: >-
+              The database type. It starts as sqlite, which needs no extra
+              setup. Leave it unless you know you need another.
+        - container: DATABASE_DSN
+          description:
+            en_US: >-
+              Where the SQLite database file is saved. It lives in the data
+              folder. Leave it as is.
+        - container: LIBRARY_DATA_DIR
+          description:
+            en_US: >-
+              The folder where Immerle keeps its own data and settings.
+              Leave it as /data.
+        - container: LIBRARY_PATHS
+          description:
+            en_US: >-
+              The folder Immerle scans for music inside the container. Leave
+              it as /music.
+        - container: AUTH_REQUIRE_SETUP_TOKEN
+          description:
+            en_US: >-
+              Set to true to ask for a one-time token before the first admin
+              account is made. The token shows in the container logs. It
+              starts as false.
+        - container: LOG_LEVEL
+          description:
+            en_US: >-
+              How much Immerle writes to its log. Pick debug, info, warn, or
+              error.
+      ports:
+        - container: "4533"
+          description:
+            en_US: >-
+              Web UI, API, and Subsonic endpoint (published on host as 8480)
+      volumes:
+        - container: /data
+          description:
+            en_US: >-
+              The database, settings, and the random auth secret that
+              Immerle makes on first start.
+        - container: /music
+          description:
+            en_US: >-
+              Your music library, mounted read-only from
+              /DATA/Media/Music.
+
+x-casaos:
+  id: com.hiraappstore.immerle
+  architectures:
+    - amd64
+    - arm64
+  main: immerle
+  author: HSinghHira
+  category: Media
+  developer: Immerle
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Immerle/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Immerle/thumbnail.png
+  screenshot_link:
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Immerle/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Immerle/thumbnail-1.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Immerle/thumbnail-2.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Immerle/thumbnail-3.png
+    - https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Immerle/thumbnail-4.png
+    
+  title:
+    en_US: Immerle
+  tagline:
+    en_US: Your music, self-hosted, and it sings.
+  description:
+    en_US: >-
+      A self-hosted music server with its own web app that also speaks
+      Subsonic and OpenSubsonic, so clients like Supersonic, Symfonium, and
+      DSub just work.
+
+
+      **Features**
+
+
+      - Browse, search, stream, and transcode your own music library
+
+
+      - Works with Subsonic and OpenSubsonic clients, with scrobbling and
+        now-playing
+
+
+      - Playlists, collaborative playlists, and an activity feed with
+        per-event privacy
+
+
+      - Jam sessions to listen together, in sync
+
+
+      - On-demand catalog providers, like Jamendo and the Internet Archive,
+        that stream tracks you do not own yet
+
+
+      - Playlist import, discovery mixes, internet radio, and podcasts
+
+
+      - One small Go server with SQLite storage under
+        /DATA/AppData/$AppID, no extra database needed
+
+
+      **How to use?**
+
+      1. Put your music in the Music folder inside Media on your ZimaOS.
+
+      2. Open Immerle from the Zima OS dashboard.
+
+      3. Create your administrator account on the setup screen.
+
+      4. Play music from the web app, or sign in from a Subsonic client
+         using your ZimaOS IP address and port 8480.
+
+      5. Change library, provider, and transcoding settings later in the
+         admin area of the app. No rebuild is needed.
+  tips:
+    before_install:
+      en_US: >-
+        1. Copy your music into the Music folder inside Media on your ZimaOS.
+
+        2. Start the Immerle installation.
+
+        3. Open Immerle from the Zima OS dashboard.
+
+        4. Create your administrator account right away. Until you do,
+           anyone on your network could make it.
+
+        5. Your music is read-only. Immerle will not change your files.
+
+        6. Change other settings later in the admin area of the app.
+  index: /
+  port_map: "8480"
+  scheme: http
+  is_uncontrolled: false
+  version: "0.0.11"
+  update_at: "2026-10-12"
+  release_notes:
+    en_US: |-
+      - Initial version
+  repo: "https://github.com/immerle/immerle"
+  support: "https://github.com/immerle/immerle/issues"
+  docs: "https://immerle.com/docs/"

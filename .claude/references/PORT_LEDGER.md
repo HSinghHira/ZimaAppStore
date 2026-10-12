@@ -57,8 +57,9 @@ order apps were added:
 | AppFlowy | 8474 (web UI/API, via the nginx gateway), 8475 (admin console, open /console), 8476 (Mailpit web UI) |
 | Authentik | 8477 (web UI/API, HTTP), 8478 (web UI/API, HTTPS with a self-signed certificate) |
 | Odoo | 8479 (web UI) |
+| Immerle | 8480 (web UI/API, also the Subsonic endpoint) |
 
-**Next new app starts at: 8480**
+**Next new app starts at: 8481**
 
 ## Rules
 
