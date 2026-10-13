@@ -21,6 +21,16 @@ ZimaOS reads app stores from a `store.json` manifest.
 
 > 💡 If the store doesn’t show up right away, try refreshing or restarting the App Store service — ZimaOS occasionally caches store sources.
 
+Alternatively you can use Terminal command to add Store:
+
+```
+curl -s -X POST 
+  -H "Authorization: $TOKEN" 
+  -H 'Content-Type: application/json' 
+  -d '{"url":"https://ZimaOS.HSinghHira.me/store.json"}' 
+  "http://localhost/v3/app_store/repo"
+```
+
 ---
 
 ## 🟠 CasaOS
@@ -40,6 +50,13 @@ CasaOS doesn’t read `store.json` — instead, it can install a full custom app
 
 > 💡 `latest.zip` always points to the most recent build — no need to update the link when new apps are added.
 
+Alternatively you can use Terminal command to add Store:
+
+```
+sudo casaos-cli app-management register app-store https://ZimaOS.HSinghHira.me/latest.zip
+
+sudo casaos-cli app-management list app-stores
+```
 ---
 
 ## 🟣 Homeio
