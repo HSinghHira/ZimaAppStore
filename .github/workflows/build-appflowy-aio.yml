@@ -1,0 +1,45 @@
+name: Build appflowy-aio
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docker/appflowy-aio/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set image name (GHCR needs lowercase)
+        run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/appflowy-aio" >> "$GITHUB_ENV"
+
+      - name: Record the upstream images' start-up settings
+        working-directory: docker/appflowy-aio
+        run: bash capture-meta.sh
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: docker/appflowy-aio
+          platforms: linux/amd64,linux/arm64
+          push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: |
+            ${{ env.IMAGE }}:1.0.0
+            ${{ env.IMAGE }}:latest

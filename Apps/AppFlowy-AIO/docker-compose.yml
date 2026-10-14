@@ -1,0 +1,194 @@
+name: appflowy-aio
+
+services:
+  appflowy-aio:
+    image: ghcr.io/hsinghhira/appflowy-aio:1.0.0
+    container_name: appflowy-aio
+    restart: unless-stopped
+    stop_grace_period: 90s
+    environment:
+      - TZ=$TZ
+      - PUBLIC_URL=http://localhost:8481
+      - ADMIN_EMAIL=CHANGEME@example.com
+      - ADMIN_PASSWORD=
+    ports:
+      - target: 8080
+        published: "8481"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/search
+        target: /opt/rootfs/search/var/lib/appflowy/keyword_index
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 240s
+    deploy:
+      resources:
+        limits:
+          cpus: "4.00"
+          memory: 3072M
+        reservations:
+          cpus: "0.00"
+          memory: 512M
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/AppFlowy/icon.png
+    x-casaos:
+      id: com.hiraappstore.appflowyaio
+      envs:
+        - container: TZ
+          description:
+            en_US: >-
+              Your time zone. It is filled in from your ZimaOS time zone.
+              Leave it unless you need another.
+        - container: PUBLIC_URL
+          description:
+            en_US: >-
+              The address you type in your browser. It starts as localhost,
+              which only works on this device. For other devices, change
+              `localhost` to your ZimaOS IP. Keep the port at 8481.
+        - container: ADMIN_EMAIL
+          description:
+            en_US: >-
+              The email for the admin account. Put your own email here. It
+              is used to sign in to the admin console.
+        - container: ADMIN_PASSWORD
+          description:
+            en_US: >-
+              The password for the admin account. Leave it blank and the app
+              makes a random one on first start. It is shown in the app log
+              and saved in the data folder. Or type your own.
+      ports:
+        - container: "8080"
+          description:
+            en_US: AppFlowy web app, API, sign-in, admin console (/console) and mail viewer (/mail), published on host as 8481
+      volumes:
+        - container: /data
+          description:
+            en_US: The database, files, mail, secret keys and settings.
+        - container: /opt/rootfs/search/var/lib/appflowy/keyword_index
+          description:
+            en_US: The search index for your pages.
+
+x-casaos:
+  id: com.hiraappstore.appflowyaio
+  architectures:
+    - amd64
+    - arm64
+  main: appflowy-aio
+  author: HSinghHira
+  category: Productivity
+  developer: AppFlowy-IO
+  icon: https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/AppFlowy/icon.png
+  title:
+    en_US: AppFlowy AIO
+  tagline:
+    en_US: Open-source Notion alternative in one container. Notes, docs, wikis and projects that you own.
+  description:
+    en_US: >-
+      AppFlowy is an open-source workspace for notes, docs, wikis and
+      projects. This is the self-hosted AppFlowy Cloud in a single
+      container, with one port and one data folder. Secret keys are made
+      for you on first start.
+
+
+      **Features**
+
+
+      - Docs, databases, boards, calendars and wikis in one workspace
+
+      - Real-time sync and teamwork across web, desktop and mobile apps
+
+      - Workspaces, members, guests and sharing with access control
+
+      - Publish pages to the web
+
+      - Built-in keyword search
+
+      - PostgreSQL with pgvector, Redis and Silo file storage inside
+
+      - Admin console to manage users and workspaces
+
+      - Bundled Mailpit catches all email (invites, password resets)
+
+
+      **How to use?**
+
+      1. Open AppFlowy AIO from the Zima OS dashboard.
+
+      2. Sign up with your email and password.
+
+      3. Create your first workspace and page.
+
+      4. To use the AppFlowy desktop or mobile app, choose the self-hosted
+         server option and enter your AppFlowy address with port 8481.
+
+      5. Manage users at `/console`. Sign in with the admin email and
+         password.
+
+      6. Read the email AppFlowy sends at `/mail`.
+  tips:
+    before_install:
+      en_US: >-
+        1. Open the app configuration before you install.
+
+
+        2. Find ADMIN_EMAIL. Set it to your own email.
+
+
+        3. Leave ADMIN_PASSWORD blank to get a random one. Or type your own.
+
+
+        4. Find PUBLIC_URL. It starts as http://localhost:8481.
+
+
+        5. To use AppFlowy on other devices, change localhost to your ZimaOS
+           IP address.
+
+
+        6. Start the installation.
+
+
+        7. Wait about four minutes for all parts to start.
+
+
+        8. If you left ADMIN_PASSWORD blank, open the app log. Find the line
+           that says "admin password is".
+
+
+        9. Open AppFlowy AIO from the Zima OS dashboard.
+
+
+        10. Sign up and create your first workspace.
+
+
+        11. Read AppFlowy email at http://your-zimaos-ip:8481/mail.
+
+
+        12. Open the admin console at http://your-zimaos-ip:8481/console.
+            Sign in with your admin email and password.
+  index: /
+  port_map: "8481"
+  scheme: http
+  is_uncontrolled: false
+  version: "0.19.2"
+  update_at: "2026-10-14"
+  release_notes:
+    en_US: |-
+      - Single-container AppFlowy with one port (8481) and one data folder
+      - Secret keys are made on first start, so each install gets its own
+      - appflowy_cloud 0.19.2, appflowy_web 0.19.8, appflowy_worker 0.18.8, appflowy_search 0.18.8, gotrue 0.18.8, admin_frontend 0.18.1
+      - File storage uses Silo (pgsty/silo), the community fork of MinIO
+      - AI service and pgAdmin are not included
+  repo: "https://github.com/AppFlowy-IO/AppFlowy-Cloud"
+  support: "https://github.com/AppFlowy-IO/AppFlowy-Cloud/issues"
+  docs: "https://github.com/AppFlowy-IO/AppFlowy-Cloud/tree/main/doc"
