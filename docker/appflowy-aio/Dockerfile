@@ -50,7 +50,7 @@ RUN set -eu; \
     done; \
     echo "files under /out/app:"; ls -A /out/app
 
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -61,10 +61,10 @@ RUN set -eux; \
     apt-get install -y --no-install-recommends ca-certificates curl gnupg; \
     install -d /usr/share/keyrings; \
     curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /usr/share/keyrings/pgdg.gpg; \
-    echo "deb [signed-by=/usr/share/keyrings/pgdg.gpg] https://apt.postgresql.org/pub/repos/apt bookworm-pgdg main" > /etc/apt/sources.list.d/pgdg.list; \
+    echo "deb [signed-by=/usr/share/keyrings/pgdg.gpg] https://apt.postgresql.org/pub/repos/apt trixie-pgdg main" > /etc/apt/sources.list.d/pgdg.list; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
-        postgresql-16 postgresql-16-pgvector redis-server nginx supervisor jq util-linux openssl libssl3 tzdata; \
+        postgresql-16 postgresql-16-pgvector redis-server nginx supervisor jq util-linux openssl tzdata; \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=rust-bins /out/ /
