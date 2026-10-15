@@ -67,12 +67,22 @@ for d in "$ROOTFS"/*/; do
   cat "$HOSTS" > "$d/etc/hosts"
   [ -f /etc/resolv.conf ] && cat /etc/resolv.conf > "$d/etc/resolv.conf"
 
-  mountpoint -q "$d/proc" || mount -t proc proc "$d/proc" 2>/dev/null || mount --bind /proc "$d/proc" 2>/dev/null || log "warning: could not mount proc into $d/proc (container may need cap_add: [SYS_ADMIN])"
-  mountpoint -q "$d/sys" || mount --bind /sys "$d/sys" 2>/dev/null || true
+  if ! mountpoint -q "$d/proc"; then
+    mount -t proc proc "$d/proc" 2>/dev/null || mount --rbind /proc "$d/proc" 2>/dev/null || {
+      err=$(mount --rbind /proc "$d/proc" 2>&1 || true)
+      log "warning: could not mount proc into $d/proc: $err"
+    }
+  fi
+  mountpoint -q "$d/sys" || mount --rbind /sys "$d/sys" 2>/dev/null || true
   mkdir -p "$d/dev/shm"
   mountpoint -q "$d/dev/shm" || mount -t tmpfs tmpfs "$d/dev/shm" 2>/dev/null || true
   chmod 1777 "$d/dev/shm" 2>/dev/null || true
   [ -e "$d/dev/fd" ] || ln -s /proc/self/fd "$d/dev/fd" 2>/dev/null || true
+  if [ -f "$d/proc/version" ]; then
+    log "$d procfs mounted successfully"
+  else
+    log "WARNING: $d procfs is NOT mounted"
+  fi
 
   [ -e "$d/dev/null" ]    || mknod -m 666 "$d/dev/null" c 1 3    2>/dev/null || log "warning: could not create $d/dev/null"
   [ -e "$d/dev/zero" ]    || mknod -m 666 "$d/dev/zero" c 1 5    2>/dev/null || true

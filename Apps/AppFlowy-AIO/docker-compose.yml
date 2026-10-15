@@ -6,8 +6,7 @@ services:
     container_name: appflowy-aio
     restart: unless-stopped
     stop_grace_period: 90s
-    cap_add:
-      - SYS_ADMIN
+    privileged: true
     environment:
       - TZ=$TZ
       - PUBLIC_URL=http://localhost:8481
