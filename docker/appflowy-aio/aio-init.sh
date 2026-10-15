@@ -94,7 +94,7 @@ hostport=${hostport%%/*}
 PUBLIC_PORT=${hostport##*:}
 EXTRA_LISTEN=""
 if [[ $PUBLIC_PORT =~ ^[0-9]+$ ]] && [ "$PUBLIC_PORT" != "$GATEWAY_PORT" ]; then
-  case " $WEB_PORT 3000 8000 9000 9001 9999 8025 1025 4002 5432 6379 " in
+  case " $WEB_PORT 3000 3100 8000 9000 9001 9999 8025 1025 4002 5432 6379 " in
     *" $PUBLIC_PORT "*) log "PUBLIC_URL port $PUBLIC_PORT is used inside the container; the admin console may not reach $PUBLIC_URL" ;;
     *) EXTRA_LISTEN="listen $PUBLIC_PORT;"
        log "also listening on $PUBLIC_PORT inside the container so the admin console can reach $PUBLIC_URL" ;;
@@ -217,7 +217,7 @@ write_env search "$TZV" \
 write_env admin "$TZV" \
   "APPFLOWY_GOTRUE_BASE_URL=http://appflowy_gotrue:9999" \
   "APPFLOWY_BASE_URL=$PUBLIC_URL" \
-  "PORT=3000"
+  "PORT=3100"
 
 write_env web "$TZV" \
   "APPFLOWY_BASE_URL=$PUBLIC_URL" \
