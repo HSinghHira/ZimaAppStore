@@ -29,20 +29,24 @@ COPY --from=img-search / /r/search
 RUN set -eu; \
     mkdir -p /out/app; \
     pick() { \
-      bin=$(find "/r/$1" \( -path "/r/$1/proc" -o -path "/r/$1/sys" \) -prune -o -type f -perm /111 -name "$2" -print | head -n1); \
+      svc=$1; shift; bin=""; \
+      for pat in "$@"; do \
+        bin=$(find "/r/$svc" \( -path "/r/$svc/proc" -o -path "/r/$svc/sys" -o -path "/r/$svc/lib" -o -path "/r/$svc/lib64" -o -path "/r/$svc/usr/lib" -o -path "/r/$svc/usr/share" \) -prune -o -type f -perm /111 -name "$pat" -print | head -n1); \
+        if [ -n "$bin" ]; then break; fi; \
+      done; \
       if [ -z "$bin" ]; then \
-        echo "could not find $2 in the $1 image. Executables there:"; \
-        find "/r/$1" -type f -perm /111 | grep -v -E '/(lib|lib64|usr/lib|usr/share|etc|var)/' | head -40; \
+        echo "could not find any of [$*] in the $svc image. Executables there:"; \
+        find "/r/$svc" -type f -perm /111 | grep -v -E '/(lib|lib64|usr/lib|usr/libexec|usr/share|etc|var)/' | head -60; \
         exit 1; \
       fi; \
-      rel=${bin#/r/$1}; \
+      rel=${bin#/r/$svc}; \
       install -D "$bin" "/out$rel"; \
-      echo "$1: $rel"; \
+      echo "$svc: $rel"; \
     }; \
-    pick cloud appflowy_cloud; \
-    pick worker appflowy_worker; \
-    pick admin admin_frontend; \
-    pick search 'appflowy_search*'; \
+    pick cloud appflowy_cloud appflowy-cloud 'appflowy[_-]cloud*'; \
+    pick worker appflowy_worker appflowy-worker 'appflowy[_-]worker*'; \
+    pick admin admin_frontend admin-frontend '*admin[_-]frontend*'; \
+    pick search appflowy_search appflowy-search 'appflowy[_-]search*'; \
     for n in cloud worker admin search; do \
       if [ -d "/r/$n/app" ]; then cp -a "/r/$n/app/." /out/app/; fi; \
     done; \
