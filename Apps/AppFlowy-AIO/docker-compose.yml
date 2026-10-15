@@ -11,7 +11,7 @@ services:
       - TZ=$TZ
       - PUBLIC_URL=http://localhost:8481
       - ADMIN_EMAIL=CHANGEME@example.com
-      - ADMIN_PASSWORD=
+      - ADMIN_PASSWORD=JcHD23%RF#DSFKmh7qw2
     ports:
       - target: 8080
         published: "8481"

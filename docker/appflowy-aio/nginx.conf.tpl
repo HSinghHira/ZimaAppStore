@@ -10,16 +10,24 @@ events {
 http {
     access_log off;
 
+    map $http_x_forwarded_proto $proxy_x_forwarded_proto {
+        default $http_x_forwarded_proto;
+        ''      $scheme;
+    }
+
     server {
         listen @GATEWAY_PORT@;
         @EXTRA_LISTEN@
         client_max_body_size 10M;
         underscores_in_headers on;
 
-        location /gotrue/ {
+        location /gotrue {
             proxy_pass http://127.0.0.1:9999;
-            rewrite ^/gotrue(/.*)$ $1 break;
+            rewrite ^/gotrue/?(.*)$ /$1 break;
             proxy_set_header Host $http_host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $proxy_x_forwarded_proto;
             proxy_pass_request_headers on;
         }
 
@@ -31,7 +39,7 @@ http {
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-Proto $proxy_x_forwarded_proto;
             proxy_read_timeout 86400s;
         }
 
@@ -78,7 +86,7 @@ http {
             proxy_set_header Host $http_host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-Proto $proxy_x_forwarded_proto;
             proxy_set_header X-NginX-Proxy true;
             real_ip_header X-Real-IP;
             proxy_connect_timeout 300s;
@@ -93,7 +101,7 @@ http {
             proxy_set_header Host appflowy-minio:9000;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-Proto $proxy_x_forwarded_proto;
             rewrite ^/minio-api/(.*) /$1 break;
             proxy_connect_timeout 300s;
             proxy_read_timeout 600s;
@@ -110,9 +118,9 @@ http {
             proxy_set_header X-Forwarded-Host $http_host;
             proxy_set_header Host $http_host;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-Proto $proxy_x_forwarded_proto;
             proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Scheme $scheme;
+            proxy_set_header X-Scheme $proxy_x_forwarded_proto;
             proxy_http_version 1.1;
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection 'upgrade';
@@ -134,8 +142,11 @@ http {
 
         location / {
             proxy_pass http://127.0.0.1:@WEB_PORT@;
-            proxy_set_header X-Scheme $scheme;
-            proxy_set_header Host $host;
+            proxy_set_header X-Scheme $proxy_x_forwarded_proto;
+            proxy_set_header X-Forwarded-Proto $proxy_x_forwarded_proto;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header Host $http_host;
         }
     }
 }
