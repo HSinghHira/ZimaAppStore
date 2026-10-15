@@ -2,7 +2,7 @@ name: appflowy-aio
 
 services:
   appflowy-aio:
-    image: ghcr.io/hsinghhira/appflowy-aio:1.0.0
+    image: ghcr.io/hsinghhira/appflowy-aio:1.0.1
     container_name: appflowy-aio
     restart: unless-stopped
     stop_grace_period: 90s
@@ -19,11 +19,6 @@ services:
       - type: bind
         source: /DATA/AppData/$AppID/data
         target: /data
-        bind:
-          create_host_path: true
-      - type: bind
-        source: /DATA/AppData/$AppID/search
-        target: /opt/rootfs/search/var/lib/appflowy/keyword_index
         bind:
           create_host_path: true
     healthcheck:
@@ -74,10 +69,7 @@ services:
       volumes:
         - container: /data
           description:
-            en_US: The database, files, mail, secret keys and settings.
-        - container: /opt/rootfs/search/var/lib/appflowy/keyword_index
-          description:
-            en_US: The search index for your pages.
+            en_US: The database, files, search index, secret keys and settings.
 
 x-casaos:
   id: com.hiraappstore.appflowyaio

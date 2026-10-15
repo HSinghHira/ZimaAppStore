@@ -25,7 +25,7 @@ ADMIN_EMAIL=${ADMIN_EMAIL:-CHANGEME@example.com}
 ADMIN_PASSWORD_ENV=${ADMIN_PASSWORD:-}
 
 STATE=$DATA/state
-mkdir -p "$STATE/overrides" "$DATA/postgres" "$DATA/redis" "$DATA/minio"
+mkdir -p "$STATE/overrides" "$DATA/postgres" "$DATA/redis" "$DATA/minio" "$DATA/search"
 SECRETS=$STATE/secrets.env
 touch "$SECRETS"
 chmod 600 "$SECRETS"
@@ -196,7 +196,7 @@ write_env search "$TZV" \
   "APPFLOWY_KEYWORD_SEARCH_ENABLED=true" \
   "APPFLOWY_KEYWORD_WORKER_ENABLED=true" \
   "APPFLOWY_KEYWORD_INDEX_MAP_SIZE_BYTES=2147483648" \
-  "APPFLOWY_KEYWORD_INDEX_DIR=/var/lib/appflowy/keyword_index" \
+  "APPFLOWY_KEYWORD_INDEX_DIR=$DATA/search" \
   "APPFLOWY_GOTRUE_JWT_SECRET=$JWT_SECRET"
 
 write_env admin "$TZV" \

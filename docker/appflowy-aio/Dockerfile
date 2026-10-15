@@ -21,6 +21,15 @@ RUN set -eu; \
     echo "using $bin"; \
     install -D "$bin" /out/silo
 
+FROM debian:bookworm-slim AS search-bin
+COPY --from=img-search / /search-root
+RUN set -eu; \
+    bin=$(find /search-root -maxdepth 6 -type f -perm /111 -name 'appflowy_search*' | head -n1); \
+    [ -n "$bin" ] || { echo "could not find the appflowy_search binary in the search image"; find /search-root -maxdepth 4 -type f -perm /111 | grep -v -E '/(usr/(lib|share)|lib|etc)/' | head -50; exit 1; }; \
+    echo "using $bin"; \
+    rel=${bin#/search-root}; \
+    install -D "$bin" "/out$rel"
+
 FROM debian:bookworm-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -35,17 +44,19 @@ RUN set -eux; \
     echo "deb [signed-by=/usr/share/keyrings/pgdg.gpg] https://apt.postgresql.org/pub/repos/apt bookworm-pgdg main" > /etc/apt/sources.list.d/pgdg.list; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
-        postgresql-16 postgresql-16-pgvector redis-server nginx supervisor jq util-linux openssl tzdata; \
+        postgresql-16 postgresql-16-pgvector redis-server nginx supervisor jq util-linux openssl libssl3 tzdata; \
     rm -rf /var/lib/apt/lists/*
 
-COPY --from=img-cloud   / /opt/rootfs/cloud/
-COPY --from=img-worker  / /opt/rootfs/worker/
-COPY --from=img-search  / /opt/rootfs/search/
+COPY --from=img-cloud  /usr/local/bin/appflowy_cloud  /usr/local/bin/appflowy_cloud
+COPY --from=img-worker /usr/local/bin/appflowy_worker /usr/local/bin/appflowy_worker
+COPY --from=img-admin  /usr/local/bin/admin_frontend  /usr/local/bin/admin_frontend
+COPY --from=img-admin  /app/assets                    /app/assets
+COPY --from=search-bin /out/ /
+COPY --from=silo-bin   /out/silo /usr/local/bin/silo
+
 COPY --from=img-gotrue  / /opt/rootfs/gotrue/
-COPY --from=img-admin   / /opt/rootfs/admin/
 COPY --from=img-web     / /opt/rootfs/web/
 COPY --from=img-mailpit / /opt/rootfs/mailpit/
-COPY --from=silo-bin /out/silo /usr/local/bin/silo
 
 COPY meta/ /opt/meta/
 COPY aio-init.sh /usr/local/bin/aio-init

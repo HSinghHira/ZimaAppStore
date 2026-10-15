@@ -41,5 +41,5 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: |
-            ${{ env.IMAGE }}:1.0.0
+            ${{ env.IMAGE }}:1.0.1
             ${{ env.IMAGE }}:latest

@@ -1,7 +1,9 @@
 #!/bin/bash
 # Starts one service. Usage: run-svc <name>
-# Native: postgres, redis, silo, gateway. The rest run inside their own upstream
-# image's filesystem (chroot), started with that image's own entrypoint and command.
+# Native: postgres, redis, silo, gateway, and the AppFlowy Rust services (cloud,
+# worker, admin, search), which need a real /proc. gotrue, web and mailpit run inside
+# their own upstream image's filesystem (chroot). Both kinds are started with that
+# image's own entrypoint, command and environment, read from /opt/meta.
 set -euo pipefail
 
 svc=${1:?usage: run-svc <name>}
@@ -46,7 +48,7 @@ case $svc in
   gotrue) wait_all pg ;;
   cloud)  wait_all pg tcp:6379 http://127.0.0.1:9999/health http://127.0.0.1:9000/minio/health/live ;;
   worker) wait_all pg http://127.0.0.1:8000/api/health ;;
-  search) wait_all pg tcp:6379 ;;
+  search) wait_all pg tcp:6379 http://127.0.0.1:8000/api/health ;;
   admin)  wait_all http://127.0.0.1:9999/health http://127.0.0.1:8000/api/health ;;
   web)    wait_all http://127.0.0.1:8000/api/health ;;
   gateway) wait_all http://127.0.0.1:8000/api/health ;;
@@ -72,9 +74,12 @@ case $svc in
     ;;
 esac
 
+native=0
+case $svc in cloud|worker|admin|search) native=1 ;; esac
+
 root=$ROOTFS/$svc
 meta=$META/$svc.json
-[ -d "$root" ] || { echo "missing $root"; exit 1; }
+[ "$native" = 1 ] || [ -d "$root" ] || { echo "missing $root"; exit 1; }
 [ -f "$meta" ] || { echo "missing $meta (run capture-meta.sh before building)"; exit 1; }
 
 mapfile -t entry < <(jq -r '.Entrypoint // [] | if type == "string" then [.] else . end | .[]' "$meta")
@@ -90,6 +95,13 @@ printf '%s\n' "${envs[@]}" | grep -q '^PATH=' \
   || envs+=("PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin")
 mapfile -t ours < "$RUN/$svc.env"
 envs+=("${ours[@]}")
+
+if [ "$native" = 1 ]; then
+  [ -n "$workdir" ] || workdir=/
+  mkdir -p "$workdir"
+  echo "starting (native, in $workdir): ${argv[*]}"
+  exec /usr/bin/env -i -C "$workdir" "${envs[@]}" "${argv[@]}"
+fi
 
 resolve_ids() {
   local spec=$1 u g uid gid
@@ -123,11 +135,6 @@ ids=$(resolve_ids "$userspec")
 us=""
 if [ -n "$ids" ] && [ "$ids" != "0:0" ]; then
   us=$ids
-  if [ "$svc" = search ]; then
-    d=$root/var/lib/appflowy/keyword_index
-    mkdir -p "$d"
-    [ "$(stat -c %u "$d")" = "${ids%%:*}" ] || chown -R "$ids" "$d"
-  fi
 fi
 
 if [ -n "$workdir" ] && [ "$workdir" != "/" ]; then
