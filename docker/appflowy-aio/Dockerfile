@@ -64,7 +64,7 @@ RUN set -eux; \
     echo "deb [signed-by=/usr/share/keyrings/pgdg.gpg] https://apt.postgresql.org/pub/repos/apt trixie-pgdg main" > /etc/apt/sources.list.d/pgdg.list; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
-        postgresql-16 postgresql-16-pgvector redis-server nginx supervisor jq util-linux openssl tzdata; \
+        postgresql-16 postgresql-16-pgvector redis-server nginx supervisor jq util-linux procps openssl tzdata; \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=rust-bins /out/ /

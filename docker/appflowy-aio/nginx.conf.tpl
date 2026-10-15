@@ -12,6 +12,7 @@ http {
 
     server {
         listen @GATEWAY_PORT@;
+        @EXTRA_LISTEN@
         client_max_body_size 10M;
         underscores_in_headers on;
 

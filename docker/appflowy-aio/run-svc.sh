@@ -141,5 +141,18 @@ if [ -n "$workdir" ] && [ "$workdir" != "/" ]; then
   argv=(/bin/sh -c 'cd "$1" && shift && exec "$@"' sh "$workdir" "${argv[@]}")
 fi
 
+readers=$RUN/$svc.readers
+if [ -f "$readers" ]; then
+  while read -r p; do kill "$p" 2>/dev/null || true; done < "$readers"
+  pkill -f "^cat $root/dev/(stdout|stderr)\$" 2>/dev/null || true
+fi
+: > "$readers"
+for f in stdout stderr; do
+  if [ -p "$root/dev/$f" ]; then
+    ( while :; do cat "$root/dev/$f"; done ) &
+    echo $! >> "$readers"
+  fi
+done
+
 echo "starting: ${argv[*]}"
 exec /usr/bin/env -i "${envs[@]}" /usr/sbin/chroot ${us:+--userspec="$us"} "$root" "${argv[@]}"

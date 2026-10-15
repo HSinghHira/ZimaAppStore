@@ -70,8 +70,11 @@ for d in "$ROOTFS"/*/; do
   [ -e "$d/dev/zero" ]    || mknod -m 666 "$d/dev/zero" c 1 5    2>/dev/null || true
   [ -e "$d/dev/random" ]  || mknod -m 666 "$d/dev/random" c 1 8  2>/dev/null || true
   [ -e "$d/dev/urandom" ] || mknod -m 666 "$d/dev/urandom" c 1 9 2>/dev/null || true
-  for f in stdin stdout stderr; do
-    [ -e "$d/dev/$f" ] || [ -L "$d/dev/$f" ] || : > "$d/dev/$f"
+  [ -e "$d/dev/stdin" ] || : > "$d/dev/stdin"
+  for f in stdout stderr; do
+    [ -p "$d/dev/$f" ] && continue
+    rm -f "$d/dev/$f"
+    mkfifo -m 666 "$d/dev/$f" 2>/dev/null || : > "$d/dev/$f"
   done
 done
 
@@ -85,7 +88,19 @@ if [ "$WEB_PORT" = "$GATEWAY_PORT" ]; then
   exit 1
 fi
 log "web service port: $WEB_PORT, gateway port: $GATEWAY_PORT"
-sed -e "s/@WEB_PORT@/$WEB_PORT/g" -e "s/@GATEWAY_PORT@/$GATEWAY_PORT/g" "$NGINX_TPL" > "$NGINX_OUT"
+
+hostport=${PUBLIC_URL#*://}
+hostport=${hostport%%/*}
+PUBLIC_PORT=${hostport##*:}
+EXTRA_LISTEN=""
+if [[ $PUBLIC_PORT =~ ^[0-9]+$ ]] && [ "$PUBLIC_PORT" != "$GATEWAY_PORT" ]; then
+  case " $WEB_PORT 3000 8000 9000 9001 9999 8025 1025 4002 5432 6379 " in
+    *" $PUBLIC_PORT "*) log "PUBLIC_URL port $PUBLIC_PORT is used inside the container; the admin console may not reach $PUBLIC_URL" ;;
+    *) EXTRA_LISTEN="listen $PUBLIC_PORT;"
+       log "also listening on $PUBLIC_PORT inside the container so the admin console can reach $PUBLIC_URL" ;;
+  esac
+fi
+sed -e "s/@WEB_PORT@/$WEB_PORT/g" -e "s/@GATEWAY_PORT@/$GATEWAY_PORT/g" -e "s/@EXTRA_LISTEN@/$EXTRA_LISTEN/g" "$NGINX_TPL" > "$NGINX_OUT"
 
 mkdir -p "$RUN"
 umask 077
