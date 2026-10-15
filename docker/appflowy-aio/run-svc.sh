@@ -1,9 +1,9 @@
 #!/bin/bash
 # Starts one service. Usage: run-svc <name>
 # Native: postgres, redis, silo, gateway, and the AppFlowy Rust services (cloud,
-# worker, admin, search), which need a real /proc. gotrue, web and mailpit run inside
-# their own upstream image's filesystem (chroot). Both kinds are started with that
-# image's own entrypoint, command and environment, read from /opt/meta.
+# worker, search), which need a real /proc. gotrue, admin (Node on Alpine), web and
+# mailpit run inside their own upstream image's filesystem (chroot). Both kinds are
+# started with that image's own entrypoint, command and environment, read from /opt/meta.
 set -euo pipefail
 
 svc=${1:?usage: run-svc <name>}
@@ -75,7 +75,7 @@ case $svc in
 esac
 
 native=0
-case $svc in cloud|worker|admin|search) native=1 ;; esac
+case $svc in cloud|worker|search) native=1 ;; esac
 
 root=$ROOTFS/$svc
 meta=$META/$svc.json

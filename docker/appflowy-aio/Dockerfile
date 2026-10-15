@@ -24,7 +24,6 @@ RUN set -eu; \
 FROM debian:bookworm-slim AS rust-bins
 COPY --from=img-cloud  / /r/cloud
 COPY --from=img-worker / /r/worker
-COPY --from=img-admin  / /r/admin
 COPY --from=img-search / /r/search
 RUN set -eu; \
     mkdir -p /out/app; \
@@ -45,9 +44,8 @@ RUN set -eu; \
     }; \
     pick cloud appflowy_cloud appflowy-cloud 'appflowy[_-]cloud*'; \
     pick worker appflowy_worker appflowy-worker 'appflowy[_-]worker*'; \
-    pick admin admin_frontend admin-frontend '*admin[_-]frontend*'; \
     pick search appflowy_search appflowy-search 'appflowy[_-]search*'; \
-    for n in cloud worker admin search; do \
+    for n in cloud worker search; do \
       if [ -d "/r/$n/app" ]; then cp -a "/r/$n/app/." /out/app/; fi; \
     done; \
     echo "files under /out/app:"; ls -A /out/app
@@ -73,6 +71,7 @@ COPY --from=rust-bins /out/ /
 COPY --from=silo-bin  /out/silo /usr/local/bin/silo
 
 COPY --from=img-gotrue  / /opt/rootfs/gotrue/
+COPY --from=img-admin   / /opt/rootfs/admin/
 COPY --from=img-web     / /opt/rootfs/web/
 COPY --from=img-mailpit / /opt/rootfs/mailpit/
 
