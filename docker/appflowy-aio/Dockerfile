@@ -21,14 +21,32 @@ RUN set -eu; \
     echo "using $bin"; \
     install -D "$bin" /out/silo
 
-FROM debian:bookworm-slim AS search-bin
-COPY --from=img-search / /search-root
+FROM debian:bookworm-slim AS rust-bins
+COPY --from=img-cloud  / /r/cloud
+COPY --from=img-worker / /r/worker
+COPY --from=img-admin  / /r/admin
+COPY --from=img-search / /r/search
 RUN set -eu; \
-    bin=$(find /search-root -maxdepth 6 -type f -perm /111 -name 'appflowy_search*' | head -n1); \
-    [ -n "$bin" ] || { echo "could not find the appflowy_search binary in the search image"; find /search-root -maxdepth 4 -type f -perm /111 | grep -v -E '/(usr/(lib|share)|lib|etc)/' | head -50; exit 1; }; \
-    echo "using $bin"; \
-    rel=${bin#/search-root}; \
-    install -D "$bin" "/out$rel"
+    mkdir -p /out/app; \
+    pick() { \
+      bin=$(find "/r/$1" \( -path "/r/$1/proc" -o -path "/r/$1/sys" \) -prune -o -type f -perm /111 -name "$2" -print | head -n1); \
+      if [ -z "$bin" ]; then \
+        echo "could not find $2 in the $1 image. Executables there:"; \
+        find "/r/$1" -type f -perm /111 | grep -v -E '/(lib|lib64|usr/lib|usr/share|etc|var)/' | head -40; \
+        exit 1; \
+      fi; \
+      rel=${bin#/r/$1}; \
+      install -D "$bin" "/out$rel"; \
+      echo "$1: $rel"; \
+    }; \
+    pick cloud appflowy_cloud; \
+    pick worker appflowy_worker; \
+    pick admin admin_frontend; \
+    pick search 'appflowy_search*'; \
+    for n in cloud worker admin search; do \
+      if [ -d "/r/$n/app" ]; then cp -a "/r/$n/app/." /out/app/; fi; \
+    done; \
+    echo "files under /out/app:"; ls -A /out/app
 
 FROM debian:bookworm-slim
 
@@ -47,12 +65,8 @@ RUN set -eux; \
         postgresql-16 postgresql-16-pgvector redis-server nginx supervisor jq util-linux openssl libssl3 tzdata; \
     rm -rf /var/lib/apt/lists/*
 
-COPY --from=img-cloud  /usr/local/bin/appflowy_cloud  /usr/local/bin/appflowy_cloud
-COPY --from=img-worker /usr/local/bin/appflowy_worker /usr/local/bin/appflowy_worker
-COPY --from=img-admin  /usr/local/bin/admin_frontend  /usr/local/bin/admin_frontend
-COPY --from=img-admin  /app/assets                    /app/assets
-COPY --from=search-bin /out/ /
-COPY --from=silo-bin   /out/silo /usr/local/bin/silo
+COPY --from=rust-bins /out/ /
+COPY --from=silo-bin  /out/silo /usr/local/bin/silo
 
 COPY --from=img-gotrue  / /opt/rootfs/gotrue/
 COPY --from=img-web     / /opt/rootfs/web/
