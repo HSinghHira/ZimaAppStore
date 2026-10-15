@@ -62,10 +62,18 @@ fi
 
 for d in "$ROOTFS"/*/; do
   [ -d "$d" ] || continue
-  mkdir -p "$d/dev" "$d/etc" "$d/tmp"
+  mkdir -p "$d/dev" "$d/etc" "$d/tmp" "$d/proc" "$d/sys"
   chmod 1777 "$d/tmp"
   cat "$HOSTS" > "$d/etc/hosts"
   [ -f /etc/resolv.conf ] && cat /etc/resolv.conf > "$d/etc/resolv.conf"
+
+  mountpoint -q "$d/proc" || mount -t proc proc "$d/proc" 2>/dev/null || mount --bind /proc "$d/proc" 2>/dev/null || log "warning: could not mount proc into $d/proc (container may need cap_add: [SYS_ADMIN])"
+  mountpoint -q "$d/sys" || mount --bind /sys "$d/sys" 2>/dev/null || true
+  mkdir -p "$d/dev/shm"
+  mountpoint -q "$d/dev/shm" || mount -t tmpfs tmpfs "$d/dev/shm" 2>/dev/null || true
+  chmod 1777 "$d/dev/shm" 2>/dev/null || true
+  [ -e "$d/dev/fd" ] || ln -s /proc/self/fd "$d/dev/fd" 2>/dev/null || true
+
   [ -e "$d/dev/null" ]    || mknod -m 666 "$d/dev/null" c 1 3    2>/dev/null || log "warning: could not create $d/dev/null"
   [ -e "$d/dev/zero" ]    || mknod -m 666 "$d/dev/zero" c 1 5    2>/dev/null || true
   [ -e "$d/dev/random" ]  || mknod -m 666 "$d/dev/random" c 1 8  2>/dev/null || true
