@@ -249,10 +249,12 @@ write_env web "$TZV" \
   "APPFLOWY_GOTRUE_BASE_URL=$PUBLIC_URL/gotrue" \
   "APPFLOWY_WS_BASE_URL=$WS_URL"
 
-# Pass through any custom GOTRUE_* or APPFLOWY_* variables set in the container environment
+# Pass through any custom GOTRUE_*, APPFLOWY_*, MP_*, or SILO_/MINIO_ variables set in the container environment
 env | grep -E '^GOTRUE_' >> "$RUN/gotrue.env" || true
 env | grep -E '^APPFLOWY_' >> "$RUN/cloud.env" || true
 env | grep -E '^APPFLOWY_WORKER_' >> "$RUN/worker.env" || true
+env | grep -E '^MP_' >> "$RUN/mailpit.env" || true
+env | grep -E '^(MINIO_|SILO_)' >> "$RUN/silo.env" || true
 
 for f in "$STATE"/overrides/*.env; do
   [ -f "$f" ] || continue
