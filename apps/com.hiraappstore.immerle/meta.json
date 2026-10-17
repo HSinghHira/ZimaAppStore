@@ -1,0 +1,40 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Media",
+  "developer": "Immerle",
+  "thumbnail": "/apps/com.hiraappstore.immerle/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.immerle/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.immerle/assets/thumbnail-1.webp",
+    "/apps/com.hiraappstore.immerle/assets/thumbnail-2.webp",
+    "/apps/com.hiraappstore.immerle/assets/thumbnail-3.webp",
+    "/apps/com.hiraappstore.immerle/assets/thumbnail-4.webp"
+  ],
+  "tagline": "Your music, self-hosted, and it sings.",
+  "description": "A self-hosted music server with its own web app that also speaks Subsonic and OpenSubsonic, so clients like Supersonic, Symfonium, and DSub just work.\n\n**Features**\n\n- Browse, search, stream, and transcode your own music library\n\n- Works with Subsonic and OpenSubsonic clients, with scrobbling and\n  now-playing\n\n\n- Playlists, collaborative playlists, and an activity feed with\n  per-event privacy\n\n\n- Jam sessions to listen together, in sync\n\n- On-demand catalog providers, like Jamendo and the Internet Archive,\n  that stream tracks you do not own yet\n\n\n- Playlist import, discovery mixes, internet radio, and podcasts\n\n- One small Go server with SQLite storage under\n  /DATA/AppData/$AppID, no extra database needed\n\n\n**How to use?**\n1. Put your music in the Music folder inside Media on your ZimaOS.\n2. Open Immerle from the Zima OS dashboard.\n3. Create your administrator account on the setup screen.\n4. Play music from the web app, or sign in from a Subsonic client\n   using your ZimaOS IP address and port 8480.\n\n5. Change library, provider, and transcoding settings later in the\n   admin area of the app. No rebuild is needed.",
+  "tips": {
+    "before_install": "1. Copy your music into the Music folder inside Media on your ZimaOS.\n2. Start the Immerle installation.\n3. Open Immerle from the Zima OS dashboard.\n4. Create your administrator account right away. Until you do,\n   anyone on your network could make it.\n\n5. Your music is read-only. Immerle will not change your files.\n6. Change other settings later in the admin area of the app."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-10-12",
+  "repo": "https://github.com/immerle/immerle",
+  "support": "https://github.com/immerle/immerle/issues",
+  "docs": "https://immerle.com/docs/",
+  "title": "Immerle",
+  "release_note": "- Initial version",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.immerle",
+  "version": "0.0.11",
+  "categories": [
+    "media"
+  ],
+  "min_memory": 134217728,
+  "min_image_size": {
+    "amd64": 69237125,
+    "arm64": 65807904
+  }
+}

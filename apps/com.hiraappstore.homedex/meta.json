@@ -1,0 +1,39 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Networking",
+  "developer": "Harsh Shah",
+  "thumbnail": "/apps/com.hiraappstore.homedex/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.homedex/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.homedex/assets/thumbnail-2.webp",
+    "/apps/com.hiraappstore.homedex/assets/thumbnail-3.webp",
+    "/apps/com.hiraappstore.homedex/assets/thumbnail-4.webp"
+  ],
+  "tagline": "The missing inventory for your homelab.",
+  "description": "A read-only homelab inventory. It scans Docker, Proxmox, Tailscale and your reverse proxy, then builds a searchable record of services, hosts, ports, routes, certificates, domains, and changes.\n\n**Features**\n\n- Finds every container, image, port, and network on your Docker hosts\n- Shows which reverse proxy route leads to which container, and flags broken ones\n- Tracks certificate and domain expiry by days remaining\n- Change feed shows what moved between scans\n- Read-only by design: a filtering socket proxy blocks any Docker action that changes something\n- SQLite storage under /DATA/AppData/$AppID\n\n**How to use?**\n1. Open Homedex from the Zima OS dashboard.\n2. Sign in with the admin password you set before install.\n3. In the setup wizard, keep the prefilled source `tcp://docker-socket-proxy:2375` and run the first scan.\n4. Add more sources later under **Sources**: Traefik, Caddy, Nginx Proxy Manager, Proxmox, Tailscale, and more.\n5. Export Markdown, JSON, or CSV, or share a read-only view from the UI.",
+  "tips": {
+    "before_install": "1. Open the app configuration before starting the installation.\n\n2. Find HOMEDEX_ADMIN_PASSWORD in the homedex service.\n\n3. It is your admin password. It is filled with a random value.\n\n4. Replace it with your own. Use 12 or more characters.\n\n5. Make one at [randomkeygen.com](https://randomkeygen.com/).\n\n6. Write it down. You need it to sign in.\n\n7. Start the Homedex installation.\n\n8. Open Homedex from the Zima OS dashboard.\n\n9. Sign in and finish the setup wizard.\n\n10. Manage sources later under Sources in the app."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-09-29",
+  "repo": "https://github.com/HarshShah0203/homedex",
+  "support": "https://github.com/HarshShah0203/homedex/issues",
+  "docs": "https://github.com/HarshShah0203/homedex/tree/main/docs",
+  "title": "Homedex",
+  "release_note": "- Initial version",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.homedex",
+  "version": "0.2.5",
+  "categories": [
+    "networking"
+  ],
+  "min_memory": 167772160,
+  "min_image_size": {
+    "amd64": 27745795,
+    "arm64": 27767034
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Productivity",
+  "developer": "n8n GmbH (OIDC hook by Cameron Eagans)",
+  "thumbnail": "/apps/com.hiraappstore.n8n-oidc/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.n8n-oidc/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.n8n-oidc/assets/thumbnail-1.webp"
+  ],
+  "tagline": "n8n workflow automation with single sign-on through any OIDC provider.",
+  "description": "n8n with a bolt-on OIDC login, so you can sign in through Pocket ID, Authentik, Keycloak or any other OIDC provider. It uses the community [n8n-oidc](https://github.com/cweagans/n8n-oidc) hook. It is not an official n8n feature.\n\n**Features**\n\n- \"Sign in with SSO\" button on the n8n sign-in page\n- Accounts are created on first login\n- The first person to sign in becomes the owner\n- SQLite database and settings kept under /DATA/AppData/$AppID\n- The hook file is downloaded and checked against a fixed SHA-256 hash on every start\n\n**How to use?**\n1. Open n8n from the Zima OS dashboard.\n2. Click **Sign in with SSO** and log in with your provider.\n3. Build your first workflow.\n4. Change OIDC settings later in the app configuration.",
+  "tips": {
+    "before_install": "1. In your login provider, make a new OIDC client for n8n.\n2. Set its redirect URI to your n8n address plus `/auth/oidc/callback`.\n3. Copy the Client ID and Client Secret.\n4. Only allow people you trust to use this client. Everyone who signs in gets an n8n account.\n5. Open the app configuration before you install.\n6. In the n8n-oidc service, set `CHANGEME_OIDC_ISSUER_URL` to your login provider's address.\n7. Set `CHANGEME_OIDC_CLIENT_ID` and `CHANGEME_OIDC_CLIENT_SECRET` to the two values you copied.\n8. Set `CHANGEME_OIDC_REDIRECT_URI` to the redirect URI from step 2.\n9. If you use an HTTPS address, set `N8N_PROTOCOL` to `https` and `N8N_SECURE_COOKIE` to `true`.\n10. Start the installation.\n11. Open n8n and click **Sign in with SSO**. The first person in becomes the owner.\n12. You can change settings later in the app configuration."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-09-30",
+  "repo": "https://github.com/n8n-io/n8n",
+  "support": "https://github.com/cweagans/n8n-oidc/issues",
+  "docs": "https://github.com/cweagans/n8n-oidc#readme",
+  "title": "n8n (OIDC)",
+  "release_note": "- Initial version\n- Pinned to n8n 2.30.1 for security fixes\n- Based on the official Zima OS n8n app's settings\n- The OIDC hook was last tested upstream on n8n 2.1.1",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.n8n-oidc",
+  "version": "2.30.1",
+  "categories": [
+    "productivity"
+  ],
+  "min_memory": 553648128,
+  "min_image_size": {
+    "amd64": 379276796,
+    "arm64": 379289318
+  }
+}

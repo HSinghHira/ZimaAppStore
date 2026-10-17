@@ -1,0 +1,48 @@
+name: appflowy-aio
+
+services:
+  appflowy-aio:
+    image: ghcr.io/hsinghhira/appflowy-aio:1.0.1@sha256:cc1812be56220dd5005cbc201f7254ff06f0f8660567beacaa2ea1af43ef5c1d
+    container_name: appflowy-aio
+    restart: unless-stopped
+    stop_grace_period: 90s
+    privileged: true
+    environment:
+      - TZ=$TZ
+      - PUBLIC_URL=http://localhost:8481
+      - ADMIN_EMAIL=CHANGEME@example.com
+      - ADMIN_PASSWORD=JcHD23%RF#DSFKmh7qw2
+    ports:
+      - target: 8080
+        published: "8481"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /data
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 240s
+    deploy:
+      resources:
+        limits:
+          cpus: "4.00"
+          memory: 3072M
+        reservations:
+          cpus: "0.00"
+          memory: 512M
+x-casaos:
+  id: com.hiraappstore.appflowyaio
+  main: appflowy-aio
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.appflowyaio/assets/icon.png
+  title:
+    en_US: AppFlowy AIO
+  index: /
+  port_map: "8481"
+  scheme: http
+  version: "0.19.2"

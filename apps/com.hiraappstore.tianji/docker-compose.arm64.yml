@@ -1,0 +1,75 @@
+name: tianji
+
+services:
+  tianji:
+    image: moonrailgun/tianji:1.31.19@sha256:16f0e776f7cc38147bc3201b944d0e056d85d44cae8b0f03cceb8ff6f603e511
+    container_name: tianji
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - tianji_network
+    depends_on:
+      - tianji-db
+    environment:
+      - DATABASE_URL=postgresql://tianji:CHANGEME_DB_PASSWORD@tianji-db:5432/tianji
+      - JWT_SECRET=b74de56f062662d08dde6acf48d02126a4eaf58ad63081e69806e0c8eb393cee
+      - ALLOW_REGISTER=false
+      - ALLOW_OPENAPI=true
+      - PUBLIC_URL=
+    ports:
+      - target: 12345
+        published: "8432"
+        protocol: tcp
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+
+  tianji-db:
+    image: postgres:15.4-alpine@sha256:8dbe95ed544cb4e0e039ab28d3e6711988f9530333ba716eac61570fa48041bd
+    container_name: tianji-db
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - tianji_network
+    environment:
+      - POSTGRES_DB=tianji
+      - POSTGRES_USER=tianji
+      - POSTGRES_PASSWORD=CHANGEME_DB_PASSWORD
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tianji -d tianji"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+networks:
+  tianji_network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.tianji
+  main: tianji
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.tianji/assets/icon.png
+  title:
+    en_US: Tianji
+  index: /
+  port_map: "8432"
+  scheme: http
+  version: "1.31.19"

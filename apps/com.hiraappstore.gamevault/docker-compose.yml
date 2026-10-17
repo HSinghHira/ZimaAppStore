@@ -1,0 +1,88 @@
+name: gamevault
+
+services:
+  gamevault-backend:
+    image: phalcode/gamevault-backend:16.3.0
+    container_name: gamevault-backend
+    restart: unless-stopped
+    stop_grace_period: 40s
+    environment:
+      - DB_HOST=gamevault-db
+      - DB_USERNAME=gamevault
+      - DB_PASSWORD=CHANGEME_DB_PASSWORD
+      - DB_DATABASE=gamevault
+      - SAVEFILES_ENABLED=true
+    networks:
+      - gamevault-network
+    ports:
+      - target: 8080
+        published: "8433"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/files
+        target: /files
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/media
+        target: /media
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/config
+        target: /config
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/savefiles
+        target: /savefiles
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+  gamevault-db:
+    image: postgres:17
+    container_name: gamevault-db
+    restart: unless-stopped
+    stop_grace_period: 40s
+    environment:
+      - POSTGRES_USER=gamevault
+      - POSTGRES_PASSWORD=CHANGEME_DB_PASSWORD
+      - POSTGRES_DB=gamevault
+    networks:
+      - gamevault-network
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/database
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+networks:
+  gamevault-network:
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.gamevault
+  main: gamevault-backend
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.gamevault/assets/icon.png
+  title:
+    en_US: GameVault
+  index: /
+  port_map: "8433"
+  scheme: http
+  version: "16.3.0"

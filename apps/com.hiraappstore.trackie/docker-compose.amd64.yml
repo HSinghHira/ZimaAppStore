@@ -1,0 +1,118 @@
+name: trackie
+
+services:
+  trackie:
+    image: ghcr.io/trackie-nz/trackie:26.9.0-trackie.2@sha256:7c13fedacc7232f10ed3ebc59374c1b2fbe42f89d04575d2838992fb9587540d
+    container_name: trackie
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    depends_on:
+      - logto
+    environment:
+      - NODE_ENV=production
+      - ACTUAL_LOGIN_METHOD=openid
+      - ACTUAL_OPENID_ENFORCE=true
+      - ACTUAL_USER_CREATION_MODE=login
+      - ACTUAL_TOKEN_EXPIRATION=7776000
+      - ACTUAL_OPENID_SERVER_HOSTNAME=http://[SERVER-IP]
+      - ACTUAL_OPENID_DISCOVERY_URL=
+      - ACTUAL_OPENID_CLIENT_ID=
+      - ACTUAL_OPENID_CLIENT_SECRET=
+      - ACTUAL_IDENTITY_SECRET=969943b041388e6d3709e7df6dfd17ffdd3d91e35ed28f2122a86e987
+      - ACTUAL_AKAHU_TOKEN_SECRET=9553c430823726a9a7789f2337ff11402145c7f3535f1e9cf735f
+      - TRACKIE_SUPPORT_EMAIL=
+      - TZ=Pacific/Auckland
+    ports:
+      - target: 5006
+        published: "8465"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+  logto:
+    image: svhd/logto:1.37.1@sha256:5ff3a1d444c1a1bd027f3a885a80009647fe22eb7b24aa77e1f4c8c7cebcdfd2
+    container_name: trackie-logto
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    depends_on:
+      logto-db:
+        condition: service_healthy
+    environment:
+      - TRUST_PROXY_HEADER=0
+      - ENDPOINT=http://[SERVER-IP]:8466
+      - ADMIN_ENDPOINT=http://[SERVER-IP]:8467
+      - DB_URL=postgres://logto:4wBTB3OvY6JjqUY1osBmRtvZwzmjBWZJ@logto-db:5432/logto
+      - OIDC_PRIVATE_KEYS=
+    entrypoint: ["sh", "-c", "npm run cli db seed -- --swe && npm start"]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/oidc/.well-known/openid-configuration"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    ports:
+      - target: 3001
+        published: "8466"
+        protocol: tcp
+      - target: 3002
+        published: "8467"
+        protocol: tcp
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+  logto-db:
+    image: postgres:17-alpine@sha256:aa90e97ee862e558111d34cfb8b2c4bec768c2b039fb791341686928560263b3
+    container_name: trackie-logto-db
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    environment:
+      - POSTGRES_USER=logto
+      - POSTGRES_PASSWORD=4wBTB3OvY6JjqUY1osBmRtvZwzmjBWZJ
+      - POSTGRES_DB=logto
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U logto"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/logto-db
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+x-casaos:
+  id: com.hiraappstore.trackie
+  main: trackie
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.trackie/assets/icon.png
+  title:
+    en_US: Trackie (Actual Budget - NZ Fork)
+  index: /
+  port_map: "8465"
+  scheme: http
+  version: "26.9.0-trackie.2"

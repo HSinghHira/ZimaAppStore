@@ -1,0 +1,38 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Home",
+  "developer": "ulsklyc",
+  "thumbnail": "/apps/com.hiraappstore.yuvomi/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.yuvomi/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.yuvomi/assets/thumbnail-1.webp",
+    "/apps/com.hiraappstore.yuvomi/assets/thumbnail-2.webp"
+  ],
+  "tagline": "One private home for tasks, calendar, budget, meals, and everything else that runs a household",
+  "description": "Yuvomi is a self-hosted family planner that replaces a dozen separate subscription apps — tasks, calendar, budget, shopping, meals and more — with one private place that runs on your own server.\n\n**Features**\n\n- Nineteen independent modules: Tasks, Shopping, Meals, Recipes,\n  Pantry, Calendar, Documents, Inventory, Budget, Housekeeping,\n  Rewards, Health, Schedule, Notes & Contacts, Birthdays, Family,\n  Reminders, API Tokens, and Backup — turn on only what your\n  household needs.\n\n- Modules talk to each other: a meal plan writes the shopping list,\n  ticking off a chore pays reward points, a filed receipt links to a\n  transaction and an inventory item at once.\n\n- Two-way Google/CalDAV calendar sync, optional OIDC single sign-on,\n  two-factor authentication, and invite-link onboarding for family\n  members.\n\n- Optional AES-256 database encryption (SQLCipher), zero telemetry,\n  and only one outbound call — a version check against the GitHub\n  releases API.\n\n- Single SQLite database file for storage, with scheduled backup and\n  restore, and a documented REST/MCP API for automation.\n\n- Persistent storage under /DATA/AppData/$AppID: database, backups,\n  and optional drop-in modules.\n\n\n**How to use?**\n\n1. Open Yuvomi from the Zima OS dashboard.\n2. The first visit walks you through creating your household's\n   administrator account.\n\n3. Turn on the modules your household actually wants under Settings —\n   everything else stays out of the way.\n\n4. Invite the rest of the family through an invite link; each member\n   picks their own password.\n\n5. Set up your first task list, calendar, or shopping list, and start\n   connecting modules (e.g. link a meal plan to the shopping list).\n\n6. Calendar sync, weather widgets, OIDC/SSO, and WebDAV backup targets\n   can all be added later from Settings without rebuilding the\n   container.",
+  "tips": {
+    "before_install": "1. This app comes with two secret values already filled in for you:\n   SESSION_SECRET and DB_ENCRYPTION_KEY.\n\n\n2. These are safe to use for testing, but not safe to share with\n   anyone else.\n\n\n3. Before you rely on this app for real family data, open the app\n   settings and replace both values.\n\n\n4. Go to randomkeygen.com and copy two new random values.\n\n5. Put one new value in SESSION_SECRET.\n\n6. Put the other new value in DB_ENCRYPTION_KEY.\n\n7. Write down your DB_ENCRYPTION_KEY somewhere safe. If you lose it,\n   nobody can unlock your database again — not even the app maker.\n\n\n8. If you don't want database encryption at all, just delete the\n   DB_ENCRYPTION_KEY value and leave it blank.\n\n\n9. Start the Yuvomi installation.\n\n10. Open Yuvomi from the Zima OS dashboard.\n\n11. The first screen you see will help you create your admin\n    account. Follow the steps on screen.\n\n\n12. Later settings like calendar sync, weather, and backups can be\n    turned on any time from inside the app — you don't need to\n    touch this page again."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-09-02",
+  "repo": "https://github.com/ulsklyc/yuvomi",
+  "support": "https://github.com/ulsklyc/yuvomi/issues",
+  "docs": "https://github.com/ulsklyc/yuvomi/tree/main/docs",
+  "title": "Yuvomi",
+  "release_note": "- Initial version",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.yuvomi",
+  "version": "2.63.0",
+  "categories": [
+    "home"
+  ],
+  "min_memory": 268435456,
+  "min_image_size": {
+    "amd64": 127339063,
+    "arm64": 127134200
+  }
+}

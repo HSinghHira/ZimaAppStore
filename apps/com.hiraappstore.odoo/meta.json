@@ -1,0 +1,38 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Productivity",
+  "developer": "Odoo S.A.",
+  "thumbnail": "/apps/com.hiraappstore.odoo/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.odoo/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.odoo/assets/thumbnail-1.webp",
+    "/apps/com.hiraappstore.odoo/assets/thumbnail-2.webp"
+  ],
+  "tagline": "All-in-one open source business apps, from CRM and sales to accounting and inventory.",
+  "description": "Odoo is a suite of open source business apps that run your company in one place, including CRM, sales, accounting, inventory, projects, and a website builder.\n\n**Features**\n\n- CRM, sales, invoicing, accounting, inventory, and purchasing apps\n- Website, eCommerce, and project management apps\n- Install only the apps you need and add more later\n- Custom add-on modules through the add-ons folder\n- PostgreSQL database stored under /DATA/AppData/$AppID\n\n**How to use?**\n1. Open Odoo from the Zima OS dashboard.\n2. On the first screen, create a database. Enter a database name, your\n   email, and a password for your admin account. If it asks for a\n   master password, write it down.\n\n3. Sign in and pick the apps you want to install.\n4. Put your own add-on modules in the add-ons folder, then update the\n   app list in Odoo.\n\n5. Manage databases later at the /web/database/manager page.",
+  "tips": {
+    "before_install": "1. Open the app configuration before starting the installation.\n\n2. Find PASSWORD in the odoo service. It is filled with a random value.\n\n3. Find POSTGRES_PASSWORD in the odoo-db service. It must be the same as PASSWORD.\n\n4. To use your own, put the same value in both. Make one at [randomkeygen.com](https://randomkeygen.com/).\n\n5. Start the Odoo installation.\n\n6. Wait about two minutes for the first start.\n\n7. Open Odoo from the Zima OS dashboard.\n\n8. Odoo may ask you to make a master password. Write it down. You need it to make and delete databases.\n\n9. Create your database and your admin account.\n\n10. The database password only works on the first start. To change it later, you must change it inside the database too."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-10-12",
+  "repo": "https://github.com/odoo/odoo",
+  "support": "https://github.com/odoo/odoo/issues",
+  "docs": "https://www.odoo.com/documentation/20.0/",
+  "title": "Odoo",
+  "release_note": "- Initial version\n- Uses the 20.0 tag, which Odoo rebuilds often with fixes\n- Includes a PostgreSQL 16 database in its own container",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.odoo",
+  "version": "20.0",
+  "categories": [
+    "productivity"
+  ],
+  "min_memory": 671088640,
+  "min_image_size": {
+    "amd64": 960405417,
+    "arm64": 955486976
+  }
+}

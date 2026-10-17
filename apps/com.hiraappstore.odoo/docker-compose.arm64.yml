@@ -1,0 +1,96 @@
+name: odoo
+
+services:
+  odoo:
+    image: odoo:20.0@sha256:0a819993865ef825a04571b66f9487d0a49ee529320347fd3d534bb5bd5b8af5
+    container_name: odoo
+    restart: unless-stopped
+    stop_grace_period: 40s
+    command: ["odoo", "--http-interface=0.0.0.0"]
+    networks:
+      - odoo_network
+    depends_on:
+      odoo-db:
+        condition: service_healthy
+    environment:
+      - TZ=$TZ
+      - HOST=odoo-db
+      - PORT=5432
+      - USER=odoo
+      - PASSWORD=fc31404056b54c31b68aea9ff081b61f
+    ports:
+      - target: 8069
+        published: "8479"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /var/lib/odoo
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/addons
+        target: /mnt/extra-addons
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8069/web/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          cpus: "0.00"
+          memory: 512M
+  odoo-db:
+    image: postgres:16@sha256:ac51821423566931ecf50eb51ee9201d794d8632d33a2f23432ec47ff63a0fd4
+    container_name: odoo-db
+    restart: unless-stopped
+    stop_grace_period: 60s
+    networks:
+      - odoo_network
+    environment:
+      - TZ=$TZ
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=fc31404056b54c31b68aea9ff081b61f
+      - POSTGRES_DB=postgres
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/db
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+networks:
+  odoo_network:
+    name: odoo_network
+
+x-casaos:
+  id: com.hiraappstore.odoo
+  main: odoo
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.odoo/assets/icon.png
+  title:
+    en_US: Odoo
+  index: /
+  port_map: "8479"
+  scheme: http
+  version: "20.0"

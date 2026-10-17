@@ -1,0 +1,36 @@
+{
+  "architectures": [
+    "amd64"
+  ],
+  "author": "HSinghHira",
+  "category": "Finance",
+  "developer": "trackie-nz",
+  "thumbnail": "/apps/com.hiraappstore.trackie/assets/thumbnail.webp",
+  "screenshot-links": [
+    "https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Trackie/thumbnail-1.png",
+    "https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Trackie/thumbnail-2.png",
+    "https://cdn.jsdelivr.net/gh/HSinghHira/ZimaAppStore@main/Apps/Trackie/thumbnail.png"
+  ],
+  "tagline": "Free, private budgeting for New Zealand, built on Actual Budget.",
+  "description": "Trackie is a New Zealand-focused fork of Actual Budget, a fast, private, open-source budgeting app. This manifest self-hosts the same code that runs trackie.nz.\n\n**Features**\n\n- Your own private budget per person, created on first sign-in\n- Passwordless sign-in through a bundled, self-hosted Logto server\n- Optional end-to-end encryption you control, on top of Actual Budget\n- Per-user NZ bank sync via Akahu, using each person's own tokens\n- NZ defaults: DD/MM/YYYY dates, week starts Monday\n\n**How to use?**\n\n1. Finish the one-time Logto setup described in the install tips.\n2. Open Trackie from the Zima OS dashboard.\n3. Sign in with your email to create your private budget.\n4. Link your bank under Settings if you want automatic transaction\n   syncing.\n\n5. Everything else is configured later from Settings inside Trackie,\n   or the Logto admin console for sign-in settings.",
+  "tips": {
+    "before_install": "1. Open the app configuration before starting the installation.\n\n2. In the trackie service, find ACTUAL_OPENID_SERVER_HOSTNAME. Set\n   it to the address you will use for Trackie, like\n   http://192.168.1.50:8465.\n\n\n3. In the logto service, find ENDPOINT. Set it to\n   http://192.168.1.50:8466 (same host, port 8466).\n\n\n4. In the logto service, find ADMIN_ENDPOINT. Set it to\n   http://192.168.1.50:8467 (same host, port 8467).\n\n\n5. In the trackie service, find ACTUAL_IDENTITY_SECRET and\n   ACTUAL_AKAHU_TOKEN_SECRET. Replace both with your own random\n   values from [randomkeygen.com](https://randomkeygen.com/).\n\n\n6. Leave ACTUAL_OPENID_DISCOVERY_URL, ACTUAL_OPENID_CLIENT_ID, and\n   ACTUAL_OPENID_CLIENT_SECRET as they are for now. You will fill\n   these in after step 10.\n\n\n7. Start the Trackie installation and wait for all three\n   containers to show as running.\n\n\n8. Open the Logto admin console at your ADMIN_ENDPOINT address.\n\n9. In the Logto console, go to Sign-in experience and turn on the\n   email connector so login codes can be sent. If you skip this,\n   set up an SMTP connector under Connectors first.\n\n\n10. In the Logto console, go to Applications and add a new\n    Traditional Web application called Trackie. Set its redirect\n    URI to your SERVER_HOSTNAME plus /openid/callback, for example\n    http://192.168.1.50:8465/openid/callback.\n\n\n11. Copy the Application ID and Application Secret Logto shows\n    you.\n\n\n12. Go back to the app configuration. Set\n    ACTUAL_OPENID_CLIENT_ID and ACTUAL_OPENID_CLIENT_SECRET in the\n    trackie service to the values from step 11.\n\n\n13. Set ACTUAL_OPENID_DISCOVERY_URL in the trackie service to your\n    ENDPOINT address plus /oidc/.well-known/openid-configuration,\n    for example http://192.168.1.50:8466/oidc/.well-known/openid-configuration.\n\n\n14. In the Logto console, go to Signing keys and rotate the key\n    to RSA. Trackie will not be able to sign you in until this is\n    done.\n\n\n15. Restart the Trackie app so the new settings take effect.\n\n16. Open Trackie from the Zima OS dashboard and sign in with your\n    email to create your budget.\n\n\n17. You can change bank sync, encryption, and other settings\n    later from Settings inside Trackie, without reinstalling."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-09-27",
+  "repo": "https://github.com/trackie-nz/trackie",
+  "support": "https://github.com/trackie-nz/trackie/issues",
+  "docs": "https://github.com/trackie-nz/trackie/tree/main/docs",
+  "title": "Trackie (Actual Budget - NZ Fork)",
+  "release_note": "- Initial version\n- Bundles a self-hosted Logto server (pinned 1.37.1) plus its own\n  Postgres, since Trackie requires an OIDC provider and enforces\n  passwordless sign-in",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.trackie",
+  "version": "26.9.0-trackie.2",
+  "categories": [
+    "finance"
+  ],
+  "min_memory": 335544320,
+  "min_image_size": {
+    "amd64": 528805069
+  }
+}

@@ -1,0 +1,57 @@
+name: immerle
+
+services:
+  immerle:
+    image: ghcr.io/immerle/immerle:latest@sha256:0b0c8f84e3c6fbab6592decbee7cc29dad2fa77966135f6d8bcd4f10b85d1f64
+    container_name: immerle
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    environment:
+      - PORT=4533
+      - DATABASE_DRIVER=sqlite
+      - DATABASE_DSN=/data/immerle.db
+      - LIBRARY_DATA_DIR=/data
+      - LIBRARY_PATHS=/music
+      - AUTH_REQUIRE_SETUP_TOKEN=false
+      - LOG_LEVEL=info
+    ports:
+      - target: 4533
+        published: "8480"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID
+        target: /data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/Media/Music
+        target: /music
+        read_only: true
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:4533/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+x-casaos:
+  id: com.hiraappstore.immerle
+  main: immerle
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.immerle/assets/icon.png
+  title:
+    en_US: Immerle
+  index: /
+  port_map: "8480"
+  scheme: http
+  version: "0.0.11"

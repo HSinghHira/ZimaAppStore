@@ -1,0 +1,30 @@
+name: vert
+
+services:
+  vert:
+    image: ghcr.io/vert-sh/vert:latest
+    container_name: vert
+    restart: unless-stopped
+    stop_grace_period: 40s
+    network_mode: bridge
+    ports:
+      - target: 80
+        published: "8420"
+        protocol: tcp
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 256M
+        reservations:
+          cpus: "0.00"
+          memory: 64M
+x-casaos:
+  id: com.hiraappstore.vert
+  main: vert
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.vert/assets/icon.png
+  title:
+    en_US: VERT
+  index: /
+  port_map: "8420"
+  scheme: http

@@ -1,0 +1,84 @@
+name: omnicloud
+
+networks:
+  omnicloud_network:
+    name: omnicloud
+    driver: bridge
+
+services:
+  api:
+    image: ghcr.io/hsinghhira/omnicloud-api:sha-e87fb59@sha256:5156df1b154d653cc4157ef13774969bc7e43d4b966ded1e93b89ea6a0c8f363
+    container_name: omnicloud-api
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - omnicloud_network
+    environment:
+      APP_MODE: local
+      AUTH_COOKIE_NAME: omnicloud_session
+      AUTH_SECRET: 7d06de2aca264ad1ff0a1727ec98983c95b751d9bba1958e7edacfa69445c8be
+      AUTH_SESSION_TTL_HOURS: "336"
+      CORS_ORIGIN: http://$public_ip:8442
+      DATABASE_PATH: /app/data/omnicloud.db
+      DROPBOX_CLIENT_ID: CHANGEME_DROPBOX_CLIENT_ID
+      DROPBOX_CLIENT_SECRET: CHANGEME_DROPBOX_CLIENT_SECRET
+      DROPBOX_REDIRECT_URI: http://$public_ip:8442/api/accounts/dropbox/callback
+      FRONTEND_URL: http://$public_ip:8442
+      GOOGLE_CLIENT_ID: CHANGEME_GOOGLE_CLIENT_ID
+      GOOGLE_CLIENT_SECRET: CHANGEME_GOOGLE_CLIENT_SECRET
+      GOOGLE_REDIRECT_URI: http://$public_ip:8442/api/accounts/google/callback
+      OMNICLOUD_SECRET_HALF: ff9752efae2afb79ed1c07706eb84ce6e38b39e7a386c44e14702e5a2b3332d5
+      ONEDRIVE_CLIENT_ID: CHANGEME_ONEDRIVE_CLIENT_ID
+      ONEDRIVE_CLIENT_SECRET: CHANGEME_ONEDRIVE_CLIENT_SECRET
+      ONEDRIVE_REDIRECT_URI: http://$public_ip:8442/api/accounts/onedrive/callback
+      ONEDRIVE_TENANT_ID: common
+      PORT: "8787"
+      SYNC_INTERVAL_MINUTES: "5"
+      YANDEX_CLIENT_ID: CHANGEME_YANDEX_CLIENT_ID
+      YANDEX_CLIENT_SECRET: CHANGEME_YANDEX_CLIENT_SECRET
+      YANDEX_REDIRECT_URI: http://$public_ip:8442/api/accounts/yandex/callback
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /app/data
+        bind:
+          create_host_path: true
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "1.00"
+        reservations:
+          memory: 128M
+          cpus: "0.10"
+  web:
+    image: ghcr.io/hsinghhira/omnicloud-web:sha-e87fb59@sha256:89dc380231f0dd1584f52a3f2ff7744cbe06e793844da987640c8cddd0dc4d16
+    container_name: omnicloud-web
+    restart: unless-stopped
+    stop_grace_period: 40s
+    depends_on:
+      api:
+        condition: service_started
+    networks:
+      - omnicloud_network
+    ports:
+      - target: 80
+        published: "8442"
+        protocol: tcp
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.50"
+        reservations:
+          memory: 64M
+          cpus: "0.05"
+x-casaos:
+  id: com.hiraappstore.omnicloud
+  main: web
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.omnicloud/assets/icon.png
+  title:
+    en_US: OmniCloud
+  index: /
+  port_map: "8442"
+  scheme: http

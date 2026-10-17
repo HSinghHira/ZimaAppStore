@@ -1,0 +1,40 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Productivity",
+  "developer": "Skyfay",
+  "thumbnail": "/apps/com.hiraappstore.skysend/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.skysend/assets/thumbnail.webp",
+    "/apps/com.hiraappstore.skysend/assets/thumbnail-1.webp",
+    "/apps/com.hiraappstore.skysend/assets/thumbnail-2.webp",
+    "/apps/com.hiraappstore.skysend/assets/thumbnail-3.webp",
+    "/apps/com.hiraappstore.skysend/assets/thumbnail-4.webp"
+  ],
+  "tagline": "End-to-end encrypted, zero-knowledge file and note sharing",
+  "description": "SkySend is a minimalist, end-to-end encrypted file and note sharing service. Files and notes are encrypted entirely in your browser before upload, so the server only ever stores encrypted blobs and never sees the decryption key.\n\n**Features**\n\n- Drag-and-drop file and folder uploads, with configurable expiry and\n  download limits\n\n- Encrypted notes: plain text, Markdown, code snippets, passwords, and\n  SSH keys, with optional burn-after-reading\n\n- Optional password protection using GPU-resistant Argon2id key\n  derivation\n\n- Optional OIDC / SSO login to restrict who can upload, while downloads\n  stay public\n\n- Optional S3-compatible storage backend (AWS S3, R2, MinIO, and more)\n  alongside the default local filesystem storage\n\n- No accounts and no telemetry, with an upload/note dashboard tracked\n  locally in your browser\n\n- Persistent database and uploads stored under\n  /DATA/AppData/$AppID\n\n\n**How to use?**\n1. Open SkySend from the Zima OS dashboard.\n2. Drag a file onto the page, or switch to the Notes tab to share text,\n   a password, code, or an SSH key instead.\n\n3. Set an expiry time and download/view limit, and optionally add a\n   password.\n\n4. Copy the generated share link and send it to whoever needs it. The\n   decryption key lives only in that link, never on the server.\n\n5. Open the dashboard tab to see your own upload/note history, which is\n   stored locally in your browser, not on the server.\n\n6. Extra settings like custom branding, S3 storage, and OIDC login are\n   all listed below and can be filled in any time without rebuilding\n   the container.",
+  "tips": {
+    "before_install": "1. Open the app configuration before starting the installation.\n2. Find BASE_URL in the skysend service. It is set to\n   CHANGEME_BASE_URL.\n\n3. Change it to the address you will use to open SkySend, like\n   http://192.168.1.50:8447. Do not use localhost.\n\n4. Every other environment variable is optional and starts blank.\n   Leave them blank to use SkySend's built-in defaults.\n\n5. Only fill in the S3_* variables if you want to use S3-compatible\n   storage instead of local storage. Set STORAGE_BACKEND to s3 too.\n\n6. Only fill in the OIDC_* variables if you want SSO login.\n   OIDC_ISSUER, OIDC_CLIENT_ID, and OIDC_CLIENT_SECRET must all be\n   filled in together, or SkySend will not start.\n\n7. If you use OIDC, also set OIDC_SESSION_SECRET to a random value\n   from randomkeygen.com so people stay logged in after a restart.\n\n8. Start the SkySend installation.\n9. Open SkySend from the Zima OS dashboard.\n10. Try uploading a small file to make sure everything works.\n11. You can come back and fill in any blank variable later. Just\n    restart the app after changing one."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-09-08",
+  "repo": "https://github.com/Skyfay/SkySend",
+  "support": "https://github.com/Skyfay/SkySend/issues",
+  "docs": "https://docs.skysend.app",
+  "title": "SkySend",
+  "release_note": "- Initial version, pinned to skyfay/skysend:v2.11.3\n- Exposed every documented SkySend environment variable as an optional field",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.skysend",
+  "version": "2.11.3",
+  "categories": [
+    "productivity"
+  ],
+  "min_memory": 134217728,
+  "min_image_size": {
+    "amd64": 92985201,
+    "arm64": 93920952
+  }
+}

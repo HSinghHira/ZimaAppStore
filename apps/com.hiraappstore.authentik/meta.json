@@ -1,0 +1,36 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Networking",
+  "developer": "authentik",
+  "thumbnail": "/apps/com.hiraappstore.authentik/assets/thumbnail.webp",
+  "screenshot_link": [
+    "/apps/com.hiraappstore.authentik/assets/thumbnail.webp"
+  ],
+  "tagline": "Open-source identity provider. Single sign-on with OIDC, SAML, LDAP and more.",
+  "description": "authentik is an open-source identity provider and single sign-on platform. It lets your users sign in once and reach all your self-hosted apps, with full control over flows, policies and users.\n\n**Features**\n\n- Single sign-on with OIDC, OAuth 2.0, SAML 2.0, LDAP and RADIUS\n- Sign in with Google, GitHub, Discord and other social logins, or\n  bring another OIDC or SAML provider\n\n- Flows and stages for sign-in, sign-up, recovery and multi-factor login\n- Policies to decide who can open which app\n- Proxy outposts to protect apps that have no sign-in of their own\n- PostgreSQL included, with no extra cache service needed\n\n**How to use?**\n1. Open authentik from the Zima OS dashboard.\n2. Set a password for the `akadmin` administrator account.\n3. Open the admin interface and create your users and groups.\n4. Add an application and a provider (OIDC or SAML) for each app you\n   want to protect.\n\n5. Copy the provider details into the app you are connecting.\n6. Change settings later in the app configuration or in the admin\n   interface.",
+  "tips": {
+    "before_install": "1. Open the app configuration before you install.\n\n2. Find AUTHENTIK_SECRET_KEY in the authentik service.\n\n3. Replace it with your own key — generate one at\n   [randomkeygen.com](https://randomkeygen.com/).\n\n\n4. Put the same key in AUTHENTIK_SECRET_KEY in the\n   authentik_worker service.\n\n\n5. The database password is already random. Leave it, or replace it\n   with your own.\n\n\n6. If you replace it, use the same password in POSTGRES_PASSWORD\n   and in AUTHENTIK_POSTGRESQL__PASSWORD in all three services.\n\n\n7. Start the authentik installation.\n\n8. Wait about two minutes for all parts to start.\n\n9. Open http://your-zimaos-ip:8477/if/flow/initial-setup/ and set\n   a password for the akadmin user.\n\n\n10. Do not change AUTHENTIK_SECRET_KEY after you add users. Everyone\n    would be signed out.\n\n\n11. POSTGRES_PASSWORD only works the first time the database starts.\n    You can not change it later.\n\n\n12. The worker can control Docker on this device. If you do not use\n    outposts, remove the docker.sock volume from authentik_worker.\n\n\n13. Use the same ZimaOS IP and port when you connect other apps.\n    Put authentik behind your own domain and HTTPS before you\n    share it outside your home."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-10-10",
+  "repo": "https://github.com/goauthentik/authentik",
+  "support": "https://github.com/goauthentik/authentik/issues",
+  "docs": "https://docs.goauthentik.io/",
+  "title": "authentik",
+  "release_note": "- Initial version\n- authentik 2026.8.3 with PostgreSQL 16\n- No Redis needed, authentik stores everything in PostgreSQL\n- HTTPS port 8478 uses a self-signed certificate",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.authentik",
+  "version": "2026.8.3",
+  "categories": [
+    "networking"
+  ],
+  "min_memory": 671088640,
+  "min_image_size": {
+    "amd64": 498429932,
+    "arm64": 495514235
+  }
+}

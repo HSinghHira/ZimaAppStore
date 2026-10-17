@@ -1,0 +1,32 @@
+{
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "author": "HSinghHira",
+  "category": "Productivity",
+  "developer": "AppFlowy-IO",
+  "tagline": "Open-source Notion alternative in one container. Notes, docs, wikis and projects that you own.",
+  "description": "AppFlowy is an open-source workspace for notes, docs, wikis and projects. This is the self-hosted AppFlowy Cloud in a single container, with one port and one data folder. Secret keys are made for you on first start.\n\n**Features**\n\n- Docs, databases, boards, calendars and wikis in one workspace\n- Real-time sync and teamwork across web, desktop and mobile apps\n- Workspaces, members, guests and sharing with access control\n- Publish pages to the web\n- Built-in keyword search\n- PostgreSQL with pgvector, Redis and Silo file storage inside\n- Admin console to manage users and workspaces\n- Bundled Mailpit catches all email (invites, password resets)\n\n**How to use?**\n1. Open AppFlowy AIO from the Zima OS dashboard.\n2. Sign up with your email and password.\n3. Create your first workspace and page.\n4. To use the AppFlowy desktop or mobile app, choose the self-hosted\n   server option and enter your AppFlowy address with port 8481.\n\n5. Manage users at `/console`. Sign in with the admin email and\n   password.\n\n6. Read the email AppFlowy sends at `/mail`.",
+  "tips": {
+    "before_install": "1. Open the app configuration before you install.\n\n2. Find ADMIN_EMAIL. Set it to your own email.\n\n3. Leave ADMIN_PASSWORD blank to get a random one. Or type your own.\n\n4. Find PUBLIC_URL. It starts as http://localhost:8481.\n\n5. To use AppFlowy on other devices, change localhost to your ZimaOS\n   IP address.\n\n\n6. Start the installation.\n\n7. Wait about four minutes for all parts to start.\n\n8. If you left ADMIN_PASSWORD blank, open the app log. Find the line\n   that says \"admin password is\".\n\n\n9. Open AppFlowy AIO from the Zima OS dashboard.\n\n10. Sign up and create your first workspace.\n\n11. Read AppFlowy email at http://your-zimaos-ip:8481/mail.\n\n12. Open the admin console at http://your-zimaos-ip:8481/console.\n    Sign in with your admin email and password."
+  },
+  "is_uncontrolled": false,
+  "update_at": "2026-10-14",
+  "repo": "https://github.com/AppFlowy-IO/AppFlowy-Cloud",
+  "support": "https://github.com/AppFlowy-IO/AppFlowy-Cloud/issues",
+  "docs": "https://github.com/AppFlowy-IO/AppFlowy-Cloud/tree/main/doc",
+  "title": "AppFlowy AIO",
+  "release_note": "- Single-container AppFlowy with one port (8481) and one data folder\n- Secret keys are made on first start, so each install gets its own\n- appflowy_cloud 0.19.2, appflowy_web 0.19.8, appflowy_worker 0.18.8, appflowy_search 0.18.8, gotrue 0.18.8, admin_frontend 0.18.1\n- File storage uses Silo (pgsty/silo), the community fork of MinIO\n- AI service and pgAdmin are not included",
+  "base_url": "https://Zimaos.hsinghhira.me",
+  "id": "com.hiraappstore.appflowyaio",
+  "version": "0.19.2",
+  "categories": [
+    "productivity"
+  ],
+  "min_memory": 536870912,
+  "min_image_size": {
+    "amd64": 607347125,
+    "arm64": 602086484
+  }
+}

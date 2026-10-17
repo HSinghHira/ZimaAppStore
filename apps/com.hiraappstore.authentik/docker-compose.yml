@@ -1,0 +1,152 @@
+name: authentik
+
+services:
+  authentik:
+    image: ghcr.io/goauthentik/server:2026.8.3
+    container_name: authentik
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - authentik_network
+    command: server
+    shm_size: 512mb
+    environment:
+      - AUTHENTIK_SECRET_KEY=STkL+58FPXT0OPB0LGuzATya9//7vPNuU6wD5Ndpwz+PzEdjyIG9ajkpUtJ5rRClfiJb5JPtaK3UABc3
+      - AUTHENTIK_POSTGRESQL__HOST=authentik_postgres
+      - AUTHENTIK_POSTGRESQL__NAME=authentik
+      - AUTHENTIK_POSTGRESQL__USER=authentik
+      - AUTHENTIK_POSTGRESQL__PASSWORD=760be9799de6e360957395bce99dcf12a7521de8032e3874
+    ports:
+      - target: 9000
+        published: "8477"
+        protocol: tcp
+      - target: 9443
+        published: "8478"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/custom-templates
+        target: /templates
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD", "ak", "healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    depends_on:
+      authentik_postgres:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+  authentik_worker:
+    image: ghcr.io/goauthentik/server:2026.8.3
+    container_name: authentik_worker
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - authentik_network
+    command: worker
+    user: root
+    shm_size: 512mb
+    environment:
+      - AUTHENTIK_SECRET_KEY=STkL+58FPXT0OPB0LGuzATya9//7vPNuU6wD5Ndpwz+PzEdjyIG9ajkpUtJ5rRClfiJb5JPtaK3UABc3
+      - AUTHENTIK_POSTGRESQL__HOST=authentik_postgres
+      - AUTHENTIK_POSTGRESQL__NAME=authentik
+      - AUTHENTIK_POSTGRESQL__USER=authentik
+      - AUTHENTIK_POSTGRESQL__PASSWORD=760be9799de6e360957395bce99dcf12a7521de8032e3874
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /data
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/certs
+        target: /certs
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /DATA/AppData/$AppID/custom-templates
+        target: /templates
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD", "ak", "healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    depends_on:
+      authentik_postgres:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.00"
+          memory: 256M
+  authentik_postgres:
+    image: postgres:16-alpine
+    container_name: authentik_postgres
+    restart: unless-stopped
+    stop_grace_period: 40s
+    networks:
+      - authentik_network
+    environment:
+      - TZ=$TZ
+      - POSTGRES_DB=authentik
+      - POSTGRES_USER=authentik
+      - POSTGRES_PASSWORD=760be9799de6e360957395bce99dcf12a7521de8032e3874
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/postgres
+        target: /var/lib/postgresql/data
+        bind:
+          create_host_path: true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d authentik -U authentik"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 512M
+        reservations:
+          cpus: "0.00"
+          memory: 128M
+networks:
+  authentik_network:
+    name: authentik_network
+    driver: bridge
+
+x-casaos:
+  id: com.hiraappstore.authentik
+  main: authentik
+  icon: https://Zimaos.hsinghhira.me/apps/com.hiraappstore.authentik/assets/icon.png
+  title:
+    en_US: authentik
+  index: /
+  port_map: "8477"
+  scheme: http
+  version: "2026.8.3"
